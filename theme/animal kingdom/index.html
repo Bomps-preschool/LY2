@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animal Kingdom Game</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f9f9;
+  text-align: center;
+}
+
+/* Splash Screen */
+#splash {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #ffffff;
+}
+
+#splash img {
+  width: 200px;
+}
+
+/* Game Container */
+#game {
+  display: none;
+  padding: 10px;
+}
+
+/* Question */
+#question {
+  font-size: 22px;
+  margin: 10px;
+  color: #333;
+}
+
+/* Options */
+.options {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.option {
+  width: 30%;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.option img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+}
+
+.option p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* Hint */
+.hint {
+  border: 3px solid orange;
+}
+
+/* Score Screen */
+#scoreScreen {
+  display: none;
+  font-size: 24px;
+  padding-top: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Splash Screen -->
+<div id="splash">
+  <img src="theme/animal kingdom/assets/innovine-logo.png">
+</div>
+
+<!-- Game -->
+<div id="game">
+  <div id="question"></div>
+  <div class="options" id="options"></div>
+</div>
+
+<!-- Score -->
+<div id="scoreScreen"></div>
+
+<!-- Audio -->
+<audio id="correctSound" src="theme/animal kingdom/assets/right.mp3"></audio>
+<audio id="wrongSound" src="theme/animal kingdom/assets/wrong.mp3"></audio>
+
+<script>
+const questions = [
+{q:"Identify the elephant", correct:"elephant", options:["elephant","cat","monkey"]},
+{q:"Identify the lion", correct:"lion", options:["zebra","lion","giraffe"]},
+{q:"Identify the cow", correct:"cow", options:["rabbit","cow","pig"]},
+{q:"Identify the pig", correct:"pig", options:["sheep","pig","monkey"]},
+{q:"Identify the giraffe", correct:"giraffe", options:["giraffe","rabbit","lion"]},
+{q:"Identify the zebra", correct:"zebra", options:["sheep","zebra","rabbit"]},
+{q:"Identify the monkey", correct:"monkey", options:["lion","monkey","giraffe"]},
+{q:"Identify the sheep", correct:"sheep", options:["monkey","giraffe","sheep"]},
+{q:"Identify the cat", correct:"cat", options:["cat","zebra","cow"]},
+{q:"Identify the rabbit", correct:"rabbit", options:["giraffe","lion","rabbit"]}
+];
+
+let current = 0;
+let score = 0;
+let wrongAttempts = 0;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function loadQuestion() {
+  wrongAttempts = 0;
+  optionsEl.innerHTML = "";
+
+  let q = questions[current];
+  questionEl.innerText = q.q;
+
+  let shuffled = shuffle([...q.options]);
+
+  shuffled.forEach(opt => {
+    let div = document.createElement("div");
+    div.className = "option";
+
+    div.innerHTML = `
+      <img src="theme/animal kingdom/assets/${opt}.png">
+      <p>${opt}</p>
+    `;
+
+    div.onclick = () => checkAnswer(opt, div);
+    optionsEl.appendChild(div);
+  });
+}
+
+function checkAnswer(selected, element) {
+  let correct = questions[current].correct;
+
+  if (selected === correct) {
+    document.getElementById("correctSound").play();
+    score++;
+    current++;
+
+    setTimeout(() => {
+      if (current < questions.length) {
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }, 800);
+
+  } else {
+    document.getElementById("wrongSound").play();
+    wrongAttempts++;
+
+    if (wrongAttempts >= 2) {
+      hintAnswer(correct);
+    }
+  }
+}
+
+function hintAnswer(correct) {
+  let options = document.querySelectorAll(".option");
+
+  options.forEach(opt => {
+    if (opt.innerText.toLowerCase() === correct) {
+      opt.classList.add("hint");
+    }
+  });
+}
+
+function showScore() {
+  document.getElementById("game").style.display = "none";
+  let scoreScreen = document.getElementById("scoreScreen");
+  scoreScreen.style.display = "block";
+  scoreScreen.innerHTML = `
+    🎉 You scored ${score}/10 <br><br>
+    You have done a great job!
+  `;
+}
+
+/* Splash Timer */
+setTimeout(() => {
+  document.getElementById("splash").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  loadQuestion();
+}, 5000);
+</script>
+
+</body>
+</html>
