@@ -6,7 +6,12 @@
 <title>Animal Game</title>
 
 <style>
-body { margin:0; font-family:Arial; background:#eef6f7; text-align:center; }
+body {
+  margin:0;
+  font-family:Arial;
+  background:#eef6f7;
+  text-align:center;
+}
 
 #splash {
   display:flex;
@@ -19,7 +24,10 @@ body { margin:0; font-family:Arial; background:#eef6f7; text-align:center; }
 
 #game { display:none; }
 
-#question { font-size:22px; margin:10px; }
+#question {
+  font-size:22px;
+  margin:10px;
+}
 
 .options {
   display:flex;
@@ -40,6 +48,8 @@ body { margin:0; font-family:Arial; background:#eef6f7; text-align:center; }
   height:180px;
   object-fit:contain;
 }
+
+.option p { margin:5px; }
 
 .correctMark, .wrongMark {
   position:absolute;
@@ -110,8 +120,8 @@ function loadQuestion(){
   let q = questions[current];
   document.getElementById("question").innerText = q.q;
 
-  let optionsDiv = document.getElementById("options");
-  optionsDiv.innerHTML = "";
+  let container = document.getElementById("options");
+  container.innerHTML = "";
 
   shuffle([...q.options]).forEach(opt=>{
     let div = document.createElement("div");
@@ -125,7 +135,7 @@ function loadQuestion(){
     `;
 
     div.onclick = ()=>checkAnswer(opt, div);
-    optionsDiv.appendChild(div);
+    container.appendChild(div);
   });
 }
 
@@ -133,7 +143,7 @@ function checkAnswer(selected, el){
   let correct = questions[current].correct;
 
   if(selected === correct){
-    el.querySelector(".correctMark").style.display="block";
+    el.querySelector(".correctMark").style.display = "block";
     playSound("correctSound");
 
     score++;
@@ -144,7 +154,7 @@ function checkAnswer(selected, el){
     },800);
 
   } else {
-    el.querySelector(".wrongMark").style.display="block";
+    el.querySelector(".wrongMark").style.display = "block";
     playSound("wrongSound");
 
     wrongAttempts++;
@@ -153,9 +163,9 @@ function checkAnswer(selected, el){
 }
 
 function showHint(correct){
-  document.querySelectorAll(".option").forEach(o=>{
-    if(o.innerText.toLowerCase() === correct){
-      o.classList.add("hint");
+  document.querySelectorAll(".option").forEach(opt=>{
+    if(opt.innerText.toLowerCase() === correct){
+      opt.classList.add("hint");
     }
   });
 }
@@ -168,12 +178,11 @@ function showScore(){
 }
 
 function playSound(id){
-  let a = document.getElementById(id);
-  a.currentTime = 0;
-  a.play().catch(()=>{});
+  let audio = document.getElementById(id);
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
 }
 
-/* Start */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("game").style.display="block";
