@@ -3,87 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Animal Kingdom Game</title>
+<title>Animal Game</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f9f9;
+  font-family: Arial;
+  background: #eef6f7;
   text-align: center;
 }
 
-/* Splash Screen */
+/* Splash */
 #splash {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:white;
 }
-
 #splash img {
-  width: 200px;
+  width:180px;
 }
 
-/* Game Container */
-#game {
-  display: none;
-  padding: 10px;
-}
+/* Game */
+#game { display:none; }
 
-/* Question */
 #question {
-  font-size: 22px;
-  margin: 10px;
-  color: #333;
+  font-size:22px;
+  margin:10px;
 }
 
-/* Options */
 .options {
-  display: flex;
-  justify-content: space-around;
-  gap: 10px;
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
 }
 
 .option {
-  width: 30%;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  width:30%;
+  background:white;
+  border-radius:12px;
+  padding:8px;
+  position:relative;
 }
 
 .option img {
-  width: 100%;
-  height: 180px;
-  object-fit: contain;
+  width:100%;
+  height:180px;
+  object-fit:contain;
 }
 
 .option p {
-  font-size: 16px;
-  margin: 5px 0;
+  margin:5px;
 }
+
+/* Feedback icons */
+.correctMark, .wrongMark {
+  position:absolute;
+  top:5px;
+  right:5px;
+  font-size:28px;
+  display:none;
+}
+
+.correctMark { color:green; }
+.wrongMark { color:red; }
 
 /* Hint */
 .hint {
-  border: 3px solid orange;
+  border:3px solid orange;
 }
 
-/* Score Screen */
+/* Score */
 #scoreScreen {
-  display: none;
-  font-size: 24px;
-  padding-top: 50px;
+  display:none;
+  font-size:24px;
+  padding-top:50px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- Splash Screen -->
+<!-- Splash -->
 <div id="splash">
-  <img src="theme/animal kingdom/assets/innovine-logo.png">
+  <img src="theme/animal-kingdom/assets/innovine-logo.png">
 </div>
 
 <!-- Game -->
@@ -95,9 +99,9 @@ body {
 <!-- Score -->
 <div id="scoreScreen"></div>
 
-<!-- Audio -->
-<audio id="correctSound" src="theme/animal kingdom/assets/right.mp3"></audio>
-<audio id="wrongSound" src="theme/animal kingdom/assets/wrong.mp3"></audio>
+<!-- Sounds -->
+<audio id="correctSound" src="theme/animal-kingdom/assets/right.mp3"></audio>
+<audio id="wrongSound" src="theme/animal-kingdom/assets/wrong.mp3"></audio>
 
 <script>
 const questions = [
@@ -120,11 +124,11 @@ let wrongAttempts = 0;
 const questionEl = document.getElementById("question");
 const optionsEl = document.getElementById("options");
 
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
 }
 
-function loadQuestion() {
+function loadQuestion(){
   wrongAttempts = 0;
   optionsEl.innerHTML = "";
 
@@ -133,72 +137,77 @@ function loadQuestion() {
 
   let shuffled = shuffle([...q.options]);
 
-  shuffled.forEach(opt => {
+  shuffled.forEach(opt=>{
     let div = document.createElement("div");
     div.className = "option";
 
     div.innerHTML = `
-      <img src="theme/animal kingdom/assets/${opt}.png">
+      <span class="correctMark">✔</span>
+      <span class="wrongMark">✖</span>
+      <img src="theme/animal-kingdom/assets/${opt}.png">
       <p>${opt}</p>
     `;
 
-    div.onclick = () => checkAnswer(opt, div);
+    div.onclick = ()=>checkAnswer(opt, div);
     optionsEl.appendChild(div);
   });
 }
 
-function checkAnswer(selected, element) {
+function checkAnswer(selected, element){
   let correct = questions[current].correct;
 
-  if (selected === correct) {
+  if(selected === correct){
+    element.querySelector(".correctMark").style.display="block";
     document.getElementById("correctSound").play();
+
     score++;
     current++;
 
-    setTimeout(() => {
-      if (current < questions.length) {
+    setTimeout(()=>{
+      if(current < questions.length){
         loadQuestion();
       } else {
         showScore();
       }
-    }, 800);
+    },800);
 
   } else {
+    element.querySelector(".wrongMark").style.display="block";
     document.getElementById("wrongSound").play();
+
     wrongAttempts++;
 
-    if (wrongAttempts >= 2) {
-      hintAnswer(correct);
+    if(wrongAttempts >= 2){
+      showHint(correct);
     }
   }
 }
 
-function hintAnswer(correct) {
-  let options = document.querySelectorAll(".option");
-
-  options.forEach(opt => {
-    if (opt.innerText.toLowerCase() === correct) {
+function showHint(correct){
+  document.querySelectorAll(".option").forEach(opt=>{
+    if(opt.innerText.toLowerCase() === correct){
       opt.classList.add("hint");
     }
   });
 }
 
-function showScore() {
-  document.getElementById("game").style.display = "none";
+function showScore(){
+  document.getElementById("game").style.display="none";
   let scoreScreen = document.getElementById("scoreScreen");
-  scoreScreen.style.display = "block";
+  scoreScreen.style.display="block";
+
   scoreScreen.innerHTML = `
-    🎉 You scored ${score}/10 <br><br>
+    🎉 Score: ${score}/10 <br><br>
     You have done a great job!
   `;
 }
 
-/* Splash Timer */
-setTimeout(() => {
-  document.getElementById("splash").style.display = "none";
-  document.getElementById("game").style.display = "block";
+/* Start after splash */
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+  document.getElementById("game").style.display="block";
   loadQuestion();
-}, 5000);
+},5000);
 </script>
 
 </body>
