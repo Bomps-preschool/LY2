@@ -11,6 +11,8 @@ body {
   overflow:hidden;
   background-color: #C8E6C9;
 }
+
+/* Screens */
 #logoScreen, #gameScreen, #winScreen {
   display:none;
   width:100vw;
@@ -26,10 +28,12 @@ body {
   width:35vw; max-width:300px;
   height:auto;
 }
+
+/* Game screen */
 #gameScreen {
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:flex-start;
   align-items:center;
   padding:2vw;
   box-sizing:border-box;
@@ -39,9 +43,8 @@ body {
   background-position: center;
 }
 #instruction {
-  position:absolute;
-  top:2vh;
-  width:100%;
+  margin-top:1vh;
+  width:90%;
   text-align:center;
   font-size:2vw;
   max-font-size:20px;
@@ -50,36 +53,44 @@ body {
   text-shadow: 1px 1px 2px #fff;
   z-index:10;
 }
+
+/* Object images */
 #objectsContainer {
   display:flex;
   flex-wrap: wrap;
   justify-content:center;
   gap:1vw;
-  margin-top:2vh;
+  margin-top:3vh;
 }
 .object {
-  width:50px;
-  height:50px;
+  width:80px;  /* Increased */
+  height:80px;
+  margin:0.5vw;
 }
+
+/* Options at bottom */
 .options {
   display:flex;
   justify-content:center;
   gap:2vw;
   flex-wrap: wrap;
-  margin-top:2vh;
+  position:absolute;
+  bottom:5vh;  /* Moved near bottom */
+  left:50%;
+  transform: translateX(-50%);
 }
 .optionBtn {
   padding:1vh 2vw;
   font-size:4vw;
-  max-font-size:24px;
+  max-font-size:28px;
   border-radius:10px;
   border:none;
   cursor:pointer;
   background-color:#ffcc80;
 }
-.optionBtn:hover {
-  background-color:#ffb74d;
-}
+.optionBtn:hover { background-color:#ffb74d; }
+
+/* Win Screen */
 #winScreen {
   display:flex;
   flex-direction:column;
@@ -104,6 +115,8 @@ body {
   cursor:pointer;
 }
 #playAgainBtn:hover {background-color:#45a049;}
+
+/* Confetti */
 .confetti {
   position:absolute;
   width:3vw; height:3vw;
@@ -120,16 +133,19 @@ body {
 </head>
 <body>
 
+<!-- Logo Screen -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
+<!-- Game Screen -->
 <div id="gameScreen">
   <div id="instruction">Count the objects and tap the correct number!</div>
   <div id="objectsContainer"></div>
   <div class="options" id="optionsContainer"></div>
 </div>
 
+<!-- Win Screen -->
 <div id="winScreen">
   <h1>Congratulations!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -162,7 +178,7 @@ const audios = [
   document.getElementById('audio5')
 ];
 
-// Slides data with object counts
+// Slides data
 let slides = [
   {img:'assets/teddy.png', count:8, audio:audios[0]},
   {img:'assets/butterfly.png', count:6, audio:audios[1]},
