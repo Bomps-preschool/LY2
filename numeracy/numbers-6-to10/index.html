@@ -28,7 +28,7 @@ body {
   height:auto;
 }
 
-/* Game screen with soft pastel gradient */
+/* Game screen with pastel gradient */
 #gameScreen {
   display:flex;
   flex-direction:column;
@@ -39,7 +39,6 @@ body {
   position:relative;
   background: linear-gradient(135deg, #C8E6C9 0%, #E0F7FA 50%, #FFF9C4 100%);
 }
-
 #instruction {
   margin-top:1vh;
   width:90%;
@@ -62,8 +61,8 @@ body {
   max-width:90vw;
 }
 .object {
-  width:150px;
-  height:150px;
+  width:90px;
+  height:90px;
   margin:0.5vw;
 }
 
@@ -128,23 +127,30 @@ body {
   0% { transform: translate(0,0) rotate(0deg); opacity:1; }
   100% { transform: translate(var(--x,0vw),100vh) rotate(360deg); opacity:0; }
 }
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .object { width:60px; height:60px; }
+  .optionBtn { font-size:5vw; }
+  #instruction { font-size:3vw; }
+}
 </style>
 </head>
 <body>
 
-<!-- Logo Screen -->
+<!-- Slide 1: Logo -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
+<!-- Slide 2-6: Game -->
 <div id="gameScreen">
   <div id="instruction">Count the objects and tap the correct number!</div>
   <div id="objectsContainer"></div>
   <div class="options" id="optionsContainer"></div>
 </div>
 
-<!-- Win Screen -->
+<!-- Slide 7: Win -->
 <div id="winScreen">
   <h1>Congratulations!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -177,7 +183,6 @@ const audios = [
   document.getElementById('audio5')
 ];
 
-// Slides data
 let slides = [
   {img:'assets/teddy.png', count:8, audio:audios[0]},
   {img:'assets/butterfly.png', count:6, audio:audios[1]},
@@ -188,12 +193,10 @@ let slides = [
 
 let currentSlideIndex = 0;
 
-// Shuffle slides
 function shuffleSlides() {
   slides.sort(()=>0.5-Math.random());
 }
 
-// Start Game
 function startGame(){
   logoScreen.style.display='flex';
   gameScreen.style.display='none';
@@ -207,7 +210,6 @@ function startGame(){
   },5000);
 }
 
-// Show Slide
 function showSlide(index){
   const slide = slides[index];
   objectsContainer.innerHTML='';
@@ -218,10 +220,9 @@ function showSlide(index){
     objectsContainer.appendChild(obj);
   }
 
-  // Options
   let options = [slide.count];
   while(options.length<3){
-    let rand = Math.floor(Math.random()*5)+6; // 6-10
+    let rand = Math.floor(Math.random()*5)+6; 
     if(!options.includes(rand)) options.push(rand);
   }
   options.sort(()=>0.5-Math.random());
@@ -252,7 +253,6 @@ function showSlide(index){
   });
 }
 
-// Confetti
 function createConfetti(){
   const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
   for(let i=0;i<100;i++){
@@ -267,7 +267,6 @@ function createConfetti(){
   }
 }
 
-// Play Again
 playAgainBtn.addEventListener('click', ()=>{startGame();});
 
 startGame();
