@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting Objects 6-10</title>
+<style>
+body {
+  margin:0;
+  font-family:'Comic Sans MS', sans-serif;
+  overflow:hidden;
+  background-color: #C8E6C9; /* Soft mint green */
+}
+
+/* Slides */
+#logoScreen, #gameScreen, #winScreen {
+  display:none;
+  width:100vw;
+  height:100vh;
+  position:absolute;
+  top:0; left:0;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#logoScreen img {
+  width:35vw; max-width:300px;
+  height:auto;
+}
+
+/* Game screen */
+#gameScreen {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:2vw;
+  box-sizing:border-box;
+  position:relative;
+  background-image: url('assets/background-room.png');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Instruction */
+#instruction {
+  position: absolute;
+  top: 2vh;
+  width: 100%;
+  text-align: center;
+  font-size: 2vw;
+  max-font-size: 20px;
+  font-weight: bold;
+  color: #003366;
+  text-shadow: 1px 1px 2px #fff;
+  z-index: 10;
+}
+
+/* Object Image */
+#objectImg {
+  width: 35vw; max-width:250px;
+  height:auto;
+  margin-bottom: 2vh;
+}
+
+/* Option Buttons */
+.options {
+  display:flex;
+  justify-content:center;
+  gap:2vw;
+  flex-wrap: wrap;
+  margin-top:2vh;
+}
+.optionBtn {
+  padding:1vh 2vw;
+  font-size:4vw; max-font-size:24px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  background-color:#ffcc80;
+}
+.optionBtn:hover {
+  background-color:#ffb74d;
+}
+
+/* Win Screen */
+#winScreen {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background: rgba(255,255,255,0.9);
+  z-index: 10;
+}
+#winScreen h1 {
+  font-size:7vw;
+  max-font-size:48px;
+  color:#28a745;
+  margin-bottom:2vh;
+}
+#playAgainBtn {
+  padding:2vh 4vw;
+  font-size:4vw; max-font-size:24px;
+  border:none;
+  border-radius:10px;
+  background-color:#4CAF50;
+  color:white;
+  cursor:pointer;
+}
+#playAgainBtn:hover {background-color:#45a049;}
+
+/* Confetti */
+.confetti {
+  position:absolute;
+  width:3vw; height:3vw;
+  max-width:20px; max-height:20px;
+  background-size:contain;
+  z-index:20;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  0% { transform: translate(0,0) rotate(0deg); opacity:1; }
+  100% { transform: translate(var(--x,0vw),100vh) rotate(360deg); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Innovine Logo -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Slide 2-6: Game -->
+<div id="gameScreen">
+  <div id="instruction">Count the objects and tap the correct number!</div>
+  <img id="objectImg" src="" alt="Object Image">
+  <div class="options" id="optionsContainer"></div>
+</div>
+
+<!-- Slide 7: Win -->
+<div id="winScreen">
+  <h1>Congratulations!</h1>
+  <button id="playAgainBtn">Play Again</button>
+</div>
+
+<!-- Audio -->
+<audio id="correctAudio" src="assets/right.mp3"></audio>
+<audio id="wrongAudio" src="assets/wrong.mp3"></audio>
+<audio id="audio1" src="assets/very-good.mp3"></audio>
+<audio id="audio2" src="assets/well-done.mp3"></audio>
+<audio id="audio3" src="assets/good-job.mp3"></audio>
+<audio id="audio4" src="assets/superb.mp3"></audio>
+<audio id="audio5" src="assets/excellent.mp3"></audio>
+
+<script>
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const winScreen = document.getElementById('winScreen');
+const objectImg = document.getElementById('objectImg');
+const optionsContainer = document.getElementById('optionsContainer');
+const playAgainBtn = document.getElementById('playAgainBtn');
+
+const correctAudio = document.getElementById('correctAudio');
+const wrongAudio = document.getElementById('wrongAudio');
+const audios = [document.getElementById('audio1'), document.getElementById('audio2'), document.getElementById('audio3'), document.getElementById('audio4'), document.getElementById('audio5')];
+
+// Slides data
+let slides = [
+  {img:'assets/teddy.png', count:8, audio:audios[0]},
+  {img:'assets/butterfly.png', count:6, audio:audios[1]},
+  {img:'assets/crayon.png', count:10, audio:audios[2]},
+  {img:'assets/popsicle.png', count:7, audio:audios[3]},
+  {img:'assets/balloon.png', count:9, audio:audios[4]},
+];
+
+let currentSlideIndex = 0;
+
+// Shuffle slides for Play Again
+function shuffleSlides() {
+  slides.sort(()=>0.5-Math.random());
+}
+
+// Start Game
+function startGame() {
+  logoScreen.style.display='flex';
+  gameScreen.style.display='none';
+  winScreen.style.display='none';
+  setTimeout(()=>{
+    logoScreen.style.display='none';
+    shuffleSlides();
+    currentSlideIndex=0;
+    showSlide(currentSlideIndex);
+    gameScreen.style.display='flex';
+  },5000);
+}
+
+// Show Slide
+function showSlide(index){
+  const slide = slides[index];
+  objectImg.src = slide.img;
+  // Generate 3 options including correct count
+  let options = [slide.count];
+  while(options.length<3){
+    let rand = Math.floor(Math.random()*5)+6;
+    if(!options.includes(rand)) options.push(rand);
+  }
+  options.sort(()=>0.5-Math.random());
+  optionsContainer.innerHTML='';
+  options.forEach(opt=>{
+    let btn=document.createElement('button');
+    btn.classList.add('optionBtn');
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>{
+      if(opt===slide.count){
+        correctAudio.currentTime=0; correctAudio.play();
+        slide.audio.currentTime=0; slide.audio.play();
+        slide.audio.onended = ()=>{
+          currentSlideIndex++;
+          if(currentSlideIndex<slides.length){
+            showSlide(currentSlideIndex);
+          } else {
+            gameScreen.style.display='none';
+            winScreen.style.display='flex';
+            createConfetti();
+          }
+        };
+      } else {
+        wrongAudio.currentTime=0; wrongAudio.play();
+      }
+    });
+    optionsContainer.appendChild(btn);
+  });
+}
+
+// Confetti
+function createConfetti(){
+  const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
+  for(let i=0;i<100;i++){
+    const c=document.createElement('div');
+    c.classList.add('confetti');
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.left = Math.random()*100+'vw';
+    c.style.top = Math.random()*80+'vh';
+    c.style.animationDuration = (2 + Math.random()*3)+'s';
+    winScreen.appendChild(c);
+    setTimeout(()=>c.remove(),5500);
+  }
+}
+
+// Play Again
+playAgainBtn.addEventListener('click', ()=>{startGame();});
+
+startGame();
+</script>
+</body>
+</html>
