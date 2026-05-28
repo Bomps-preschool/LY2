@@ -9,7 +9,6 @@ body {
   margin:0;
   font-family:'Comic Sans MS', sans-serif;
   overflow:hidden;
-  background-color: #C8E6C9;
 }
 
 /* Screens */
@@ -38,9 +37,7 @@ body {
   padding:2vw;
   box-sizing:border-box;
   position:relative;
-  background-image: url('assets/background-room.png');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(to bottom, #c8e6c9 0%, #a5d6a7 100%);
 }
 #instruction {
   margin-top:1vh;
@@ -64,8 +61,8 @@ body {
   max-width:90vw;
 }
 .object {
-  width:120px;  /* bigger */
-  height:120px;
+  width:150px;
+  height:150px;
   margin:0.5vw;
 }
 
@@ -76,7 +73,7 @@ body {
   gap:2vw;
   flex-wrap: wrap;
   position:absolute;
-  bottom:5vh;  /* near bottom */
+  bottom:5vh;
   left:50%;
   transform: translateX(-50%);
 }
