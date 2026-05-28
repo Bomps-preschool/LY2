@@ -9,27 +9,23 @@ body {
   margin:0;
   font-family:'Comic Sans MS', sans-serif;
   overflow:hidden;
-  background-color: #C8E6C9; /* Soft mint green */
+  background-color: #C8E6C9;
 }
-
-/* Slides */
 #logoScreen, #gameScreen, #winScreen {
   display:none;
   width:100vw;
   height:100vh;
   position:absolute;
-  top:0; left:0;
+  top:0;
+  left:0;
   justify-content:center;
   align-items:center;
   flex-direction:column;
 }
-
 #logoScreen img {
   width:35vw; max-width:300px;
   height:auto;
 }
-
-/* Game screen */
 #gameScreen {
   display:flex;
   flex-direction:column;
@@ -42,29 +38,29 @@ body {
   background-size: cover;
   background-position: center;
 }
-
-/* Instruction */
 #instruction {
-  position: absolute;
-  top: 2vh;
-  width: 100%;
-  text-align: center;
-  font-size: 2vw;
-  max-font-size: 20px;
-  font-weight: bold;
-  color: #003366;
+  position:absolute;
+  top:2vh;
+  width:100%;
+  text-align:center;
+  font-size:2vw;
+  max-font-size:20px;
+  font-weight:bold;
+  color:#003366;
   text-shadow: 1px 1px 2px #fff;
-  z-index: 10;
+  z-index:10;
 }
-
-/* Object Image */
-#objectImg {
-  width: 35vw; max-width:250px;
-  height:auto;
-  margin-bottom: 2vh;
+#objectsContainer {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content:center;
+  gap:1vw;
+  margin-top:2vh;
 }
-
-/* Option Buttons */
+.object {
+  width:50px;
+  height:50px;
+}
 .options {
   display:flex;
   justify-content:center;
@@ -74,7 +70,8 @@ body {
 }
 .optionBtn {
   padding:1vh 2vw;
-  font-size:4vw; max-font-size:24px;
+  font-size:4vw;
+  max-font-size:24px;
   border-radius:10px;
   border:none;
   cursor:pointer;
@@ -83,8 +80,6 @@ body {
 .optionBtn:hover {
   background-color:#ffb74d;
 }
-
-/* Win Screen */
 #winScreen {
   display:flex;
   flex-direction:column;
@@ -109,8 +104,6 @@ body {
   cursor:pointer;
 }
 #playAgainBtn:hover {background-color:#45a049;}
-
-/* Confetti */
 .confetti {
   position:absolute;
   width:3vw; height:3vw;
@@ -127,19 +120,16 @@ body {
 </head>
 <body>
 
-<!-- Slide 1: Innovine Logo -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Slide 2-6: Game -->
 <div id="gameScreen">
   <div id="instruction">Count the objects and tap the correct number!</div>
-  <img id="objectImg" src="" alt="Object Image">
+  <div id="objectsContainer"></div>
   <div class="options" id="optionsContainer"></div>
 </div>
 
-<!-- Slide 7: Win -->
 <div id="winScreen">
   <h1>Congratulations!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -158,15 +148,21 @@ body {
 const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const winScreen = document.getElementById('winScreen');
-const objectImg = document.getElementById('objectImg');
+const objectsContainer = document.getElementById('objectsContainer');
 const optionsContainer = document.getElementById('optionsContainer');
 const playAgainBtn = document.getElementById('playAgainBtn');
 
 const correctAudio = document.getElementById('correctAudio');
 const wrongAudio = document.getElementById('wrongAudio');
-const audios = [document.getElementById('audio1'), document.getElementById('audio2'), document.getElementById('audio3'), document.getElementById('audio4'), document.getElementById('audio5')];
+const audios = [
+  document.getElementById('audio1'),
+  document.getElementById('audio2'),
+  document.getElementById('audio3'),
+  document.getElementById('audio4'),
+  document.getElementById('audio5')
+];
 
-// Slides data
+// Slides data with object counts
 let slides = [
   {img:'assets/teddy.png', count:8, audio:audios[0]},
   {img:'assets/butterfly.png', count:6, audio:audios[1]},
@@ -177,13 +173,13 @@ let slides = [
 
 let currentSlideIndex = 0;
 
-// Shuffle slides for Play Again
+// Shuffle slides
 function shuffleSlides() {
   slides.sort(()=>0.5-Math.random());
 }
 
 // Start Game
-function startGame() {
+function startGame(){
   logoScreen.style.display='flex';
   gameScreen.style.display='none';
   winScreen.style.display='none';
@@ -199,11 +195,18 @@ function startGame() {
 // Show Slide
 function showSlide(index){
   const slide = slides[index];
-  objectImg.src = slide.img;
-  // Generate 3 options including correct count
+  objectsContainer.innerHTML='';
+  for(let i=0;i<slide.count;i++){
+    let obj = document.createElement('img');
+    obj.src = slide.img;
+    obj.classList.add('object');
+    objectsContainer.appendChild(obj);
+  }
+
+  // Options
   let options = [slide.count];
   while(options.length<3){
-    let rand = Math.floor(Math.random()*5)+6;
+    let rand = Math.floor(Math.random()*5)+6; // 6-10
     if(!options.includes(rand)) options.push(rand);
   }
   options.sort(()=>0.5-Math.random());
@@ -211,7 +214,7 @@ function showSlide(index){
   options.forEach(opt=>{
     let btn=document.createElement('button');
     btn.classList.add('optionBtn');
-    btn.textContent = opt;
+    btn.textContent=opt;
     btn.addEventListener('click', ()=>{
       if(opt===slide.count){
         correctAudio.currentTime=0; correctAudio.play();
