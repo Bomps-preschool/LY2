@@ -5,231 +5,147 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Transportation Game</title>
 <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        font-family: 'Comic Sans MS', sans-serif;
-        overflow-x: hidden;
-    }
-    #logo-screen, #game-screen, #congrats-screen {
-        width: 100vw;
-        height: 100vh;
-        display: none;
-        justify-content: center;
-        align-items: center;
-    }
-    #logo-screen img {
-        max-width: 100%;
-        height: 100%;
-    }
-    #game-screen {
-        display: flex;
-        flex-direction: row;
-        background: #cce7ff;
-        padding: 10px;
-        box-sizing: border-box;
-    }
-    #vehicles {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        padding: 10px;
-    }
-    .vehicle {
-        width: 100%;
-        cursor: grab;
-        max-width: 50px;
-        height: 100%;
-    }
-    #zones {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        justify-content: space-evenly;
-        background: url('assets/background-zones.png') no-repeat center/cover;
-        padding: 10px;
-        box-sizing: border-box;
-    }
-    .zone {
-        flex: 1;
-        border: 3px dashed #28a745;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 5px 0;
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: black;
-        text-align: center;
-    }
-    #congrats-screen {
-        background: #fceabb;
-        flex-direction: column;
-    }
-    #confetti-canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body, html { width: 100%; height: 100%; font-family: 'Comic Sans MS', cursive, sans-serif; background: #b3e5fc; display: flex; justify-content: center; align-items: center; }
+
+  #game-container { width: 95vw; max-width: 1200px; height: 95vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  #logo-slide, #game-slide, #congrats-slide { width: 100%; height: 100%; display: none; position: relative; }
+
+  #logo-slide img { max-width: 300px; max-height: 300px; display: block; margin: auto; }
+
+  #game-slide { display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; }
+  #vehicles { display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+  #vehicles img { width: 80px; cursor: grab; transition: transform 0.2s; }
+  #zones-container { position: relative; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-around; align-items: center; height: 100%; }
+  .zone { border: 3px dashed #006400; width: 100%; max-width: 800px; height: 25%; background: url('assets/background-zones.png') no-repeat center center; background-size: contain; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
+
+  #congrats-slide { display: flex; flex-direction: column; justify-content: center; align-items: center; background: #c8e6c9; }
+  #congrats-slide h1 { font-size: 3em; margin-bottom: 20px; }
+  #play-again { padding: 15px 30px; font-size: 1.5em; background: #ffeb3b; border: none; border-radius: 10px; cursor: pointer; }
+
+  /* Confetti */
+  .confetti { position: absolute; width: 10px; height: 10px; background: #f44336; animation: fall 3s linear infinite; }
+  @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); } 100% { transform: translateY(100vh) rotate(360deg); } }
+
+  /* Responsive scaling */
+  @media (max-width: 768px) {
+    #game-slide { flex-direction: column; align-items: center; }
+    #vehicles { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    #vehicles img { width: 60px; }
+    .zone { height: 150px; font-size: 1.2em; }
+  }
 </style>
 </head>
 <body>
 
-<div id="logo-screen">
+<div id="game-container">
+
+  <!-- Innovine Logo Slide -->
+  <div id="logo-slide">
     <img src="assets/innovine-logo.png" alt="Innovine Logo">
-</div>
+  </div>
 
-<div id="game-screen">
+  <!-- Game Slide -->
+  <div id="game-slide">
+    <!-- Vehicles -->
     <div id="vehicles">
-        <img src="assets/airplane.png" id="airplane" class="vehicle" draggable="true">
-        <img src="assets/helicopter.png" id="helicopter" class="vehicle" draggable="true">
-        <img src="assets/car.png" id="car" class="vehicle" draggable="true">
-        <img src="assets/bus.png" id="bus" class="vehicle" draggable="true">
-        <img src="assets/truck.png" id="truck" class="vehicle" draggable="true">
-        <img src="assets/boat.png" id="boat" class="vehicle" draggable="true">
-        <img src="assets/ship.png" id="ship" class="vehicle" draggable="true">
+      <img src="assets/airplane.png" draggable="true" data-type="air" alt="Airplane">
+      <img src="assets/helicopter.png" draggable="true" data-type="air" alt="Helicopter">
+      <img src="assets/car.png" draggable="true" data-type="road" alt="Car">
+      <img src="assets/bus.png" draggable="true" data-type="road" alt="Bus">
+      <img src="assets/truck.png" draggable="true" data-type="road" alt="Truck">
+      <img src="assets/boat.png" draggable="true" data-type="water" alt="Boat">
+      <img src="assets/ship.png" draggable="true" data-type="water" alt="Ship">
     </div>
-    <div id="zones">
-        <div id="zone-air" class="zone" data-accept="airplane,helicopter">Air Transport</div>
-        <div id="zone-road" class="zone" data-accept="car,bus,truck">Road Transport</div>
-        <div id="zone-water" class="zone" data-accept="boat,ship">Water Transport</div>
-    </div>
-</div>
 
-<div id="congrats-screen">
+    <!-- Zones -->
+    <div id="zones-container">
+      <div class="zone" data-type="air">Air Transport</div>
+      <div class="zone" data-type="road">Road Transport</div>
+      <div class="zone" data-type="water">Water Transport</div>
+    </div>
+  </div>
+
+  <!-- Congrats Slide -->
+  <div id="congrats-slide">
     <h1>Good Job!</h1>
-    <button onclick="restartGame()">Play Again</button>
-    <canvas id="confetti-canvas"></canvas>
+    <button id="play-again">Play Again</button>
+  </div>
+
 </div>
 
-<audio id="audio-correct" src="assets/excellent.mp3"></audio>
-<audio id="audio-wrong" src="assets/wrong.mp3"></audio>
-<audio id="audio-claps" src="assets/claps.mp3"></audio>
+<audio id="sound-correct" src="assets/excellent.mp3"></audio>
+<audio id="sound-wrong" src="assets/wrong.mp3"></audio>
 
 <script>
-let dragged = null;
-const vehicles = document.querySelectorAll('.vehicle');
+const logoSlide = document.getElementById('logo-slide');
+const gameSlide = document.getElementById('game-slide');
+const congratsSlide = document.getElementById('congrats-slide');
+const vehicles = document.querySelectorAll('#vehicles img');
 const zones = document.querySelectorAll('.zone');
-const correctAudio = document.getElementById('audio-correct');
-const wrongAudio = document.getElementById('audio-wrong');
-const clapsAudio = document.getElementById('audio-claps');
-const logoScreen = document.getElementById('logo-screen');
-const gameScreen = document.getElementById('game-screen');
-const congratsScreen = document.getElementById('congrats-screen');
+const soundCorrect = document.getElementById('sound-correct');
+const soundWrong = document.getElementById('sound-wrong');
+const playAgain = document.getElementById('play-again');
 
-let correctCount = 0;
+// Show logo for 5 seconds
+logoSlide.style.display = 'block';
+setTimeout(() => {
+  logoSlide.style.display = 'none';
+  gameSlide.style.display = 'flex';
+}, 5000);
 
-function showLogo() {
-    logoScreen.style.display = 'flex';
-    setTimeout(() => {
-        logoScreen.style.display = 'none';
-        gameScreen.style.display = 'flex';
-    }, 5000);
-}
-
+// Drag & Drop
 vehicles.forEach(vehicle => {
-    vehicle.addEventListener('dragstart', e => {
-        dragged = vehicle;
-        setTimeout(() => { vehicle.style.display = 'none'; }, 0);
-    });
-    vehicle.addEventListener('dragend', e => {
-        dragged.style.display = 'block';
-        dragged = null;
-    });
+  vehicle.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('type', vehicle.dataset.type);
+    e.dataTransfer.setData('id', vehicle.src);
+  });
 });
 
 zones.forEach(zone => {
-    zone.addEventListener('dragover', e => e.preventDefault());
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        if (!dragged) return;
-        const accepted = zone.getAttribute('data-accept').split(',');
-        if (accepted.includes(dragged.id)) {
-            zone.appendChild(dragged);
-            dragged.style.position = 'relative';
-            dragged.style.left = '0';
-            dragged.style.top = '0';
-            correctAudio.play();
-            correctCount++;
-            checkCompletion();
-        } else {
-            wrongAudio.play();
-            dragged.style.display = 'block';
-        }
-    });
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('type');
+    const id = e.dataTransfer.getData('id');
+    const vehicleImg = document.querySelector(`#vehicles img[src="${id}"]`);
+    if (zone.dataset.type === type) {
+      zone.appendChild(vehicleImg);
+      vehicleImg.style.width = '80%';
+      vehicleImg.style.cursor = 'default';
+      vehicleImg.draggable = false;
+      soundCorrect.play();
+      checkWin();
+    } else {
+      soundWrong.play();
+    }
+  });
 });
 
-function checkCompletion() {
-    if (correctCount === vehicles.length) {
-        gameScreen.style.display = 'none';
-        congratsScreen.style.display = 'flex';
-        startConfetti();
-    }
+function checkWin() {
+  const allPlaced = [...vehicles].every(v => !v.draggable);
+  if (allPlaced) {
+    gameSlide.style.display = 'none';
+    congratsSlide.style.display = 'flex';
+    launchConfetti();
+  }
 }
 
-function restartGame() {
-    location.reload();
+// Confetti effect
+function launchConfetti() {
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.left = Math.random() * window.innerWidth + 'px';
+    confetti.style.background = `hsl(${Math.random()*360}, 70%, 60%)`;
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+  }
 }
 
-/* Confetti code */
-const canvas = document.getElementById('confetti-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-let confettiParticles = [];
-
-function initConfetti() {
-    confettiParticles = [];
-    for (let i = 0; i < 100; i++) {
-        confettiParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 6 + 4,
-            d: Math.random() * 20 + 10,
-            color: `hsl(${Math.random()*360}, 70%, 60%)`,
-            tilt: Math.random() * 10 - 10,
-            tiltAngleIncremental: Math.random() * 0.07 + 0.05
-        });
-    }
-}
-
-function drawConfetti() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confettiParticles.forEach(p => {
-        ctx.beginPath();
-        ctx.lineWidth = p.r;
-        ctx.strokeStyle = p.color;
-        ctx.moveTo(p.x + p.tilt + p.r/2, p.y);
-        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r/2);
-        ctx.stroke();
-    });
-    updateConfetti();
-    requestAnimationFrame(drawConfetti);
-}
-
-function updateConfetti() {
-    confettiParticles.forEach(p => {
-        p.tiltAngle += p.tiltAngleIncremental;
-        p.y += (Math.cos(p.d) + 3 + p.r/2)/2;
-        p.tilt = Math.sin(p.tiltAngle) * 15;
-        if (p.y > canvas.height) {
-            p.y = -10;
-            p.x = Math.random() * canvas.width;
-        }
-    });
-}
-
-function startConfetti() {
-    initConfetti();
-    drawConfetti();
-}
-
-window.onload = showLogo;
-window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+// Play again button
+playAgain.addEventListener('click', () => location.reload());
 </script>
 
 </body>
