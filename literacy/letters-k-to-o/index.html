@@ -3,41 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Letters K–O Game</title>
+<title>Letters K to O Game</title>
 <style>
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:'Comic Sans MS',sans-serif;
-    background-color:#d9f2e6;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-  }
-  #logoScreen, #gameScreen, #tracingScreen, #congratsScreen{
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    width:100%;
-    height:100vh;
-  }
-  #logoScreen img{width:350px;height:auto;}
-  #gameScreen{position:relative;width:100%;max-width:900px;height:600px;background-color:#f0f5f0;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:20px;}
-  #box-container{flex:1;display:flex;justify-content:center;align-items:center;height:100%;}
-  #object-container{flex:2;display:flex;justify-content:center;align-items:center;}
-  #options-container{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;}
-  .letter-box{background-color:#ffdc99;padding:20px 25px;margin:15px;font-size:30px;cursor:pointer;border-radius:10px;user-select:none;}
-  #voice-btn{position:fixed;left:20px;bottom:20px;width:150px;height:150px;cursor:pointer;}
-  .object-img,.box-img{max-width:300px;width:100%;max-height:300px;}
-  #tracingScreen{flex-direction:column;align-items:center;justify-content:center;}
-  #tracing-instruction{font-size:36px;margin-bottom:20px;text-align:center;}
-  #tracingLetter{font-size:180px;font-weight:bold;text-align:center;}
-  #nextBtn{margin-top:30px;padding:12px 30px;font-size:20px;border:none;border-radius:10px;background-color:#4CAF50;color:white;cursor:pointer;}
-  #congratsScreen{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:48px;color:green;}
-  #playAgainBtn{margin-top:20px;padding:12px 30px;font-size:24px;border:none;border-radius:12px;background-color:#ff9800;color:white;cursor:pointer;}
-  .confetti{position:absolute;width:10px;height:10px;border-radius:50%;animation:fall 3s linear forwards;}
-  @keyframes fall{0%{transform:translateY(0) rotate(0deg);}100%{transform:translateY(700px) rotate(360deg);opacity:0;}}
+* {box-sizing:border-box; margin:0; padding:0;}
+body {font-family:'Comic Sans MS', sans-serif; background:#d7f0e2; display:flex; justify-content:center; align-items:center; min-height:100vh; overflow-x:hidden;}
+#logoScreen,#objectScreen,#tracingScreen,#congratsScreen {display:none; flex-direction:column; align-items:center; width:100%; max-width:1000px; padding:20px;}
+#logoScreen img {width:300px;}
+#objectScreen {display:flex; flex-direction:row; justify-content:space-between; width:100%;}
+#objectScreen .box-container {flex:1; display:flex; justify-content:center; align-items:center;}
+#objectScreen .letter-container {flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px;}
+.letter-btn {background:#ffdd99; font-size:2rem; padding:15px 25px; border-radius:10px; cursor:pointer; text-align:center; user-select:none;}
+.letter-btn:hover {background:#ffc966;}
+.object-img {width:250px; height:auto; cursor:pointer;}
+#tracingScreen {flex-direction:column; align-items:center; gap:30px;}
+#tracingCanvas {border:2px dashed #555; touch-action:none; background:#fff;}
+#nextTracingBtn,#playAgainBtn {padding:10px 25px; font-size:18px; margin-top:15px; cursor:pointer; border-radius:10px; border:none; background-color:#4CAF50; color:white;}
+#nextTracingBtn:hover,#playAgainBtn:hover {background-color:#45a049;}
+#voiceBtn {position:absolute; left:20px; bottom:20px; width:150px; height:150px; cursor:pointer;}
+#congratsScreen {font-size:2rem; justify-content:center; text-align:center;}
+.confetti {position:absolute; width:10px; height:10px; background-color:red; animation:fall 3s linear forwards;}
+@keyframes fall {to {transform:translateY(100vh) rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -46,143 +31,158 @@
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<div id="gameScreen">
-  <div id="box-container">
-    <img src="assets/box-k.png" id="current-box" class="box-img">
+<div id="objectScreen">
+  <div class="box-container">
+    <img id="objectBox" class="object-img" src="" alt="Box">
+    <img id="revealedObject" class="object-img" style="display:none;" src="" alt="Object">
   </div>
-  <div id="object-container">
-    <img id="current-object" class="object-img" src="">
-  </div>
-  <div id="options-container">
-    <div class="letter-box" data-letter="A">A</div>
-    <div class="letter-box" data-letter="G">G</div>
-    <div class="letter-box" data-letter="K">K</div>
-  </div>
-  <img id="voice-btn" src="assets/voice-icon.png" alt="Voice Icon">
+  <div class="letter-container" id="letterOptions"></div>
+  <img id="voiceBtn" src="assets/voice-icon.png" alt="Voice Button">
 </div>
 
 <div id="tracingScreen">
-  <div id="tracing-instruction">Trace the letter</div>
-  <div id="tracingLetter">K</div>
-  <button id="nextBtn">Next</button>
+  <h2 id="tracingInstruction">Trace the letter</h2>
+  <canvas id="tracingCanvas" width="400" height="400"></canvas>
+  <button id="nextTracingBtn">Next</button>
 </div>
 
 <div id="congratsScreen">
-  Well Done!
+  <h1>🎉 Well Done! 🎉</h1>
   <button id="playAgainBtn">Play Again</button>
 </div>
 
-<audio id="audioLetter"></audio>
-<audio id="audioClap" src="assets/claps.mp3"></audio>
-<audio id="audioCorrect" src="assets/correct.mp3"></audio>
-<audio id="audioWrong" src="assets/wrong.mp3"></audio>
-
 <script>
-const logoScreen=document.getElementById('logoScreen');
-const gameScreen=document.getElementById('gameScreen');
-const tracingScreen=document.getElementById('tracingScreen');
-const congratsScreen=document.getElementById('congratsScreen');
-const currentBox=document.getElementById('current-box');
-const currentObject=document.getElementById('current-object');
-const letterOptions=document.querySelectorAll('.letter-box');
-const voiceBtn=document.getElementById('voice-btn');
-const tracingLetter=document.getElementById('tracingLetter');
-const nextBtn=document.getElementById('nextBtn');
-const playAgainBtn=document.getElementById('playAgainBtn');
-
-const audioLetter=document.getElementById('audioLetter');
-const audioClap=document.getElementById('audioClap');
-const audioCorrect=document.getElementById('audioCorrect');
-const audioWrong=document.getElementById('audioWrong');
-
-const slides=[
-  {letter:'K', box:'box-k.png', object:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
-  {letter:'L', box:'box-l.png', object:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
-  {letter:'M', box:'box-m.png', object:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
-  {letter:'N', box:'box-n.png', object:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
-  {letter:'O', box:'box-o.png', object:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'}
+const slides = [
+  {box:'assets/box-k.png', object:'assets/kiwi.png', letter:'K', letters:['B','R','K'], audio:'assets/letter-k.mp3', clap:'assets/claps.mp3', tracing:'assets/tracing-letter-k.png'},
+  {box:'assets/box-l.png', object:'assets/lamp.png', letter:'L', letters:['F','L','C'], audio:'assets/letter-l.mp3', clap:'assets/claps.mp3', tracing:'assets/tracing-letter-l.png'},
+  {box:'assets/box-m.png', object:'assets/mouse.png', letter:'M', letters:['M','U','D'], audio:'assets/letter-m.mp3', clap:'assets/claps.mp3', tracing:'assets/tracing-letter-m.png'},
+  {box:'assets/box-n.png', object:'assets/nest.png', letter:'N', letters:['W','B','N'], audio:'assets/letter-n.mp3', clap:'assets/claps.mp3', tracing:'assets/tracing-letter-n.png'},
+  {box:'assets/box-o.png', object:'assets/ostrich.png', letter:'O', letters:['H','J','O'], audio:'assets/letter-o.mp3', clap:'assets/claps.mp3', tracing:'assets/tracing-letter-o.png'}
 ];
 
-let currentIndex=0;
-let boxClicked=false;
+let currentSlide = 0;
+const logoScreen = document.getElementById('logoScreen');
+const objectScreen = document.getElementById('objectScreen');
+const objectBox = document.getElementById('objectBox');
+const revealedObject = document.getElementById('revealedObject');
+const letterOptions = document.getElementById('letterOptions');
+const voiceBtn = document.getElementById('voiceBtn');
 
-function startGame(){
+const tracingScreen = document.getElementById('tracingScreen');
+const tracingCanvas = document.getElementById('tracingCanvas');
+const tracingInstruction = document.getElementById('tracingInstruction');
+const nextTracingBtn = document.getElementById('nextTracingBtn');
+
+const congratsScreen = document.getElementById('congratsScreen');
+const playAgainBtn = document.getElementById('playAgainBtn');
+
+function showLogo() {
   logoScreen.style.display='flex';
-  gameScreen.style.display='none';
+  objectScreen.style.display='none';
   tracingScreen.style.display='none';
   congratsScreen.style.display='none';
-  setTimeout(()=>{logoScreen.style.display='none'; showObjectSlide();},5000);
+  setTimeout(() => { currentSlide=0; showObjectSlide(); }, 5000);
 }
 
-function showObjectSlide(){
-  const slide=slides[currentIndex];
-  gameScreen.style.display='flex';
-  currentBox.src='assets/'+slide.box;
-  currentObject.src='assets/'+slide.object;
-  currentObject.style.display='none';
-  boxClicked=false;
-
-  currentBox.onclick=function(){
-    if(boxClicked) return;
-    boxClicked=true;
-    currentObject.style.display='block';
-  }
-
-  voiceBtn.onclick=function(){
-    audioLetter.src='assets/'+slide.audio;
-    audioLetter.play();
-  }
-
-  letterOptions.forEach(btn=>{
-    btn.onclick=function(){
-      if(btn.dataset.letter===slide.letter){
-        audioClap.play();
-        setTimeout(showTracingSlide,800);
-      } else{
-        audioWrong.play();
-      }
-    }
+function showObjectSlide() {
+  const slide = slides[currentSlide];
+  logoScreen.style.display='none';
+  objectScreen.style.display='flex';
+  tracingScreen.style.display='none';
+  congratsScreen.style.display='none';
+  objectBox.src = slide.box;
+  revealedObject.src = slide.object;
+  revealedObject.style.display='none';
+  letterOptions.innerHTML='';
+  slide.letters.forEach(l => {
+    const btn=document.createElement('div');
+    btn.className='letter-btn';
+    btn.innerText=l;
+    btn.onclick=()=>selectLetter(l);
+    letterOptions.appendChild(btn);
   });
 }
 
-function showTracingSlide(){
-  gameScreen.style.display='none';
-  tracingScreen.style.display='flex';
-  const slide=slides[currentIndex];
-  tracingLetter.textContent=slide.letter;
-}
+objectBox.onclick = () => {
+  revealedObject.style.display='block';
+  objectBox.style.display='none';
+};
 
-nextBtn.onclick=function(){
-  currentIndex++;
-  if(currentIndex<slides.length){
-    tracingScreen.style.display='none';
-    showObjectSlide();
-  } else{
-    tracingScreen.style.display='none';
-    congratsScreen.style.display='flex';
-    createConfetti();
+function selectLetter(l){
+  const slide = slides[currentSlide];
+  if(l===slide.letter){
+    new Audio(slide.clap).play();
+    showTracingSlide();
+  } else {
+    new Audio('assets/wrong.mp3').play();
   }
 }
 
-playAgainBtn.onclick=function(){
-  currentIndex=0;
-  slides.sort(()=>Math.random()-0.5);
-  startGame();
+voiceBtn.onclick = () => {
+  const slide = slides[currentSlide];
+  new Audio(slide.audio).play();
+};
+
+function showTracingSlide() {
+  objectScreen.style.display='none';
+  tracingScreen.style.display='flex';
+  const slide = slides[currentSlide];
+  tracingInstruction.innerText='Trace the letter ' + slide.letter;
+  const ctx = tracingCanvas.getContext('2d');
+  const img = new Image();
+  img.src = slide.tracing;
+  img.onload = () => { ctx.clearRect(0,0,tracingCanvas.width,tracingCanvas.height); ctx.drawImage(img,0,0,tracingCanvas.width,tracingCanvas.height); };
+  enableTracing(ctx);
 }
 
+function enableTracing(ctx){
+  let drawing=false;
+  function start(e){drawing=true; draw(e);}
+  function stop(){drawing=false; ctx.beginPath();}
+  function draw(e){
+    if(!drawing) return;
+    const rect=tracingCanvas.getBoundingClientRect();
+    let x=e.clientX || e.touches[0].clientX;
+    let y=e.clientY || e.touches[0].clientY;
+    x-=rect.left; y-=rect.top;
+    ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='red';
+    ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);
+  }
+  tracingCanvas.onmousedown=start; tracingCanvas.ontouchstart=start;
+  tracingCanvas.onmouseup=stop; tracingCanvas.ontouchend=stop;
+  tracingCanvas.onmousemove=draw; tracingCanvas.ontouchmove=draw;
+}
+
+nextTracingBtn.onclick = () => {
+  currentSlide++;
+  if(currentSlide<slides.length){
+    objectBox.style.display='block';
+    revealedObject.style.display='none';
+    showObjectSlide();
+  } else { showCongrats(); }
+};
+
+function showCongrats(){
+  objectScreen.style.display='none';
+  tracingScreen.style.display='none';
+  congratsScreen.style.display='flex';
+  createConfetti();
+}
+
+playAgainBtn.onclick = () => location.reload();
+
 function createConfetti(){
-  for(let i=0;i<50;i++){
+  for(let i=0;i<100;i++){
     const c=document.createElement('div');
     c.className='confetti';
     c.style.left=Math.random()*100+'vw';
-    c.style.backgroundColor=['#ff595e','#ffca3a','#8ac926','#1982c4','#6a4c93','#ff85a1','#00c2ff'][Math.floor(Math.random()*7)];
+    c.style.background=`hsl(${Math.random()*360},70%,60%)`;
     document.body.appendChild(c);
-    setTimeout(()=>c.remove(),4000);
+    setTimeout(()=>c.remove(),3000);
   }
 }
 
-startGame();
+showLogo();
 </script>
-
 </body>
 </html>
