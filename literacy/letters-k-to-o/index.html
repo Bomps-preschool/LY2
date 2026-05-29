@@ -5,50 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Peek-a-Boo Letters K-O</title>
 <style>
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:'Comic Sans MS', sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; background-color:#e0f2f1;}
-  #logoScreen, #gameScreen, #tracingScreen, #finalScreen { display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100vh; }
-  #logoScreen img { max-width:300px; width:40%; height:auto; }
-  #gameScreen, #tracingScreen, #finalScreen { position:relative; text-align:center; }
-  #gameScreen { background:#c8f0e6; width:100%; max-width:900px; padding:20px; border-radius:20px; }
-  .box { display:inline-block; cursor:pointer; margin:10px; position:relative; }
-  .box img { width:120px; height:120px; }
-  .object-img { width:140px; height:140px; margin-bottom:10px; display:none; }
-  .letters-container { margin-top:20px; display:flex; justify-content:center; gap:20px; }
-  .letter-option { background:#ffd699; padding:15px 25px; border-radius:10px; cursor:pointer; font-size:24px; }
-  .letter-option:hover { background:#ffc966; }
-  #voiceBtn { position:absolute; bottom:10px; left:10px; width:60px; height:60px; cursor:pointer; }
-  #tracingScreen img { width:200px; height:auto; }
-  #finalScreen h1 { font-size:3rem; color:green; }
-  .confetti { position:absolute; width:10px; height:10px; background:red; animation:fall 3s linear infinite; }
-  @keyframes fall { 0%{top:-10px;} 100%{top:100vh;} }
+body {
+    margin: 0;
+    font-family: 'Comic Sans MS', sans-serif;
+    background-color: #e0f2f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#logoScreen, #gameScreen, #tracingScreen, #finalScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#logoScreen img { width: 300px; height: auto; }
+
+#gameScreen {
+    background-color: #d9f0e6;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+#instruction { font-size: 22px; margin-bottom: 20px; text-align: center; }
+
+.letter-box { cursor: pointer; margin: 20px; }
+.letter-box img { width: 180px; height: 180px; }
+
+.object-img { display: none; width: 200px; height: 200px; margin-bottom: 10px; }
+
+.letter-options {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.letter-options button {
+    padding: 15px 30px;
+    font-size: 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #ffd699;
+    border: none;
+}
+.letter-options button:hover { background-color: #ffc966; }
+
+#voiceBtn { position: absolute; bottom: 100px; right: 20px; width: 60px; height: 60px; cursor: pointer; }
+
+#tracingScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#tracingScreen #traceInstruction {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#tracingCanvas {
+    border: 2px solid #333;
+    background-color: #fff;
+    touch-action: none;
+}
+
+#finalScreen h1 { font-size: 36px; color: green; }
+#playAgainBtn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
 </style>
 </head>
 <body>
 
-<!-- Logo Screen -->
 <div id="logoScreen">
-  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
 <div id="gameScreen">
-  <div id="instruction" style="font-size:22px; margin-bottom:20px;">Click on a box to reveal the object</div>
-  <div id="boxesContainer"></div>
-  <div class="letters-container" id="lettersContainer"></div>
-  <img src="assets/voice-icon.png" id="voiceBtn" alt="Voice Icon">
+    <div id="instruction">Tap the box to reveal the object</div>
+    <div id="boxesContainer"></div>
+    <img src="assets/voice-icon.png" id="voiceBtn" alt="Play Audio">
+    <div class="letter-options" id="lettersContainer"></div>
 </div>
 
-<!-- Tracing Screen -->
 <div id="tracingScreen">
-  <img id="tracingImg" src="" alt="Tracing Letter">
+    <div id="traceInstruction">Trace the letter shown below:</div>
+    <canvas id="tracingCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- Final Screen -->
 <div id="finalScreen">
-  <h1>Well Done!</h1>
-  <button id="playAgainBtn" style="padding:15px 30px; font-size:20px; border:none; border-radius:10px; cursor:pointer;">Play Again</button>
+    <h1>Well Done!</h1>
+    <button id="playAgainBtn">Play Again</button>
 </div>
+
+<audio id="audioLetter"></audio>
+<audio id="audioCorrect" src="assets/correct.mp3"></audio>
+<audio id="audioWrong" src="assets/wrong.mp3"></audio>
+<audio id="audioClap" src="assets/claps.mp3"></audio>
 
 <script>
 const logoScreen = document.getElementById('logoScreen');
@@ -57,142 +130,142 @@ const tracingScreen = document.getElementById('tracingScreen');
 const finalScreen = document.getElementById('finalScreen');
 const boxesContainer = document.getElementById('boxesContainer');
 const lettersContainer = document.getElementById('lettersContainer');
-const instruction = document.getElementById('instruction');
-const playAgainBtn = document.getElementById('playAgainBtn');
 const voiceBtn = document.getElementById('voiceBtn');
-const tracingImg = document.getElementById('tracingImg');
+const tracingCanvas = document.getElementById('tracingCanvas');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const audioLetter = document.getElementById('audioLetter');
+const audioCorrect = document.getElementById('audioCorrect');
+const audioWrong = document.getElementById('audioWrong');
+const audioClap = document.getElementById('audioClap');
 
-const gameData = [
-  {letter:'K', obj:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
-  {letter:'L', obj:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
-  {letter:'M', obj:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
-  {letter:'N', obj:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
-  {letter:'O', obj:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'},
+const ctx = tracingCanvas.getContext('2d');
+let drawing = false;
+
+const lettersData = [
+    {letter:'K', box:'box-k.png', object:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
+    {letter:'L', box:'box-l.png', object:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
+    {letter:'M', box:'box-m.png', object:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
+    {letter:'N', box:'box-n.png', object:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
+    {letter:'O', box:'box-o.png', object:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'},
 ];
 
+let sequence = [];
 let currentIndex = 0;
 let boxClicked = false;
 
-// Shuffle helper
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
 // Start Game
 function startGame() {
-  logoScreen.style.display = 'flex';
-  gameScreen.style.display = 'none';
-  tracingScreen.style.display = 'none';
-  finalScreen.style.display = 'none';
-  setTimeout(() => {
-    logoScreen.style.display = 'none';
-    gameScreen.style.display = 'block';
+    logoScreen.style.display='flex';
+    gameScreen.style.display='none';
+    tracingScreen.style.display='none';
+    finalScreen.style.display='none';
     currentIndex = 0;
-    showBox();
-  }, 5000);
+    sequence = [...lettersData].sort(()=>Math.random()-0.5);
+
+    setTimeout(()=>{
+        logoScreen.style.display='none';
+        gameScreen.style.display='flex';
+        showBox();
+    },5000);
 }
 
 // Show Box
-function showBox() {
-  boxesContainer.innerHTML = '';
-  lettersContainer.innerHTML = '';
-  boxClicked = false;
-  instruction.textContent = 'Click on a box to reveal the object';
-  
-  const current = gameData[currentIndex];
-  const box = document.createElement('div');
-  box.classList.add('box');
-  box.innerHTML = `<img src="assets/box-${current.letter.toLowerCase()}.png"> <img class="object-img" src="assets/${current.obj}">`;
-  boxesContainer.appendChild(box);
+function showBox(){
+    boxesContainer.innerHTML='';
+    lettersContainer.innerHTML='';
+    boxClicked = false;
+    const current = sequence[currentIndex];
+    const box = document.createElement('div');
+    box.classList.add('box');
+    box.innerHTML = `<img src="assets/${current.box}"><img class="object-img" src="assets/${current.object}">`;
+    boxesContainer.appendChild(box);
 
-  const objectImg = box.querySelector('.object-img');
+    const objImg = box.querySelector('.object-img');
 
-  box.addEventListener('click', () => {
-    if(boxClicked) return;
-    boxClicked = true;
-    objectImg.style.display = 'block';
-    showLetters(current.letter);
-  });
+    box.addEventListener('click', ()=>{
+        if(boxClicked) return;
+        boxClicked = true;
+        objImg.style.display='block';
+        showLetters(current.letter);
+    });
 
-  // Voice Button
-  voiceBtn.onclick = () => {
-    const audio = new Audio(`assets/${current.audio}`);
-    audio.play();
-  };
+    voiceBtn.onclick = ()=>{
+        audioLetter.src = `assets/${current.audio}`;
+        audioLetter.play();
+    };
 }
 
-// Show letters
-function showLetters(correctLetter) {
-  lettersContainer.innerHTML = '';
-  const letters = [correctLetter, 'A', 'G']; // can randomize wrong options
-  shuffle(letters);
-  letters.forEach(l => {
-    const div = document.createElement('div');
-    div.classList.add('letter-option');
-    div.textContent = l;
-    div.onclick = () => checkAnswer(l, correctLetter);
-    lettersContainer.appendChild(div);
-  });
-}
-
-// Check Answer
-function checkAnswer(selected, correct) {
-  if(selected === correct){
-    const clap = new Audio('assets/claps.mp3');
-    clap.play();
-    clap.onended = () => showTracing();
-  } else {
-    const wrong = new Audio('assets/wrong.mp3');
-    wrong.play();
-  }
+// Show Letter Options
+function showLetters(correctLetter){
+    lettersContainer.innerHTML='';
+    const options = [correctLetter,'A','G'].sort(()=>Math.random()-0.5);
+    options.forEach(l=>{
+        const btn = document.createElement('button');
+        btn.className='letter-option';
+        btn.textContent=l;
+        btn.onclick=()=>{
+            if(l === correctLetter){
+                audioClap.play();
+                setTimeout(showTracing,800);
+            } else {
+                audioWrong.play();
+            }
+        };
+        lettersContainer.appendChild(btn);
+    });
 }
 
 // Show Tracing
-function showTracing() {
-  gameScreen.style.display = 'none';
-  tracingScreen.style.display = 'block';
-  const current = gameData[currentIndex];
-  tracingImg.src = `assets/${current.tracing}`;
-  setTimeout(() => {
-    tracingScreen.style.display = 'none';
-    currentIndex++;
-    if(currentIndex < gameData.length){
-      gameScreen.style.display = 'block';
-      showBox();
-    } else {
-      showFinal();
-    }
-  }, 3000);
+function showTracing(){
+    gameScreen.style.display='none';
+    tracingScreen.style.display='flex';
+    const current = sequence[currentIndex];
+    const img = new Image();
+    img.src = `assets/${current.tracing}`;
+    img.onload = () => { ctx.clearRect(0,0,tracingCanvas.width,tracingCanvas.height); ctx.drawImage(img,0,0,tracingCanvas.width,tracingCanvas.height); };
+    enableTracing();
+    setTimeout(()=>{
+        tracingScreen.style.display='none';
+        currentIndex++;
+        if(currentIndex<sequence.length){
+            gameScreen.style.display='flex';
+            showBox();
+        } else {
+            finalScreen.style.display='flex';
+            createConfetti();
+        }
+    },4000);
 }
 
-// Show Final
-function showFinal() {
-  finalScreen.style.display = 'block';
-  addConfetti();
+// Enable tracing on canvas
+function enableTracing(){
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    tracingCanvas.onpointerdown = (e)=>{drawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY);};
+    tracingCanvas.onpointermove = (e)=>{if(drawing){ctx.lineTo(e.offsetX,e.offsetY); ctx.stroke();}};
+    tracingCanvas.onpointerup = ()=>{drawing=false;};
+    tracingCanvas.onpointerleave = ()=>{drawing=false;};
 }
 
 // Confetti
-function addConfetti() {
-  for(let i=0;i<100;i++){
-    const c = document.createElement('div');
-    c.classList.add('confetti');
-    c.style.background = `hsl(${Math.random()*360},70%,60%)`;
-    c.style.left = Math.random()*100 + 'vw';
-    c.style.top = Math.random()*10 + 'vh';
-    c.style.width = c.style.height = (5 + Math.random()*5) + 'px';
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),4000);
-  }
+function createConfetti(){
+    for(let i=0;i<100;i++){
+        const c = document.createElement('div');
+        c.className='confetti';
+        c.style.background = `hsl(${Math.random()*360},70%,60%)`;
+        c.style.left = Math.random()*100+'vw';
+        c.style.top = Math.random()*10+'vh';
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),4000);
+    }
 }
 
 // Play Again
-playAgainBtn.onclick = () => {
-  gameData.sort(() => Math.random()-0.5);
-  startGame();
-};
+playAgainBtn.onclick = ()=>{startGame();};
 
 // Initialize
 startGame();
 </script>
+
 </body>
 </html>
