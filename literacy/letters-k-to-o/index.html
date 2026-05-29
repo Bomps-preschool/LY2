@@ -21,24 +21,27 @@ body {
     align-items:center;
     width:100%;
     max-width:1000px;
-    padding:20px;
+    padding:10px;
 }
-#logoScreen img {width:300px;}
+#logoScreen img {width:40vw; max-width:300px;}
 #objectScreen {display:flex; flex-direction:row; justify-content:space-between; width:100%;}
 #objectScreen .box-container {flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:20px;}
 #objectScreen .letter-container {flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px;}
 .letter-btn {background:#ffdd99; font-size:2rem; padding:15px 25px; border-radius:10px; cursor:pointer; text-align:center; user-select:none;}
 .letter-btn:hover {background:#ffc966;}
-.object-img {width:250px; height:auto; cursor:pointer;}
+.object-img {width:25vw; max-width:250px; height:auto; cursor:pointer;}
 #instructionText {font-size:1.5rem; margin-bottom:20px; text-align:center;}
 #tracingScreen {flex-direction:column; align-items:center; gap:30px;}
-#tracingCanvas {border:2px dashed #555; touch-action:none; background:#fff;}
+#tracingCanvas {border:2px dashed #555; touch-action:none; background:#fff; max-width:80vw; height:auto;}
 #nextTracingBtn,#playAgainBtn {padding:10px 25px; font-size:18px; margin-top:15px; cursor:pointer; border-radius:10px; border:none; background-color:#4CAF50; color:white;}
 #nextTracingBtn:hover,#playAgainBtn:hover {background-color:#45a049;}
 #voiceBtn {position:absolute; left:20px; bottom:20px; width:150px; height:150px; cursor:pointer;}
 #congratsScreen {font-size:2rem; justify-content:center; text-align:center;}
-.confetti {position:absolute; width:10px; height:10px; background-color:red; animation:fall 3s linear forwards;}
-@keyframes fall {to {transform:translateY(100vh) rotate(360deg);}}
+.confetti {position:absolute; width:10px; height:10px; background-color:red;}
+@media(max-width:768px){
+    .object-img {width:40vw;}
+    .letter-btn {font-size:1.5rem; padding:10px 20px;}
+}
 </style>
 </head>
 <body>
@@ -184,19 +187,29 @@ function showCongrats(){
   objectScreen.style.display='none';
   tracingScreen.style.display='none';
   congratsScreen.style.display='flex';
-  createConfetti();
+  createCrackerConfetti();
 }
 
 playAgainBtn.onclick = () => location.reload();
 
-function createConfetti(){
-  for(let i=0;i<100;i++){
+// Cracker-burst style confetti
+function createCrackerConfetti(){
+  for(let i=0;i<150;i++){
     const c=document.createElement('div');
     c.className='confetti';
     c.style.left=Math.random()*100+'vw';
+    c.style.top='-20px';
+    c.style.width=Math.random()*10+5+'px';
+    c.style.height=Math.random()*10+5+'px';
     c.style.background=`hsl(${Math.random()*360},70%,60%)`;
+    const duration = 2 + Math.random()*2;
+    c.style.transition = `top ${duration}s linear, transform ${duration}s linear`;
     document.body.appendChild(c);
-    setTimeout(()=>c.remove(),3000);
+    setTimeout(()=>{ 
+        c.style.top='100vh'; 
+        c.style.transform=`rotate(${Math.random()*720}deg)`;
+    },10);
+    setTimeout(()=>c.remove(), (duration+0.1)*1000);
   }
 }
 
