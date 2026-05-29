@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Sorting Game</title>
+<title>Transportation Game</title>
 <style>
   body, html {
     margin: 0;
     padding: 0;
     font-family: 'Comic Sans MS', sans-serif;
     overflow-x: hidden;
+    background: #cce7ff;
   }
 
   .container {
@@ -17,13 +18,13 @@
     flex-direction: row;
     height: 100vh;
     width: 100%;
-    background-color: #cce7ff;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
   }
 
-  .vehicles {
+  /* Vehicles on left */
+  #vehicles {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -31,12 +32,13 @@
     width: 25%;
   }
 
-  .vehicles img {
+  #vehicles img {
     width: 120px;
     cursor: grab;
   }
 
-  .zones {
+  /* Transport zones on right */
+  #transports {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -48,11 +50,13 @@
     border: 2px dashed #0077b6;
     border-radius: 10px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    background-size: cover;
-    background-position: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
     position: relative;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
   }
 
   .zone h3 {
@@ -60,189 +64,136 @@
     top: 5px;
     left: 50%;
     transform: translateX(-50%);
-    font-family: 'Comic Sans MS', sans-serif;
-    color: #000;
-    background-color: rgba(255,255,255,0.6);
-    padding: 2px 10px;
+    padding: 3px 10px;
     border-radius: 5px;
+    background-color: rgba(0,0,0,0.3);
   }
 
-  #confettiCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    width: 100%;
-    height: 100%;
-  }
+  .vehicle.correct { border: 3px solid green; border-radius: 10px; }
+  .vehicle.wrong { animation: shake 0.5s; }
+  @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
-  .playAgainBtn {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px;
-    background-color: #fcbf49;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: none;
-  }
+  #confettiCanvas { position: fixed; top:0; left:0; pointer-events: none; width: 100%; height: 100%; }
+  #playAgainBtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 25px; background-color: #fcbf49; border:none; border-radius: 10px; font-size: 1.2rem; cursor: pointer; display:none; }
 
-  @media(max-width: 768px) {
-    .container {
-      flex-direction: column;
-      height: auto;
-    }
-
-    .vehicles, .zones {
-      width: 90%;
-    }
-
-    .vehicles {
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .vehicles img {
-      width: 90px;
-      margin: 10px;
-    }
-
-    .zone {
-      height: 150px;
-    }
+  @media(max-width:768px){
+    .container { flex-direction: column; height:auto; }
+    #vehicles, #transports { width:90%; flex-direction: row; flex-wrap: wrap; justify-content:center; gap:20px; }
+    #vehicles img { width: 90px; }
+    .zone { height: 150px; font-size: 16px; }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="vehicles" id="vehicles">
-    <img src="assets/airplane.png" alt="Airplane" draggable="true" id="airplane" data-zone="air">
-    <img src="assets/helicopter.png" alt="Helicopter" draggable="true" id="helicopter" data-zone="air">
-    <img src="assets/car.png" alt="Car" draggable="true" id="car" data-zone="road">
-    <img src="assets/bus.png" alt="Bus" draggable="true" id="bus" data-zone="road">
-    <img src="assets/boat.png" alt="Boat" draggable="true" id="boat" data-zone="water">
-    <img src="assets/ship.png" alt="Ship" draggable="true" id="ship" data-zone="water">
-    <img src="assets/truck.png" alt="Truck" draggable="true" id="truck" data-zone="road">
+  <div id="vehicles">
+    <img src="assets/airplane.png" draggable="true" data-zone="air">
+    <img src="assets/helicopter.png" draggable="true" data-zone="air">
+    <img src="assets/car.png" draggable="true" data-zone="road">
+    <img src="assets/bus.png" draggable="true" data-zone="road">
+    <img src="assets/truck.png" draggable="true" data-zone="road">
+    <img src="assets/boat.png" draggable="true" data-zone="water">
+    <img src="assets/ship.png" draggable="true" data-zone="water">
   </div>
 
-  <div class="zones">
-    <div class="zone" id="airZone" data-zone="air" style="background-image: url('assets/background-air.png');">
-      <h3>Air Transport</h3>
-    </div>
-    <div class="zone" id="roadZone" data-zone="road" style="background-image: url('assets/background-road.png');">
-      <h3>Road Transport</h3>
-    </div>
-    <div class="zone" id="waterZone" data-zone="water" style="background-image: url('assets/background-water.png');">
-      <h3>Water Transport</h3>
-    </div>
+  <div id="transports">
+    <div class="zone" id="airZone" data-zone="air" style="background-image:url('assets/background-air.png'); background-size:cover; background-position:center;"><h3>Air Transport</h3></div>
+    <div class="zone" id="roadZone" data-zone="road" style="background-image:url('assets/background-road.png'); background-size:cover; background-position:center;"><h3>Road Transport</h3></div>
+    <div class="zone" id="waterZone" data-zone="water" style="background-image:url('assets/background-water.png'); background-size:cover; background-position:center;"><h3>Water Transport</h3></div>
   </div>
 </div>
 
 <canvas id="confettiCanvas"></canvas>
-<button class="playAgainBtn" id="playAgainBtn">Play Again</button>
+<button id="playAgainBtn">Play Again</button>
 
-<audio id="correctSound" src="assets/excellent.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="correctAudio" src="assets/excellent.mp3"></audio>
+<audio id="wrongAudio" src="assets/wrong.mp3"></audio>
 
 <script>
-const vehicles = document.querySelectorAll('.vehicles img');
+const vehicles = document.querySelectorAll('#vehicles img');
 const zones = document.querySelectorAll('.zone');
-const correctSound = document.getElementById('correctSound');
-const wrongSound = document.getElementById('wrongSound');
+const correctAudio = document.getElementById('correctAudio');
+const wrongAudio = document.getElementById('wrongAudio');
 const playAgainBtn = document.getElementById('playAgainBtn');
-
 let placedCount = 0;
 
-// Drag and Drop
-vehicles.forEach(vehicle => {
-  vehicle.addEventListener('dragstart', dragStart);
+// Drag & Drop
+vehicles.forEach(v => {
+  v.addEventListener('dragstart', e => { e.dataTransfer.setData('text', v.dataset.zone + '|' + v.src); });
 });
 
-zones.forEach(zone => {
-  zone.addEventListener('dragover', dragOver);
-  zone.addEventListener('drop', drop);
-});
+zones.forEach(z => {
+  z.addEventListener('dragover', e => e.preventDefault());
+  z.addEventListener('drop', e => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text').split('|');
+    const type = data[0];
+    const src = data[1];
+    const vehicle = [...vehicles].find(v => v.src.endsWith(src.split('/').pop()));
 
-function dragStart(e) {
-  e.dataTransfer.setData('text', e.target.id);
-}
-
-function dragOver(e) {
-  e.preventDefault();
-}
-
-function drop(e) {
-  e.preventDefault();
-  const id = e.dataTransfer.getData('text');
-  const dragged = document.getElementById(id);
-  const zone = e.currentTarget;
-  
-  if(dragged.dataset.zone === zone.dataset.zone) {
-    zone.appendChild(dragged);
-    dragged.draggable = false;
-    correctSound.play();
-    placedCount++;
-    if(placedCount === vehicles.length) {
-      launchConfetti();
-      playAgainBtn.style.display = 'block';
+    if(type === z.dataset.zone){
+      z.appendChild(vehicle);
+      vehicle.classList.add('correct');
+      vehicle.draggable = false;
+      correctAudio.play();
+      placedCount++;
+      if(placedCount === vehicles.length){
+        launchConfetti();
+        playAgainBtn.style.display = 'block';
+      }
+    } else {
+      vehicle.classList.add('wrong');
+      wrongAudio.play();
+      setTimeout(()=>vehicle.classList.remove('wrong'), 500);
     }
-  } else {
-    wrongSound.play();
-  }
-}
+  });
+});
 
 // Play Again
-playAgainBtn.addEventListener('click', () => {
-  location.reload();
-});
+playAgainBtn.addEventListener('click', ()=> location.reload());
 
 // Confetti
-function launchConfetti() {
-  const confettiCanvas = document.getElementById('confettiCanvas');
-  const ctx = confettiCanvas.getContext('2d');
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = window.innerHeight;
+function launchConfetti(){
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-  const confettiPieces = [];
-  for(let i = 0; i < 150; i++){
-    confettiPieces.push({
-      x: Math.random() * confettiCanvas.width,
-      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-      r: Math.random() * 6 + 4,
-      d: Math.random() * 20,
-      color: `hsl(${Math.random()*360}, 100%, 50%)`,
-      tilt: Math.random() * 10 - 10
+  const confetti = [];
+  for(let i=0;i<150;i++){
+    confetti.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*-canvas.height,
+      r: Math.random()*6+4,
+      color: `hsl(${Math.random()*360},70%,60%)`,
+      tilt: Math.random()*10-10
     });
   }
 
   let angle = 0;
-  function draw() {
-    ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
-    confettiPieces.forEach(p => {
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(c => {
       ctx.beginPath();
-      ctx.lineWidth = p.r;
-      ctx.strokeStyle = p.color;
-      ctx.moveTo(p.x + p.tilt + p.r/2, p.y);
-      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r/2);
+      ctx.lineWidth = c.r;
+      ctx.strokeStyle = c.color;
+      ctx.moveTo(c.x+c.tilt+c.r/2, c.y);
+      ctx.lineTo(c.x+c.tilt, c.y+c.tilt+c.r/2);
       ctx.stroke();
     });
     update();
     requestAnimationFrame(draw);
   }
 
-  function update() {
+  function update(){
     angle += 0.01;
-    confettiPieces.forEach(p => {
-      p.y += Math.cos(angle + p.d) + 1 + p.r/2;
-      p.x += Math.sin(angle) * 2;
-      if(p.y > confettiCanvas.height){
-        p.y = -10;
-        p.x = Math.random() * confettiCanvas.width;
+    confetti.forEach(c=>{
+      c.y += Math.cos(angle+c.r)+1;
+      c.x += Math.sin(angle)*2;
+      if(c.y>canvas.height){
+        c.y = -10;
+        c.x = Math.random()*canvas.width;
       }
     });
   }
