@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transportation Game</title>
+<style>
+  body, html { margin: 0; padding: 0; font-family: 'Arial', sans-serif; overflow-x: hidden; }
+  body { background-color: #cce7f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+
+  #logoSlide, #gameSlide, #congratsSlide { position: absolute; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; flex-direction: column; }
+  #logoSlide img { width: 200px; height: auto; }
+
+  #gameSlide { display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px; box-sizing: border-box; }
+  #transportAreas { display: flex; justify-content: space-around; width: 90%; margin-top: 20px; flex-wrap: wrap; }
+  .area { border: 2px dashed #008cba; border-radius: 10px; width: 30%; min-width: 150px; height: 120px; display: flex; justify-content: center; align-items: center; margin: 10px; background-color: #e0f7fa; position: relative; }
+  .area span { position: absolute; top: 5px; font-weight: bold; }
+
+  #vehicles { display: flex; justify-content: space-around; width: 90%; flex-wrap: wrap; margin-top: 20px; }
+  .vehicle { width: 100px; height: auto; margin: 10px; cursor: grab; }
+  .vehicle.correct { border: 3px solid green; border-radius: 10px; }
+  .vehicle.wrong { animation: shake 0.5s; }
+  @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+  #congratsSlide { background: #cce7f0; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+  #congratsSlide h1 { font-size: 2rem; color: green; }
+  #playAgain { margin-top: 20px; padding: 10px 20px; font-size: 1rem; border-radius: 5px; cursor: pointer; }
+
+  .confetti { width: 10px; height: 10px; position: absolute; animation: fall 3s linear forwards; }
+  @keyframes fall { 0% { top: -10px; } 100% { top: 100%; } }
+</style>
+</head>
+<body>
+
+<div id="logoSlide">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<div id="gameSlide">
+  <div id="transportAreas">
+    <div class="area" data-type="air"><span>Air Transport</span></div>
+    <div class="area" data-type="road"><span>Road Transport</span></div>
+    <div class="area" data-type="water"><span>Water Transport</span></div>
+  </div>
+  <div id="vehicles">
+    <img src="assets/airplane.png" class="vehicle" draggable="true" data-type="air">
+    <img src="assets/helicopter.png" class="vehicle" draggable="true" data-type="air">
+    <img src="assets/car.png" class="vehicle" draggable="true" data-type="road">
+    <img src="assets/bus.png" class="vehicle" draggable="true" data-type="road">
+    <img src="assets/boat.png" class="vehicle" draggable="true" data-type="water">
+    <img src="assets/ship.png" class="vehicle" draggable="true" data-type="water">
+    <img src="assets/truck.png" class="vehicle" draggable="true" data-type="road">
+  </div>
+</div>
+
+<div id="congratsSlide">
+  <h1>Well Done!</h1>
+  <button id="playAgain">Play Again</button>
+</div>
+
+<audio id="claps" src="assets/claps.mp3"></audio>
+<audio id="correct" src="assets/correct.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
+<script>
+const logoSlide = document.getElementById('logoSlide');
+const gameSlide = document.getElementById('gameSlide');
+const congratsSlide = document.getElementById('congratsSlide');
+const playAgain = document.getElementById('playAgain');
+
+function startGame() {
+  logoSlide.style.display = 'flex';
+  gameSlide.style.display = 'none';
+  congratsSlide.style.display = 'none';
+  setTimeout(() => { logoSlide.style.display = 'none'; gameSlide.style.display = 'flex'; initDragDrop(); }, 5000);
+}
+
+function initDragDrop() {
+  const vehicles = document.querySelectorAll('.vehicle');
+  const areas = document.querySelectorAll('.area');
+  let placedCount = 0;
+
+  vehicles.forEach(vehicle => {
+    vehicle.addEventListener('dragstart', e => { e.dataTransfer.setData('type', vehicle.dataset.type); e.dataTransfer.setData('id', vehicle.src); });
+  });
+
+  areas.forEach(area => {
+    area.addEventListener('dragover', e => e.preventDefault());
+    area.addEventListener('drop', e => {
+      const type = e.dataTransfer.getData('type');
+      const src = e.dataTransfer.getData('id');
+      const vehicle = document.querySelector(`.vehicle[src='${src}']`);
+
+      if(type === area.dataset.type) {
+        vehicle.classList.add('correct');
+        area.appendChild(vehicle);
+        document.getElementById('claps').play();
+        placedCount++;
+      } else {
+        vehicle.classList.add('wrong');
+        document.getElementById('wrong').play();
+        setTimeout(() => vehicle.classList.remove('wrong'), 500);
+      }
+
+      if(placedCount === vehicles.length) { showCongrats(); }
+    });
+  });
+}
+
+function showCongrats() {
+  gameSlide.style.display = 'none';
+  congratsSlide.style.display = 'flex';
+  createConfetti();
+}
+
+function createConfetti() {
+  for(let i=0;i<100;i++){
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.left = Math.random()*100 + 'vw';
+    confetti.style.background = ['#ff595e','#ffca3a','#8ac926','#1982c4','#6a4c93','#ff85a1','#00c2ff'][Math.floor(Math.random()*7)];
+    confetti.style.width = '10px'; confetti.style.height='10px';
+    document.body.appendChild(confetti);
+    setTimeout(()=>confetti.remove(), 4000);
+  }
+}
+
+playAgain.addEventListener('click', () => {
+  location.reload();
+});
+
+startGame();
+</script>
+
+</body>
+</html>
