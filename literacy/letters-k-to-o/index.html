@@ -5,85 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Peek-a-Boo Letters K-O</title>
 <style>
-  body {
-    margin: 0;
-    font-family: 'Comic Sans MS', sans-serif;
-    background-color: #f3f8f8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-  #logoScreen, #gameScreen, #wellDoneScreen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-  #logoScreen img {
-    width: 250px;
-    height: auto;
-  }
-  #gameScreen {
-    background-color: #dff0f0;
-    width: 100%;
-    max-width: 900px;
-    padding: 20px;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  #gameScreen img.letter-box {
-    width: 120px;
-    height: 120px;
-    margin: 10px;
-    cursor: pointer;
-  }
-  #gameScreen img.object {
-    width: 160px;
-    height: 160px;
-    margin: 10px;
-    display: none;
-  }
-  #audioBtn {
-    margin: 10px;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-  }
-  #tracing {
-    width: 180px;
-    height: 180px;
-    margin: 10px;
-    display: none;
-  }
-  .option-btn {
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 20px;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  #wellDoneScreen {
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
-    font-weight: bold;
-  }
-  .confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    animation: fall 3s linear infinite;
-  }
-  @keyframes fall {
-    0% {top: 0; transform: rotate(0deg);}
-    100% {top: 100%; transform: rotate(360deg);}
-  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Comic Sans MS', sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; background-color:#e0f2f1;}
+  #logoScreen, #gameScreen, #tracingScreen, #finalScreen { display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100vh; }
+  #logoScreen img { max-width:300px; width:40%; height:auto; }
+  #gameScreen, #tracingScreen, #finalScreen { position:relative; text-align:center; }
+  #gameScreen { background:#c8f0e6; width:100%; max-width:900px; padding:20px; border-radius:20px; }
+  .box { display:inline-block; cursor:pointer; margin:10px; position:relative; }
+  .box img { width:120px; height:120px; }
+  .object-img { width:140px; height:140px; margin-bottom:10px; display:none; }
+  .letters-container { margin-top:20px; display:flex; justify-content:center; gap:20px; }
+  .letter-option { background:#ffd699; padding:15px 25px; border-radius:10px; cursor:pointer; font-size:24px; }
+  .letter-option:hover { background:#ffc966; }
+  #voiceBtn { position:absolute; bottom:10px; left:10px; width:60px; height:60px; cursor:pointer; }
+  #tracingScreen img { width:200px; height:auto; }
+  #finalScreen h1 { font-size:3rem; color:green; }
+  .confetti { position:absolute; width:10px; height:10px; background:red; animation:fall 3s linear infinite; }
+  @keyframes fall { 0%{top:-10px;} 100%{top:100vh;} }
 </style>
 </head>
 <body>
@@ -95,153 +33,166 @@
 
 <!-- Game Screen -->
 <div id="gameScreen">
-  <div id="instruction">Tap the box to reveal the letter and object, then trace the letter.</div>
-  <div id="boxes"></div>
-  <img id="letterAudioBtn" src="assets/audio.png" alt="Play Letter" />
-  <img id="tracing" src="" alt="Tracing Letter"/>
-  <div id="options"></div>
+  <div id="instruction" style="font-size:22px; margin-bottom:20px;">Click on a box to reveal the object</div>
+  <div id="boxesContainer"></div>
+  <div class="letters-container" id="lettersContainer"></div>
+  <img src="assets/voice-icon.png" id="voiceBtn" alt="Voice Icon">
 </div>
 
-<!-- Well Done Screen -->
-<div id="wellDoneScreen">
-  Well Done!
-  <button id="playAgainBtn">Play Again</button>
+<!-- Tracing Screen -->
+<div id="tracingScreen">
+  <img id="tracingImg" src="" alt="Tracing Letter">
 </div>
 
-<audio id="audioLetter"></audio>
-<audio id="audioCorrect" src="assets/correct.mp3"></audio>
-<audio id="audioWrong" src="assets/wrong.mp3"></audio>
-<audio id="audioClaps" src="assets/claps.mp3"></audio>
+<!-- Final Screen -->
+<div id="finalScreen">
+  <h1>Well Done!</h1>
+  <button id="playAgainBtn" style="padding:15px 30px; font-size:20px; border:none; border-radius:10px; cursor:pointer;">Play Again</button>
+</div>
 
 <script>
 const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
-const wellDoneScreen = document.getElementById('wellDoneScreen');
-const boxesDiv = document.getElementById('boxes');
-const tracingImg = document.getElementById('tracing');
-const optionsDiv = document.getElementById('options');
-const audioLetter = document.getElementById('audioLetter');
-const audioCorrect = document.getElementById('audioCorrect');
-const audioWrong = document.getElementById('audioWrong');
-const audioClaps = document.getElementById('audioClaps');
+const tracingScreen = document.getElementById('tracingScreen');
+const finalScreen = document.getElementById('finalScreen');
+const boxesContainer = document.getElementById('boxesContainer');
+const lettersContainer = document.getElementById('lettersContainer');
+const instruction = document.getElementById('instruction');
 const playAgainBtn = document.getElementById('playAgainBtn');
-const letterAudioBtn = document.getElementById('letterAudioBtn');
+const voiceBtn = document.getElementById('voiceBtn');
+const tracingImg = document.getElementById('tracingImg');
 
-const letters = [
-  {letter:'K', box:'box-k.png', object:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
-  {letter:'L', box:'box-l.png', object:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
-  {letter:'M', box:'box-m.png', object:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
-  {letter:'N', box:'box-n.png', object:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
-  {letter:'O', box:'box-o.png', object:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'}
+const gameData = [
+  {letter:'K', obj:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
+  {letter:'L', obj:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
+  {letter:'M', obj:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
+  {letter:'N', obj:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
+  {letter:'O', obj:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'},
 ];
 
 let currentIndex = 0;
+let boxClicked = false;
+
+// Shuffle helper
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
 
 // Start Game
 function startGame() {
   logoScreen.style.display = 'flex';
   gameScreen.style.display = 'none';
-  wellDoneScreen.style.display = 'none';
+  tracingScreen.style.display = 'none';
+  finalScreen.style.display = 'none';
   setTimeout(() => {
     logoScreen.style.display = 'none';
-    gameScreen.style.display = 'flex';
+    gameScreen.style.display = 'block';
     currentIndex = 0;
-    shuffleArray(letters);
-    showLetter();
+    showBox();
   }, 5000);
 }
 
-// Show Letter
-function showLetter(){
-  boxesDiv.innerHTML = '';
-  optionsDiv.innerHTML = '';
-  tracingImg.style.display = 'none';
-  const current = letters[currentIndex];
-  const box = document.createElement('img');
-  box.src = `assets/${current.box}`;
-  box.className = 'letter-box';
-  boxesDiv.appendChild(box);
+// Show Box
+function showBox() {
+  boxesContainer.innerHTML = '';
+  lettersContainer.innerHTML = '';
+  boxClicked = false;
+  instruction.textContent = 'Click on a box to reveal the object';
+  
+  const current = gameData[currentIndex];
+  const box = document.createElement('div');
+  box.classList.add('box');
+  box.innerHTML = `<img src="assets/box-${current.letter.toLowerCase()}.png"> <img class="object-img" src="assets/${current.obj}">`;
+  boxesContainer.appendChild(box);
 
-  box.addEventListener('click',()=>{
-    const obj = document.createElement('img');
-    obj.src = `assets/${current.object}`;
-    obj.className = 'object';
-    boxesDiv.appendChild(obj);
-    obj.style.display = 'block';
-    tracingImg.src = `assets/${current.tracing}`;
-    tracingImg.style.display = 'block';
+  const objectImg = box.querySelector('.object-img');
 
-    letterAudioBtn.onclick = ()=>{
-      audioLetter.src = `assets/${current.audio}`;
-      audioLetter.play();
-    };
+  box.addEventListener('click', () => {
+    if(boxClicked) return;
+    boxClicked = true;
+    objectImg.style.display = 'block';
+    showLetters(current.letter);
+  });
 
-    showOptions(currentIndex);
+  // Voice Button
+  voiceBtn.onclick = () => {
+    const audio = new Audio(`assets/${current.audio}`);
+    audio.play();
+  };
+}
+
+// Show letters
+function showLetters(correctLetter) {
+  lettersContainer.innerHTML = '';
+  const letters = [correctLetter, 'A', 'G']; // can randomize wrong options
+  shuffle(letters);
+  letters.forEach(l => {
+    const div = document.createElement('div');
+    div.classList.add('letter-option');
+    div.textContent = l;
+    div.onclick = () => checkAnswer(l, correctLetter);
+    lettersContainer.appendChild(div);
   });
 }
 
-// Show Options
-function showOptions(index){
-  optionsDiv.innerHTML = '';
-  const current = letters[index];
-  const correctNumber = index+1; // just placeholder for demo
-  const optionNumbers = shuffleArray([correctNumber, correctNumber+1, correctNumber-1]);
-
-  optionNumbers.forEach(num=>{
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = num;
-    btn.onclick = ()=>{
-      if(num === correctNumber){
-        audioCorrect.play();
-        currentIndex++;
-        if(currentIndex < letters.length){
-          setTimeout(showLetter,800);
-        } else {
-          showWellDone();
-        }
-      } else {
-        audioWrong.play();
-      }
-    };
-    optionsDiv.appendChild(btn);
-  });
+// Check Answer
+function checkAnswer(selected, correct) {
+  if(selected === correct){
+    const clap = new Audio('assets/claps.mp3');
+    clap.play();
+    clap.onended = () => showTracing();
+  } else {
+    const wrong = new Audio('assets/wrong.mp3');
+    wrong.play();
+  }
 }
 
-// Well Done
-function showWellDone(){
+// Show Tracing
+function showTracing() {
   gameScreen.style.display = 'none';
-  wellDoneScreen.style.display = 'flex';
-  createConfetti();
+  tracingScreen.style.display = 'block';
+  const current = gameData[currentIndex];
+  tracingImg.src = `assets/${current.tracing}`;
+  setTimeout(() => {
+    tracingScreen.style.display = 'none';
+    currentIndex++;
+    if(currentIndex < gameData.length){
+      gameScreen.style.display = 'block';
+      showBox();
+    } else {
+      showFinal();
+    }
+  }, 3000);
+}
+
+// Show Final
+function showFinal() {
+  finalScreen.style.display = 'block';
+  addConfetti();
 }
 
 // Confetti
-function createConfetti(){
+function addConfetti() {
   for(let i=0;i<100;i++){
     const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random()*100+'vw';
-    c.style.background = `hsl(${Math.random()*360}, 70%, 50%)`;
+    c.classList.add('confetti');
+    c.style.background = `hsl(${Math.random()*360},70%,60%)`;
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = Math.random()*10 + 'vh';
+    c.style.width = c.style.height = (5 + Math.random()*5) + 'px';
     document.body.appendChild(c);
     setTimeout(()=>c.remove(),4000);
   }
 }
 
-// Shuffle Array
-function shuffleArray(array){
-  let arr = array.slice();
-  for(let i = arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
-}
+// Play Again
+playAgainBtn.onclick = () => {
+  gameData.sort(() => Math.random()-0.5);
+  startGame();
+};
 
-playAgainBtn.onclick = startGame;
-
-// Start
+// Initialize
 startGame();
 </script>
-
 </body>
 </html>
