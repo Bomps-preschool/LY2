@@ -3,200 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Drag and Drop</title>
+<title>Transportation Game</title>
 <style>
-    body {
+    body, html {
         margin: 0;
         padding: 0;
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-        background-color: #b3e5fc;
+        font-family: 'Comic Sans MS', sans-serif;
+        overflow-x: hidden;
     }
     #logo-screen, #game-screen, #congrats-screen {
         width: 100vw;
         height: 100vh;
-        display: flex;
+        display: none;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
     }
-    #game-screen, #congrats-screen { display: none; }
-    #game-container {
-        display: flex;
-        width: 95%;
-        max-width: 1400px;
-        margin: auto;
-        gap: 20px;
+    #logo-screen img {
+        max-width: 60%;
+        height: auto;
     }
-    .vehicles-column {
+    #game-screen {
+        display: flex;
+        flex-direction: row;
+        background: #cce7ff;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    #vehicles {
+        width: 30%;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
+        padding: 10px;
     }
     .vehicle {
+        width: 100%;
         cursor: grab;
-        max-width: 50px;
-        max-height: 500px;
+        max-width: 120px;
+        height: auto;
     }
-    .zones-column {
+    #zones {
+        width: 70%;
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        flex: 1;
+        gap: 10px;
+        justify-content: space-evenly;
+        background: url('assets/background-zones.png') no-repeat center/cover;
+        padding: 10px;
+        box-sizing: border-box;
     }
     .zone {
+        flex: 1;
+        border: 3px dashed #28a745;
         position: relative;
-        border: 3px dashed #0a8;
-        border-radius: 10px;
-        min-height: 100px;
-        background-image: url('assets/background-zones.png');
-        background-size: cover;
-        background-position: center;
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-    .zone h2 {
-        position: absolute;
-        top: 10px;
-        text-align: center;
-        width: 50%;
-        margin: 0;
-        font-size: 1.3em;
+        margin: 5px 0;
+        font-weight: bold;
+        font-size: 1.5rem;
         color: black;
+        text-align: center;
     }
-    #congrats-screen h1 {
-        font-size: 3em;
-        color: #0a8;
-        margin-bottom: 20px;
+    #congrats-screen {
+        background: #fceabb;
+        flex-direction: column;
     }
-    #play-again {
-        padding: 10px 25px;
-        font-size: 1.2em;
-        background-color: #ffcc00;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-    }
-    @media (max-width: 768px) {
-        #game-container { flex-direction: column; align-items: center; }
-        .vehicles-column { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .vehicle { max-width: 90px; max-height: 90px; }
-        .zones-column { width: 100%; }
+    #confetti-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
     }
 </style>
 </head>
 <body>
 
-<!-- Logo Screen -->
 <div id="logo-screen">
-    <img src="assets/innovine-logo.png" alt="Innovine Logo" style="width: 300px;">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
 <div id="game-screen">
-    <div id="game-container">
-        <!-- Vehicles -->
-        <div class="vehicles-column" id="vehicles-column">
-            <img src="assets/airplane.png" class="vehicle" draggable="true" data-zone="Air Transport">
-            <img src="assets/helicopter.png" class="vehicle" draggable="true" data-zone="Air Transport">
-            <img src="assets/car.png" class="vehicle" draggable="true" data-zone="Road Transport">
-            <img src="assets/bus.png" class="vehicle" draggable="true" data-zone="Road Transport">
-            <img src="assets/truck.png" class="vehicle" draggable="true" data-zone="Road Transport">
-            <img src="assets/boat.png" class="vehicle" draggable="true" data-zone="Water Transport">
-            <img src="assets/ship.png" class="vehicle" draggable="true" data-zone="Water Transport">
-        </div>
-
-        <!-- Zones -->
-        <div class="zones-column">
-            <div class="zone" id="zone-air">
-                <h2>Air Transport</h2>
-            </div>
-            <div class="zone" id="zone-road">
-                <h2>Road Transport</h2>
-            </div>
-            <div class="zone" id="zone-water">
-                <h2>Water Transport</h2>
-            </div>
-        </div>
+    <div id="vehicles">
+        <img src="assets/airplane.png" id="airplane" class="vehicle" draggable="true">
+        <img src="assets/helicopter.png" id="helicopter" class="vehicle" draggable="true">
+        <img src="assets/car.png" id="car" class="vehicle" draggable="true">
+        <img src="assets/bus.png" id="bus" class="vehicle" draggable="true">
+        <img src="assets/truck.png" id="truck" class="vehicle" draggable="true">
+        <img src="assets/boat.png" id="boat" class="vehicle" draggable="true">
+        <img src="assets/ship.png" id="ship" class="vehicle" draggable="true">
+    </div>
+    <div id="zones">
+        <div id="zone-air" class="zone" data-accept="airplane,helicopter">Air Transport</div>
+        <div id="zone-road" class="zone" data-accept="car,bus,truck">Road Transport</div>
+        <div id="zone-water" class="zone" data-accept="boat,ship">Water Transport</div>
     </div>
 </div>
 
-<!-- Congrats Screen -->
 <div id="congrats-screen">
     <h1>Good Job!</h1>
-    <button id="play-again">Play Again</button>
+    <button onclick="restartGame()">Play Again</button>
+    <canvas id="confetti-canvas"></canvas>
 </div>
 
-<!-- Sounds -->
-<audio id="correct-sound" src="assets/excellent.mp3"></audio>
-<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
-<audio id="clap-sound" src="assets/claps.mp3"></audio>
+<audio id="audio-correct" src="assets/excellent.mp3"></audio>
+<audio id="audio-wrong" src="assets/wrong.mp3"></audio>
+<audio id="audio-claps" src="assets/claps.mp3"></audio>
 
 <script>
-    // Show logo for 5 seconds
+let dragged = null;
+const vehicles = document.querySelectorAll('.vehicle');
+const zones = document.querySelectorAll('.zone');
+const correctAudio = document.getElementById('audio-correct');
+const wrongAudio = document.getElementById('audio-wrong');
+const clapsAudio = document.getElementById('audio-claps');
+const logoScreen = document.getElementById('logo-screen');
+const gameScreen = document.getElementById('game-screen');
+const congratsScreen = document.getElementById('congrats-screen');
+
+let correctCount = 0;
+
+function showLogo() {
+    logoScreen.style.display = 'flex';
     setTimeout(() => {
-        document.getElementById('logo-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'flex';
+        logoScreen.style.display = 'none';
+        gameScreen.style.display = 'flex';
     }, 5000);
+}
 
-    const vehicles = document.querySelectorAll('.vehicle');
-    const zones = document.querySelectorAll('.zone');
-    const correctSound = document.getElementById('correct-sound');
-    const wrongSound = document.getElementById('wrong-sound');
-    const clapSound = document.getElementById('clap-sound');
-
-    vehicles.forEach(vehicle => {
-        vehicle.addEventListener('dragstart', e => {
-            e.dataTransfer.setData('text/plain', vehicle.src);
-            e.dataTransfer.setData('text/zone', vehicle.dataset.zone);
-        });
+vehicles.forEach(vehicle => {
+    vehicle.addEventListener('dragstart', e => {
+        dragged = vehicle;
+        setTimeout(() => { vehicle.style.display = 'none'; }, 0);
     });
-
-    zones.forEach(zone => {
-        zone.addEventListener('dragover', e => e.preventDefault());
-        zone.addEventListener('drop', e => {
-            e.preventDefault();
-            const vehicleSrc = e.dataTransfer.getData('text/plain');
-            const correctZone = e.dataTransfer.getData('text/zone');
-
-            if(correctZone === zone.querySelector('h2').innerText) {
-                const img = document.createElement('img');
-                img.src = vehicleSrc;
-                img.style.maxWidth = '80%';
-                img.style.maxHeight = '80%';
-                zone.appendChild(img);
-                correctSound.play();
-                checkAllCorrect();
-            } else {
-                wrongSound.play();
-            }
-        });
+    vehicle.addEventListener('dragend', e => {
+        dragged.style.display = 'block';
+        dragged = null;
     });
+});
 
-    function checkAllCorrect() {
-        const air = document.querySelectorAll('#zone-air img').length;
-        const road = document.querySelectorAll('#zone-road img').length;
-        const water = document.querySelectorAll('#zone-water img').length;
-        if(air >=2 && road >=3 && water >=2) {
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('congrats-screen').style.display = 'flex';
-            // optional: play clap sound here
-            clapSound.play();
+zones.forEach(zone => {
+    zone.addEventListener('dragover', e => e.preventDefault());
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        if (!dragged) return;
+        const accepted = zone.getAttribute('data-accept').split(',');
+        if (accepted.includes(dragged.id)) {
+            zone.appendChild(dragged);
+            dragged.style.position = 'relative';
+            dragged.style.left = '0';
+            dragged.style.top = '0';
+            correctAudio.play();
+            correctCount++;
+            checkCompletion();
+        } else {
+            wrongAudio.play();
+            dragged.style.display = 'block';
         }
+    });
+});
+
+function checkCompletion() {
+    if (correctCount === vehicles.length) {
+        gameScreen.style.display = 'none';
+        congratsScreen.style.display = 'flex';
+        startConfetti();
     }
+}
 
-    document.getElementById('play-again').addEventListener('click', () => {
-        // Reset game
-        document.getElementById('congrats-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'flex';
-        const zoneImages = document.querySelectorAll('.zone img');
-        zoneImages.forEach(img => img.remove());
-        // optional: randomize vehicles order
-        const column = document.getElementById('vehicles-column');
-        for(let i = column.children.length; i >= 0; i--) {
-            column.appendChild(column.children[Math.random() * i | 0]);
+function restartGame() {
+    location.reload();
+}
+
+/* Confetti code */
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let confettiParticles = [];
+
+function initConfetti() {
+    confettiParticles = [];
+    for (let i = 0; i < 100; i++) {
+        confettiParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 6 + 4,
+            d: Math.random() * 20 + 10,
+            color: `hsl(${Math.random()*360}, 70%, 60%)`,
+            tilt: Math.random() * 10 - 10,
+            tiltAngleIncremental: Math.random() * 0.07 + 0.05
+        });
+    }
+}
+
+function drawConfetti() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettiParticles.forEach(p => {
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + p.r/2, p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r/2);
+        ctx.stroke();
+    });
+    updateConfetti();
+    requestAnimationFrame(drawConfetti);
+}
+
+function updateConfetti() {
+    confettiParticles.forEach(p => {
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.y += (Math.cos(p.d) + 3 + p.r/2)/2;
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+        if (p.y > canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
         }
     });
+}
+
+function startConfetti() {
+    initConfetti();
+    drawConfetti();
+}
+
+window.onload = showLogo;
+window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
 </script>
 
 </body>
