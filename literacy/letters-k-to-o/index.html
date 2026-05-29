@@ -1,56 +1,188 @@
-<!-- Tracing Screen -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters K–O Game</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Comic Sans MS',sans-serif;
+    background-color:#d9f2e6;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+  }
+  #logoScreen, #gameScreen, #tracingScreen, #congratsScreen{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+    height:100vh;
+  }
+  #logoScreen img{width:350px;height:auto;}
+  #gameScreen{position:relative;width:100%;max-width:900px;height:600px;background-color:#f0f5f0;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:20px;}
+  #box-container{flex:1;display:flex;justify-content:center;align-items:center;height:100%;}
+  #object-container{flex:2;display:flex;justify-content:center;align-items:center;}
+  #options-container{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+  .letter-box{background-color:#ffdc99;padding:20px 25px;margin:15px;font-size:30px;cursor:pointer;border-radius:10px;user-select:none;}
+  #voice-btn{position:fixed;left:20px;bottom:20px;width:150px;height:150px;cursor:pointer;}
+  .object-img,.box-img{max-width:300px;width:100%;max-height:300px;}
+  #tracingScreen{flex-direction:column;align-items:center;justify-content:center;}
+  #tracing-instruction{font-size:36px;margin-bottom:20px;text-align:center;}
+  #tracingLetter{font-size:180px;font-weight:bold;text-align:center;}
+  #nextBtn{margin-top:30px;padding:12px 30px;font-size:20px;border:none;border-radius:10px;background-color:#4CAF50;color:white;cursor:pointer;}
+  #congratsScreen{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:48px;color:green;}
+  #playAgainBtn{margin-top:20px;padding:12px 30px;font-size:24px;border:none;border-radius:12px;background-color:#ff9800;color:white;cursor:pointer;}
+  .confetti{position:absolute;width:10px;height:10px;border-radius:50%;animation:fall 3s linear forwards;}
+  @keyframes fall{0%{transform:translateY(0) rotate(0deg);}100%{transform:translateY(700px) rotate(360deg);opacity:0;}}
+</style>
+</head>
+<body>
+
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<div id="gameScreen">
+  <div id="box-container">
+    <img src="assets/box-k.png" id="current-box" class="box-img">
+  </div>
+  <div id="object-container">
+    <img id="current-object" class="object-img" src="">
+  </div>
+  <div id="options-container">
+    <div class="letter-box" data-letter="A">A</div>
+    <div class="letter-box" data-letter="G">G</div>
+    <div class="letter-box" data-letter="K">K</div>
+  </div>
+  <img id="voice-btn" src="assets/voice-icon.png" alt="Voice Icon">
+</div>
+
 <div id="tracingScreen">
   <div id="tracing-instruction">Trace the letter</div>
-  <canvas id="tracing-canvas" width="800" height="600"></canvas>
+  <div id="tracingLetter">K</div>
   <button id="nextBtn">Next</button>
 </div>
 
+<div id="congratsScreen">
+  Well Done!
+  <button id="playAgainBtn">Play Again</button>
+</div>
+
+<audio id="audioLetter"></audio>
+<audio id="audioClap" src="assets/claps.mp3"></audio>
+<audio id="audioCorrect" src="assets/correct.mp3"></audio>
+<audio id="audioWrong" src="assets/wrong.mp3"></audio>
+
 <script>
-const nextBtn = document.getElementById('nextBtn');
-const tracingCanvas = document.getElementById('tracing-canvas');
-const ctx = tracingCanvas.getContext('2d');
-let isTracing = false;
+const logoScreen=document.getElementById('logoScreen');
+const gameScreen=document.getElementById('gameScreen');
+const tracingScreen=document.getElementById('tracingScreen');
+const congratsScreen=document.getElementById('congratsScreen');
+const currentBox=document.getElementById('current-box');
+const currentObject=document.getElementById('current-object');
+const letterOptions=document.querySelectorAll('.letter-box');
+const voiceBtn=document.getElementById('voice-btn');
+const tracingLetter=document.getElementById('tracingLetter');
+const nextBtn=document.getElementById('nextBtn');
+const playAgainBtn=document.getElementById('playAgainBtn');
 
-// Existing startDrawing, draw, endDrawing functions remain
-let drawing = false;
-function startDrawing(e){ if(!isTracing) return; drawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY);}
-function draw(e){ if(!drawing) return; ctx.lineTo(e.offsetX,e.offsetY); ctx.strokeStyle='blue'; ctx.lineWidth=6; ctx.stroke();}
-function endDrawing(e){ if(!drawing) return; drawing=false; ctx.beginPath(); }
+const audioLetter=document.getElementById('audioLetter');
+const audioClap=document.getElementById('audioClap');
+const audioCorrect=document.getElementById('audioCorrect');
+const audioWrong=document.getElementById('audioWrong');
 
-// Updated showTracing function
-function showTracing(slide){
+const slides=[
+  {letter:'K', box:'box-k.png', object:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
+  {letter:'L', box:'box-l.png', object:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
+  {letter:'M', box:'box-m.png', object:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
+  {letter:'N', box:'box-n.png', object:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
+  {letter:'O', box:'box-o.png', object:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'}
+];
+
+let currentIndex=0;
+let boxClicked=false;
+
+function startGame(){
+  logoScreen.style.display='flex';
   gameScreen.style.display='none';
-  tracingScreen.style.display='flex';
-  ctx.clearRect(0,0,tracingCanvas.width,tracingCanvas.height);
-  const img = new Image();
-  img.src = slide.tracing;
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0, tracingCanvas.width, tracingCanvas.height);
-  };
-  isTracing = true;
+  tracingScreen.style.display='none';
+  congratsScreen.style.display='none';
+  setTimeout(()=>{logoScreen.style.display='none'; showObjectSlide();},5000);
 }
 
-// Next button only advances slide
-nextBtn.onclick = () => {
-  if(isTracing){
-    currentIndex++;
-    isTracing = false;
-    if(currentIndex < slides.length){
-      showObjectSlide(); // existing function to show object slide
-    } else {
-      showCongratsSlide(); // existing function to show final screen
+function showObjectSlide(){
+  const slide=slides[currentIndex];
+  gameScreen.style.display='flex';
+  currentBox.src='assets/'+slide.box;
+  currentObject.src='assets/'+slide.object;
+  currentObject.style.display='none';
+  boxClicked=false;
+
+  currentBox.onclick=function(){
+    if(boxClicked) return;
+    boxClicked=true;
+    currentObject.style.display='block';
+  }
+
+  voiceBtn.onclick=function(){
+    audioLetter.src='assets/'+slide.audio;
+    audioLetter.play();
+  }
+
+  letterOptions.forEach(btn=>{
+    btn.onclick=function(){
+      if(btn.dataset.letter===slide.letter){
+        audioClap.play();
+        setTimeout(showTracingSlide,800);
+      } else{
+        audioWrong.play();
+      }
     }
+  });
+}
+
+function showTracingSlide(){
+  gameScreen.style.display='none';
+  tracingScreen.style.display='flex';
+  const slide=slides[currentIndex];
+  tracingLetter.textContent=slide.letter;
+}
+
+nextBtn.onclick=function(){
+  currentIndex++;
+  if(currentIndex<slides.length){
+    tracingScreen.style.display='none';
+    showObjectSlide();
+  } else{
+    tracingScreen.style.display='none';
+    congratsScreen.style.display='flex';
+    createConfetti();
   }
 }
 
-// Tracing canvas event listeners
-tracingCanvas.addEventListener('pointerdown', startDrawing);
-tracingCanvas.addEventListener('pointermove', draw);
-tracingCanvas.addEventListener('pointerup', endDrawing);
-tracingCanvas.addEventListener('pointerleave', endDrawing);
+playAgainBtn.onclick=function(){
+  currentIndex=0;
+  slides.sort(()=>Math.random()-0.5);
+  startGame();
+}
 
-// Touch support
-tracingCanvas.ontouchstart = (e)=>startDrawing(e.touches[0]);
-tracingCanvas.ontouchend = endDrawing;
-tracingCanvas.ontouchmove = (e)=>{draw(e.touches[0]); e.preventDefault();}
+function createConfetti(){
+  for(let i=0;i<50;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.backgroundColor=['#ff595e','#ffca3a','#8ac926','#1982c4','#6a4c93','#ff85a1','#00c2ff'][Math.floor(Math.random()*7)];
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+
+startGame();
 </script>
+
+</body>
+</html>
