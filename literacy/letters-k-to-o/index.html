@@ -6,15 +6,31 @@
 <title>Letters K to O Game</title>
 <style>
 * {box-sizing:border-box; margin:0; padding:0;}
-body {font-family:'Comic Sans MS', sans-serif; background:#d7f0e2; display:flex; justify-content:center; align-items:center; min-height:100vh; overflow-x:hidden;}
-#logoScreen,#objectScreen,#tracingScreen,#congratsScreen {display:none; flex-direction:column; align-items:center; width:100%; max-width:1000px; padding:20px;}
+body {
+    font-family:'Comic Sans MS', sans-serif;
+    background: linear-gradient(135deg, #d7f0e2, #ffe3e3, #fdf6d7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+#logoScreen,#objectScreen,#tracingScreen,#congratsScreen {
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+    max-width:1000px;
+    padding:20px;
+}
 #logoScreen img {width:300px;}
 #objectScreen {display:flex; flex-direction:row; justify-content:space-between; width:100%;}
-#objectScreen .box-container {flex:1; display:flex; justify-content:center; align-items:center;}
+#objectScreen .box-container {flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:20px;}
 #objectScreen .letter-container {flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px;}
 .letter-btn {background:#ffdd99; font-size:2rem; padding:15px 25px; border-radius:10px; cursor:pointer; text-align:center; user-select:none;}
 .letter-btn:hover {background:#ffc966;}
 .object-img {width:250px; height:auto; cursor:pointer;}
+#instructionText {font-size:1.5rem; margin-bottom:20px; text-align:center;}
 #tracingScreen {flex-direction:column; align-items:center; gap:30px;}
 #tracingCanvas {border:2px dashed #555; touch-action:none; background:#fff;}
 #nextTracingBtn,#playAgainBtn {padding:10px 25px; font-size:18px; margin-top:15px; cursor:pointer; border-radius:10px; border:none; background-color:#4CAF50; color:white;}
@@ -33,6 +49,7 @@ body {font-family:'Comic Sans MS', sans-serif; background:#d7f0e2; display:flex;
 
 <div id="objectScreen">
   <div class="box-container">
+    <div id="instructionText">Tap the box, recognise the object and tap on the correct letter.</div>
     <img id="objectBox" class="object-img" src="" alt="Box">
     <img id="revealedObject" class="object-img" style="display:none;" src="" alt="Object">
   </div>
@@ -66,6 +83,7 @@ const objectScreen = document.getElementById('objectScreen');
 const objectBox = document.getElementById('objectBox');
 const revealedObject = document.getElementById('revealedObject');
 const letterOptions = document.getElementById('letterOptions');
+const instructionText = document.getElementById('instructionText');
 const voiceBtn = document.getElementById('voiceBtn');
 
 const tracingScreen = document.getElementById('tracingScreen');
