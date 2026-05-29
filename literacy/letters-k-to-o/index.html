@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peek-a-Boo Letters K-O</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', sans-serif;
+    background-color: #f3f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #logoScreen, #gameScreen, #wellDoneScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  #logoScreen img {
+    width: 250px;
+    height: auto;
+  }
+  #gameScreen {
+    background-color: #dff0f0;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #gameScreen img.letter-box {
+    width: 120px;
+    height: 120px;
+    margin: 10px;
+    cursor: pointer;
+  }
+  #gameScreen img.object {
+    width: 160px;
+    height: 160px;
+    margin: 10px;
+    display: none;
+  }
+  #audioBtn {
+    margin: 10px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  #tracing {
+    width: 180px;
+    height: 180px;
+    margin: 10px;
+    display: none;
+  }
+  .option-btn {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  #wellDoneScreen {
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: bold;
+  }
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    animation: fall 3s linear infinite;
+  }
+  @keyframes fall {
+    0% {top: 0; transform: rotate(0deg);}
+    100% {top: 100%; transform: rotate(360deg);}
+  }
+</style>
+</head>
+<body>
+
+<!-- Logo Screen -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen">
+  <div id="instruction">Tap the box to reveal the letter and object, then trace the letter.</div>
+  <div id="boxes"></div>
+  <img id="letterAudioBtn" src="assets/audio.png" alt="Play Letter" />
+  <img id="tracing" src="" alt="Tracing Letter"/>
+  <div id="options"></div>
+</div>
+
+<!-- Well Done Screen -->
+<div id="wellDoneScreen">
+  Well Done!
+  <button id="playAgainBtn">Play Again</button>
+</div>
+
+<audio id="audioLetter"></audio>
+<audio id="audioCorrect" src="assets/correct.mp3"></audio>
+<audio id="audioWrong" src="assets/wrong.mp3"></audio>
+<audio id="audioClaps" src="assets/claps.mp3"></audio>
+
+<script>
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const wellDoneScreen = document.getElementById('wellDoneScreen');
+const boxesDiv = document.getElementById('boxes');
+const tracingImg = document.getElementById('tracing');
+const optionsDiv = document.getElementById('options');
+const audioLetter = document.getElementById('audioLetter');
+const audioCorrect = document.getElementById('audioCorrect');
+const audioWrong = document.getElementById('audioWrong');
+const audioClaps = document.getElementById('audioClaps');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const letterAudioBtn = document.getElementById('letterAudioBtn');
+
+const letters = [
+  {letter:'K', box:'box-k.png', object:'kiwi.png', audio:'letter-k.mp3', tracing:'tracing-letter-k.png'},
+  {letter:'L', box:'box-l.png', object:'lamp.png', audio:'letter-l.mp3', tracing:'tracing-letter-l.png'},
+  {letter:'M', box:'box-m.png', object:'mouse.png', audio:'letter-m.mp3', tracing:'tracing-letter-m.png'},
+  {letter:'N', box:'box-n.png', object:'nest.png', audio:'letter-n.mp3', tracing:'tracing-letter-n.png'},
+  {letter:'O', box:'box-o.png', object:'ostrich.png', audio:'letter-o.mp3', tracing:'tracing-letter-o.png'}
+];
+
+let currentIndex = 0;
+
+// Start Game
+function startGame() {
+  logoScreen.style.display = 'flex';
+  gameScreen.style.display = 'none';
+  wellDoneScreen.style.display = 'none';
+  setTimeout(() => {
+    logoScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+    currentIndex = 0;
+    shuffleArray(letters);
+    showLetter();
+  }, 5000);
+}
+
+// Show Letter
+function showLetter(){
+  boxesDiv.innerHTML = '';
+  optionsDiv.innerHTML = '';
+  tracingImg.style.display = 'none';
+  const current = letters[currentIndex];
+  const box = document.createElement('img');
+  box.src = `assets/${current.box}`;
+  box.className = 'letter-box';
+  boxesDiv.appendChild(box);
+
+  box.addEventListener('click',()=>{
+    const obj = document.createElement('img');
+    obj.src = `assets/${current.object}`;
+    obj.className = 'object';
+    boxesDiv.appendChild(obj);
+    obj.style.display = 'block';
+    tracingImg.src = `assets/${current.tracing}`;
+    tracingImg.style.display = 'block';
+
+    letterAudioBtn.onclick = ()=>{
+      audioLetter.src = `assets/${current.audio}`;
+      audioLetter.play();
+    };
+
+    showOptions(currentIndex);
+  });
+}
+
+// Show Options
+function showOptions(index){
+  optionsDiv.innerHTML = '';
+  const current = letters[index];
+  const correctNumber = index+1; // just placeholder for demo
+  const optionNumbers = shuffleArray([correctNumber, correctNumber+1, correctNumber-1]);
+
+  optionNumbers.forEach(num=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = num;
+    btn.onclick = ()=>{
+      if(num === correctNumber){
+        audioCorrect.play();
+        currentIndex++;
+        if(currentIndex < letters.length){
+          setTimeout(showLetter,800);
+        } else {
+          showWellDone();
+        }
+      } else {
+        audioWrong.play();
+      }
+    };
+    optionsDiv.appendChild(btn);
+  });
+}
+
+// Well Done
+function showWellDone(){
+  gameScreen.style.display = 'none';
+  wellDoneScreen.style.display = 'flex';
+  createConfetti();
+}
+
+// Confetti
+function createConfetti(){
+  for(let i=0;i<100;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100+'vw';
+    c.style.background = `hsl(${Math.random()*360}, 70%, 50%)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+
+// Shuffle Array
+function shuffleArray(array){
+  let arr = array.slice();
+  for(let i = arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+playAgainBtn.onclick = startGame;
+
+// Start
+startGame();
+</script>
+
+</body>
+</html>
