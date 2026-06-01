@@ -3,226 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Game</title>
+<title>Transportation Sorting Game</title>
 <style>
-    body {
-        margin: 0;
-        font-family: 'Arial', sans-serif;
-        background-color: #b3e0ff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-    .slide {
-        display: none;
-        width: 100%;
-        max-width: 900px;
-        position: relative;
-        text-align: center;
-    }
-    .active {
-        display: block;
-    }
-    #logo-slide img {
-        width: 300px;
-        margin-top: 100px;
-    }
-    #game-slide {
-        position: relative;
-    }
-    #background {
-        width: 100%;
-        max-width: 900px;
-    }
-    #instruction {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(255, 255, 180, 0.9);
-        padding: 10px 20px;
-        border-radius: 10px;
-        font-size: 20px;
-        font-weight: bold;
-    }
-    #vehicle-options {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 10px;
-        flex-wrap: wrap;
-        background-color: rgba(255,255,255,0.9);
-        padding: 10px;
-        border-radius: 10px;
-    }
-    #vehicle-options img {
-        width: 80px;
-        height: auto;
-        cursor: pointer;
-        border-radius: 10px;
-        border: 2px solid #ccc;
-        padding: 5px;
-    }
-    .zone {
-        position: absolute;
-        border: 2px dashed transparent;
-    }
-    #good-job-slide {
-        display: none;
-        background-color: #fff3cc;
-        width: 100%;
-        max-width: 900px;
-        padding: 50px;
-        border-radius: 20px;
-        box-sizing: border-box;
-    }
-    #good-job-slide h1 {
-        font-size: 36px;
-    }
-    #play-again {
-        margin-top: 20px;
-        padding: 15px 30px;
-        font-size: 24px;
-        background-color: #ffdd57;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-    }
-    canvas {
-        position: absolute;
-        pointer-events: none;
-    }
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    background-color: #c7eafc;
+  }
+  #logoSlide, #gameSlide, #endSlide {
+    width: 100%;
+    height: 100vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  #logoSlide img {
+    width: 300px;
+    height: auto;
+  }
+  #gameSlide {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #instructionBox {
+    position: absolute;
+    top: 20px;
+    background: rgba(255, 255, 170, 0.85);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    z-index: 10;
+  }
+  #zonesBackground {
+    width: 90%;
+    max-width: 1000px;
+    height: auto;
+    margin-top: 60px;
+    display: block;
+  }
+  #vehicleTray {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    gap: 15px;
+  }
+  .vehicle {
+    width: 80px;
+    height: 80px;
+    background-color: #fff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .vehicle img {
+    max-width: 60px;
+    max-height: 60px;
+  }
+  .vehicle:active {
+    transform: scale(0.95);
+  }
+  #endSlide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff2b2;
+    text-align: center;
+  }
+  #endSlide h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  #playAgainBtn {
+    padding: 15px 30px;
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    background-color: #ffd633;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #playAgainBtn:hover {
+    background-color: #ffcc00;
+  }
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    z-index: 999;
+    animation: fall 3s linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(0px) rotate(0deg);}
+    100% { transform: translateY(600px) rotate(360deg);}
+  }
 </style>
 </head>
 <body>
 
 <!-- Slide 1: Logo -->
-<div id="logo-slide" class="slide active">
-    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+<div id="logoSlide" style="display:flex;">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
 <!-- Slide 2: Game -->
-<div id="game-slide" class="slide">
-    <img src="assets/background.png" id="background" alt="Background">
-    <div id="instruction">Tap a vehicle, then tap the correct transport zone</div>
-    <div id="vehicle-options">
-        <img src="assets/airplane.png" data-type="air" alt="Airplane">
-        <img src="assets/helicopter.png" data-type="air" alt="Helicopter">
-        <img src="assets/car.png" data-type="road" alt="Car">
-        <img src="assets/bus.png" data-type="road" alt="Bus">
-        <img src="assets/truck.png" data-type="road" alt="Truck">
-        <img src="assets/boat.png" data-type="water" alt="Boat">
-        <img src="assets/ship.png" data-type="water" alt="Ship">
-    </div>
-    <!-- Zones -->
-    <div class="zone" id="zone-air" style="top:30px; left:50px; width:300px; height:180px;"></div>
-    <div class="zone" id="zone-road" style="top:220px; left:50px; width:800px; height:180px;"></div>
-    <div class="zone" id="zone-water" style="top:420px; left:50px; width:800px; height:180px;"></div>
+<div id="gameSlide">
+  <div id="instructionBox">Tap a vehicle, then tap the correct transport zone</div>
+  <img id="zonesBackground" src="assets/background.png" alt="Transport Zones">
+  <div id="vehicleTray">
+    <div class="vehicle" data-zone="air"><img src="assets/airplane.png" alt="Airplane"></div>
+    <div class="vehicle" data-zone="air"><img src="assets/helicopter.png" alt="Helicopter"></div>
+    <div class="vehicle" data-zone="road"><img src="assets/car.png" alt="Car"></div>
+    <div class="vehicle" data-zone="road"><img src="assets/bus.png" alt="Bus"></div>
+    <div class="vehicle" data-zone="road"><img src="assets/truck.png" alt="Truck"></div>
+    <div class="vehicle" data-zone="water"><img src="assets/boat.png" alt="Boat"></div>
+    <div class="vehicle" data-zone="water"><img src="assets/ship.png" alt="Ship"></div>
+  </div>
 </div>
 
-<!-- Slide 3: Good Job -->
-<div id="good-job-slide" class="slide">
-    <h1>Good Job!</h1>
-    <button id="play-again">Play Again</button>
-    <canvas id="confetti"></canvas>
+<!-- Slide 3: End -->
+<div id="endSlide">
+  <h1>Good Job!</h1>
+  <button id="playAgainBtn">Play Again</button>
 </div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-let currentVehicle = null;
-let placedCount = 0;
-const totalVehicles = 7;
-const rightSound = new Audio('assets/correct.mp3');
-const wrongSound = new Audio('assets/wrong.mp3');
-const clapSound = new Audio('assets/claps.mp3');
+let logoSlide = document.getElementById('logoSlide');
+let gameSlide = document.getElementById('gameSlide');
+let endSlide = document.getElementById('endSlide');
+let vehicles = document.querySelectorAll('.vehicle');
+let selectedVehicle = null;
+let correctCount = 0;
 
-window.addEventListener('DOMContentLoaded', () => {
-    // Slide 1: Logo for 5s
-    setTimeout(() => {
-        document.getElementById('logo-slide').classList.remove('active');
-        document.getElementById('game-slide').classList.add('active');
-    }, 5000);
+// Show logo for 5s
+logoSlide.style.display = 'flex';
+setTimeout(() => {
+  logoSlide.style.display = 'none';
+  gameSlide.style.display = 'flex';
+}, 5000);
 
-    const vehicles = document.querySelectorAll('#vehicle-options img');
-    const zones = {
-        air: document.getElementById('zone-air'),
-        road: document.getElementById('zone-road'),
-        water: document.getElementById('zone-water')
-    };
-
-    vehicles.forEach(v => {
-        v.addEventListener('click', () => {
-            currentVehicle = v;
-            vehicles.forEach(vv => vv.style.borderColor = '#ccc');
-            v.style.borderColor = 'green';
-        });
-    });
-
-    Object.keys(zones).forEach(type => {
-        zones[type].addEventListener('click', () => {
-            if (!currentVehicle) return;
-            if (currentVehicle.dataset.type === type) {
-                // Correct placement
-                currentVehicle.style.position = 'absolute';
-                currentVehicle.style.top = (zones[type].offsetTop + 20) + 'px';
-                currentVehicle.style.left = (zones[type].offsetLeft + placedCount*100 + 20) + 'px';
-                currentVehicle.style.borderColor = 'green';
-                clapSound.play();
-                currentVehicle = null;
-                placedCount++;
-                if (placedCount === totalVehicles) {
-                    setTimeout(() => showGoodJob(), 1000);
-                }
-            } else {
-                wrongSound.play();
-            }
-        });
-    });
-
-    function showGoodJob() {
-        document.getElementById('game-slide').classList.remove('active');
-        document.getElementById('good-job-slide').classList.add('active');
-        startConfetti();
-    }
-
-    document.getElementById('play-again').addEventListener('click', () => {
-        location.reload();
-    });
+// Game logic
+vehicles.forEach(v => {
+  v.addEventListener('click', () => {
+    if (selectedVehicle) selectedVehicle.style.border = '';
+    selectedVehicle = v;
+    selectedVehicle.style.border = '2px solid #ff6600';
+  });
 });
 
-// Confetti
-function startConfetti() {
-    const canvas = document.getElementById('confetti');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-    const pieces = [];
-    const colors = ['#ff0','#f00','#0f0','#00f','#f0f'];
-    for(let i=0;i<150;i++){
-        pieces.push({
-            x: Math.random()*canvas.width,
-            y: Math.random()*canvas.height-100,
-            r: Math.random()*6+2,
-            d: Math.random()*10+5,
-            color: colors[Math.floor(Math.random()*colors.length)]
-        });
-    }
-    function draw(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        pieces.forEach(p=>{
-            ctx.beginPath();
-            ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-            ctx.fillStyle = p.color;
-            ctx.fill();
-            p.y += p.d;
-            if(p.y>canvas.height){ p.y=-10; p.x=Math.random()*canvas.width;}
-        });
-        requestAnimationFrame(draw);
-    }
-    draw();
-}
-</script>
+// Define drop zones coordinates (approx) relative to image size
+let zonesBackground = document.getElementById('zonesBackground');
+zonesBackground.addEventListener('click', (e) => {
+  if (!selectedVehicle) return;
+  let rect = zonesBackground.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
 
+  // Define zones by coordinates
+  let imgWidth = rect.width;
+  let imgHeight = rect.height;
+
+  let zones = {
+    air: {x1:0, x2: imgWidth/3, y1:0, y2: imgHeight/3},
+    road: {x1:0, x2: imgWidth, y1: imgHeight/3, y2: 2*imgHeight/3},
+    water: {x1:0, x2: imgWidth, y1: 2*imgHeight/3, y2: imgHeight}
+  };
+
+  let zoneName = selectedVehicle.dataset.zone;
+  let dropSuccess = false;
+
+  if (zoneName === 'air' && x>=zones.air.x1 && x<=zones.air.x2 && y>=zones.air.y1 && y<=zones.air.y2) dropSuccess=true;
+  else if (zoneName === 'road' && x>=zones.road.x1 && x<=zones.road.x2 && y>=zones.road.y1 && y<=zones.road.y2) dropSuccess=true;
+  else if (zoneName === 'water' && x>=zones.water.x1 && x<=zones.water.x2 && y>=zones.water.y1 && y<=zones.water.y2) dropSuccess=true;
+
+  if(dropSuccess){
+    document.getElementById('correctSound').play();
+    selectedVehicle.style.pointerEvents = 'none';
+    selectedVehicle.style.transform = 'translate(' + (e.clientX - selectedVehicle.offsetWidth/2) + 'px,' + (e.clientY - selectedVehicle.offsetHeight/2) + 'px)';
+    setTimeout(()=> {
+      document.getElementById('clapSound').play();
+      correctCount++;
+      if(correctCount === vehicles.length) showEndSlide();
+    }, 300);
+  } else {
+    document.getElementById('wrongSound').play();
+  }
+});
+
+function showEndSlide() {
+  gameSlide.style.display = 'none';
+  endSlide.style.display = 'flex';
+  // Confetti
+  for(let i=0;i<100;i++){
+    let confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.backgroundColor = ['#FF0','#F0F','#0FF','#0F0'][Math.floor(Math.random()*4)];
+    confetti.style.left = Math.random()*window.innerWidth + 'px';
+    confetti.style.top = '-10px';
+    confetti.style.width = confetti.style.height = (5 + Math.random()*5) + 'px';
+    document.body.appendChild(confetti);
+    setTimeout(()=> confetti.remove(), 3000);
+  }
+}
+
+document.getElementById('playAgainBtn').addEventListener('click', ()=>{
+  window.location.reload();
+});
+</script>
 </body>
 </html>
