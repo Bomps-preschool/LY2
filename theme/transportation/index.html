@@ -3,154 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community Helpers Game</title>
+<title>Transportation Sorting Game</title>
 <style>
   body {
-    font-family: 'Arial', sans-serif;
     margin: 0;
-    padding: 0;
-    background: #ffe6cc;
-    display: flex;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    overflow: hidden;
+    background: #cce7ff;
+  }
+
+  #logoScreen, #gameScreen, #endScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
     justify-content: center;
     align-items: center;
-    height: 100vh;
   }
-  #gameContainer {
-    width: 90%;
-    max-width: 900px;
-    text-align: center;
-    position: relative;
+
+  #logoScreen img {
+    width: 300px;
+    height: auto;
   }
-  #instruction {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-bottom: 20px;
-    background: #ffd6b3;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  }
-  #questionBox {
-    background: #ff9999;
-    padding: 40px 20px 60px 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    min-height: 180px;
+
+  #gameScreen {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-end;
+    background: url('assets/background.png') no-repeat center center;
+    background-size: cover;
   }
-  #questionText {
-    font-size: 1.4em;
+
+  #instruction {
+    position: absolute;
+    top: 10px;
+    font-size: 2rem;
     font-weight: bold;
+    text-align: center;
+    width: 100%;
+    color: #000;
+    text-shadow: 1px 1px 2px #fff;
   }
-  .answerBtn {
-    padding: 15px 25px;
-    margin: 10px;
-    font-size: 1.1em;
-    cursor: pointer;
-    border-radius: 10px;
-    border: 2px solid #444;
-    background: #fff;
-    transition: transform 0.2s;
+
+  #zones {
+    position: absolute;
+    top: 10%;
+    width: 100%;
+    height: 70%;
   }
-  .answerBtn:hover {
-    transform: scale(1.05);
+
+  .zone {
+    position: absolute;
   }
-  #playAgainBtn {
-    display: none;
+
+  #airZone { top: 5%; left: 10%; width: 80%; height: 25%; }
+  #roadZone { top: 35%; left: 10%; width: 80%; height: 25%; }
+  #waterZone { top: 65%; left: 10%; width: 80%; height: 25%; }
+
+  #vehicleTray {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.8);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .vehicle {
+    width: 80px;
+    height: auto;
+    cursor: grab;
+  }
+
+  #endScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #d4f5d4;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0a5;
+  }
+
+  #playAgain {
     margin-top: 20px;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    background-color: #ffeb3b;
     border: none;
-    background: #fff333;
+    border-radius: 8px;
     cursor: pointer;
   }
 </style>
 </head>
 <body>
 
-<div id="gameContainer">
-  <div id="instruction">Listen to the question and choose the correct answer</div>
-  
-  <div id="questionBox">
-    <div id="questionText"></div>
-    <div id="answersContainer"></div>
-  </div>
+<!-- Logo Screen -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
 
-  <button id="playAgainBtn">Play Again</button>
+<!-- Game Screen -->
+<div id="gameScreen">
+  <div id="instruction">Drag the vehicle to the correct transport zone</div>
+  <div id="zones">
+    <div class="zone" id="airZone"></div>
+    <div class="zone" id="roadZone"></div>
+    <div class="zone" id="waterZone"></div>
+  </div>
+  <div id="vehicleTray">
+    <img src="assets/airplane.png" class="vehicle" draggable="true" data-zone="airZone">
+    <img src="assets/helicopter.png" class="vehicle" draggable="true" data-zone="airZone">
+    <img src="assets/car.png" class="vehicle" draggable="true" data-zone="roadZone">
+    <img src="assets/bus.png" class="vehicle" draggable="true" data-zone="roadZone">
+    <img src="assets/truck.png" class="vehicle" draggable="true" data-zone="roadZone">
+    <img src="assets/boat.png" class="vehicle" draggable="true" data-zone="waterZone">
+    <img src="assets/ship.png" class="vehicle" draggable="true" data-zone="waterZone">
+  </div>
+</div>
+
+<!-- End Screen -->
+<div id="endScreen">
+  Good Job!
+  <button id="playAgain">Play Again</button>
 </div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 <audio id="clapSound" src="assets/claps.mp3"></audio>
+<audio id="excellentSound" src="assets/excellent.mp3"></audio>
 
 <script>
-const questions = [
-  {text: "Who helps you keep the surroundings clean?", audio: "assets/question-1.mp3", correct: "Sweeper", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
-  {text: "Who treats sick people?", audio: "assets/question-2.mp3", correct: "Doctor", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
-  {text: "Who teaches you at school?", audio: "assets/question-3.mp3", correct: "Teacher", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
-  {text: "Who delivers letters?", audio: "assets/question-4.mp3", correct: "Postman", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
-  {text: "Who helps you during a fire?", audio: "assets/question-5.mp3", correct: "Firefighter", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]}
-];
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const endScreen = document.getElementById('endScreen');
+const playAgainBtn = document.getElementById('playAgain');
+const vehicles = document.querySelectorAll('.vehicle');
 
-let currentQuestionIndex = 0;
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
+const clapSound = document.getElementById('clapSound');
+const excellentSound = document.getElementById('excellentSound');
 
-const questionText = document.getElementById("questionText");
-const answersContainer = document.getElementById("answersContainer");
-const playAgainBtn = document.getElementById("playAgainBtn");
+let correctCount = 0;
 
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
-const clapSound = document.getElementById("clapSound");
+// Show logo for 5 seconds
+logoScreen.style.display = 'flex';
+setTimeout(() => {
+  logoScreen.style.display = 'none';
+  gameScreen.style.display = 'flex';
+}, 5000);
 
-function loadQuestion() {
-  if(currentQuestionIndex >= questions.length){
-    questionText.textContent = "Good Job!";
-    answersContainer.innerHTML = "";
-    playAgainBtn.style.display = "block";
-    return;
-  }
-
-  const q = questions[currentQuestionIndex];
-  questionText.textContent = q.text;
-  answersContainer.innerHTML = "";
-
-  q.options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "answerBtn";
-    btn.textContent = opt;
-    btn.onclick = () => checkAnswer(opt);
-    answersContainer.appendChild(btn);
+// Drag & Drop
+vehicles.forEach(v => {
+  v.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', v.id);
   });
+});
 
-  // play question audio
-  const audio = new Audio(q.audio);
-  audio.play();
-}
+const zones = document.querySelectorAll('.zone');
+zones.forEach(z => {
+  z.addEventListener('dragover', e => e.preventDefault());
+  z.addEventListener('drop', e => {
+    e.preventDefault();
+    const vehicleId = e.dataTransfer.getData('text');
+    const vehicle = document.getElementById(vehicleId);
 
-function checkAnswer(selected){
-  const q = questions[currentQuestionIndex];
-  if(selected === q.correct){
-    clapSound.play();
-    clapSound.onended = () => {
-      currentQuestionIndex++;
-      loadQuestion();
+    if(vehicle.dataset.zone === z.id && !vehicle.dataset.placed) {
+      vehicle.dataset.placed = 'true';
+      vehicle.style.pointerEvents = 'none';
+      vehicle.style.position = 'absolute';
+      vehicle.style.left = (Math.random()*(z.offsetWidth-vehicle.offsetWidth)) + 'px';
+      vehicle.style.top = (Math.random()*(z.offsetHeight-vehicle.offsetHeight)) + 'px';
+      correctSound.play();
+      clapSound.play();
+      clapSound.onended = () => {
+        correctCount++;
+        if(correctCount === vehicles.length){
+          gameScreen.style.display = 'none';
+          endScreen.style.display = 'flex';
+        }
+      };
+    } else {
+      wrongSound.play();
     }
-  } else {
-    wrongSound.play();
-  }
-}
+  });
+});
 
-playAgainBtn.onclick = () => {
-  currentQuestionIndex = 0;
-  playAgainBtn.style.display = "none";
-  loadQuestion();
-}
-
-window.onload = loadQuestion;
+// Play Again
+playAgainBtn.addEventListener('click', () => {
+  window.location.reload();
+});
 </script>
 
 </body>
