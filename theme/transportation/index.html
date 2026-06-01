@@ -3,227 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Sorting Game</title>
+<title>Transportation Game</title>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #e0f7fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-  }
-  #gameContainer {
-    width: 100%;
-    max-width: 900px;
-    text-align: center;
-    position: relative;
-  }
-  #logoSlide, #goodJobSlide, #gameSlide {
-    display: none;
-  }
-  #logoSlide img {
-    width: 50%;
-    margin-top: 20%;
-  }
-  #gameSlide {
-    position: relative;
-  }
-  #instructionBox {
-    background-color: #fff3e0;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-  #backgroundZones {
-    width: 100%;
-    max-height: 400px;
-    object-fit: contain;
-  }
-  #vehicleTray {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    gap: 10px;
-  }
-  .vehicle {
-    width: 80px;
-    height: 80px;
-    padding: 5px;
-    background: #ffffff;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  #goodJobSlide {
-    background: #ffecb3;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  #playAgainBtn {
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    margin-top: 20px;
-    background-color: #ffd54f;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  }
+    body {
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        background-color: #b3e0ff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .slide {
+        display: none;
+        width: 100%;
+        max-width: 900px;
+        position: relative;
+        text-align: center;
+    }
+    .active {
+        display: block;
+    }
+    #logo-slide img {
+        width: 300px;
+        margin-top: 100px;
+    }
+    #game-slide {
+        position: relative;
+    }
+    #background {
+        width: 100%;
+        max-width: 900px;
+    }
+    #instruction {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 180, 0.9);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    #vehicle-options {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+        background-color: rgba(255,255,255,0.9);
+        padding: 10px;
+        border-radius: 10px;
+    }
+    #vehicle-options img {
+        width: 80px;
+        height: auto;
+        cursor: pointer;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        padding: 5px;
+    }
+    .zone {
+        position: absolute;
+        border: 2px dashed transparent;
+    }
+    #good-job-slide {
+        display: none;
+        background-color: #fff3cc;
+        width: 100%;
+        max-width: 900px;
+        padding: 50px;
+        border-radius: 20px;
+        box-sizing: border-box;
+    }
+    #good-job-slide h1 {
+        font-size: 36px;
+    }
+    #play-again {
+        margin-top: 20px;
+        padding: 15px 30px;
+        font-size: 24px;
+        background-color: #ffdd57;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    canvas {
+        position: absolute;
+        pointer-events: none;
+    }
 </style>
 </head>
 <body>
-<div id="gameContainer">
-  <!-- Logo Slide -->
-  <div id="logoSlide">
+
+<!-- Slide 1: Logo -->
+<div id="logo-slide" class="slide active">
     <img src="assets/innovine-logo.png" alt="Innovine Logo">
-  </div>
-
-  <!-- Game Slide -->
-  <div id="gameSlide">
-    <div id="instructionBox">Tap a vehicle, then tap the correct transport zone</div>
-    <img id="backgroundZones" src="assets/background.png" alt="Transport Zones">
-    <div id="vehicleTray">
-      <img src="assets/airplane.png" class="vehicle" data-zone="air" alt="Airplane">
-      <img src="assets/helicopter.png" class="vehicle" data-zone="air" alt="Helicopter">
-      <img src="assets/car.png" class="vehicle" data-zone="road" alt="Car">
-      <img src="assets/bus.png" class="vehicle" data-zone="road" alt="Bus">
-      <img src="assets/truck.png" class="vehicle" data-zone="road" alt="Truck">
-      <img src="assets/boat.png" class="vehicle" data-zone="water" alt="Boat">
-      <img src="assets/ship.png" class="vehicle" data-zone="water" alt="Ship">
-    </div>
-  </div>
-
-  <!-- Good Job Slide -->
-  <div id="goodJobSlide">
-    <h1>Good Job!</h1>
-    <button id="playAgainBtn">Play Again</button>
-    <canvas id="confettiCanvas"></canvas>
-  </div>
 </div>
 
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="clapSound" src="assets/claps.mp3"></audio>
+<!-- Slide 2: Game -->
+<div id="game-slide" class="slide">
+    <img src="assets/background.png" id="background" alt="Background">
+    <div id="instruction">Tap a vehicle, then tap the correct transport zone</div>
+    <div id="vehicle-options">
+        <img src="assets/airplane.png" data-type="air" alt="Airplane">
+        <img src="assets/helicopter.png" data-type="air" alt="Helicopter">
+        <img src="assets/car.png" data-type="road" alt="Car">
+        <img src="assets/bus.png" data-type="road" alt="Bus">
+        <img src="assets/truck.png" data-type="road" alt="Truck">
+        <img src="assets/boat.png" data-type="water" alt="Boat">
+        <img src="assets/ship.png" data-type="water" alt="Ship">
+    </div>
+    <!-- Zones -->
+    <div class="zone" id="zone-air" style="top:30px; left:50px; width:300px; height:180px;"></div>
+    <div class="zone" id="zone-road" style="top:220px; left:50px; width:800px; height:180px;"></div>
+    <div class="zone" id="zone-water" style="top:420px; left:50px; width:800px; height:180px;"></div>
+</div>
+
+<!-- Slide 3: Good Job -->
+<div id="good-job-slide" class="slide">
+    <h1>Good Job!</h1>
+    <button id="play-again">Play Again</button>
+    <canvas id="confetti"></canvas>
+</div>
 
 <script>
-let selectedVehicle = null;
+let currentVehicle = null;
 let placedCount = 0;
-const totalVehicles = 7; // total number of vehicles to place
-const gameContainer = document.getElementById("gameContainer");
-const logoSlide = document.getElementById("logoSlide");
-const gameSlide = document.getElementById("gameSlide");
-const goodJobSlide = document.getElementById("goodJobSlide");
-const playAgainBtn = document.getElementById("playAgainBtn");
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
-const clapSound = document.getElementById("clapSound");
+const totalVehicles = 7;
+const rightSound = new Audio('assets/correct.mp3');
+const wrongSound = new Audio('assets/wrong.mp3');
+const clapSound = new Audio('assets/claps.mp3');
 
-// Show logo for 5 seconds
-logoSlide.style.display = "block";
-setTimeout(() => {
-  logoSlide.style.display = "none";
-  gameSlide.style.display = "block";
-}, 5000);
+window.addEventListener('DOMContentLoaded', () => {
+    // Slide 1: Logo for 5s
+    setTimeout(() => {
+        document.getElementById('logo-slide').classList.remove('active');
+        document.getElementById('game-slide').classList.add('active');
+    }, 5000);
 
-const vehicles = document.querySelectorAll(".vehicle");
+    const vehicles = document.querySelectorAll('#vehicle-options img');
+    const zones = {
+        air: document.getElementById('zone-air'),
+        road: document.getElementById('zone-road'),
+        water: document.getElementById('zone-water')
+    };
 
-vehicles.forEach(vehicle => {
-  vehicle.addEventListener("click", () => {
-    selectedVehicle = vehicle;
-  });
-});
+    vehicles.forEach(v => {
+        v.addEventListener('click', () => {
+            currentVehicle = v;
+            vehicles.forEach(vv => vv.style.borderColor = '#ccc');
+            v.style.borderColor = 'green';
+        });
+    });
 
-document.getElementById("backgroundZones").addEventListener("click", (e) => {
-  if (!selectedVehicle) return;
+    Object.keys(zones).forEach(type => {
+        zones[type].addEventListener('click', () => {
+            if (!currentVehicle) return;
+            if (currentVehicle.dataset.type === type) {
+                // Correct placement
+                currentVehicle.style.position = 'absolute';
+                currentVehicle.style.top = (zones[type].offsetTop + 20) + 'px';
+                currentVehicle.style.left = (zones[type].offsetLeft + placedCount*100 + 20) + 'px';
+                currentVehicle.style.borderColor = 'green';
+                clapSound.play();
+                currentVehicle = null;
+                placedCount++;
+                if (placedCount === totalVehicles) {
+                    setTimeout(() => showGoodJob(), 1000);
+                }
+            } else {
+                wrongSound.play();
+            }
+        });
+    });
 
-  const rect = e.target.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-
-  let correct = false;
-  if (selectedVehicle.dataset.zone === "air" && clickY < rect.height/3) correct = true;
-  if (selectedVehicle.dataset.zone === "road" && clickY >= rect.height/3 && clickY < 2*rect.height/3) correct = true;
-  if (selectedVehicle.dataset.zone === "water" && clickY >= 2*rect.height/3) correct = true;
-
-  if (correct) {
-    correctSound.play();
-    clapSound.play();
-    // move vehicle to zone visually
-    selectedVehicle.style.position = "absolute";
-    selectedVehicle.style.left = clickX - 40 + "px";
-    selectedVehicle.style.top = clickY - 40 + "px";
-    placedCount++;
-    selectedVehicle.removeEventListener("click", () => {});
-    selectedVehicle = null;
-
-    if (placedCount === totalVehicles) {
-      gameSlide.style.display = "none";
-      goodJobSlide.style.display = "block";
-      startConfetti();
+    function showGoodJob() {
+        document.getElementById('game-slide').classList.remove('active');
+        document.getElementById('good-job-slide').classList.add('active');
+        startConfetti();
     }
-  } else {
-    wrongSound.play();
-  }
+
+    document.getElementById('play-again').addEventListener('click', () => {
+        location.reload();
+    });
 });
 
-playAgainBtn.addEventListener("click", () => {
-  location.reload();
-});
-
-// Confetti effect
+// Confetti
 function startConfetti() {
-  const canvas = document.getElementById("confettiCanvas");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext("2d");
-  const confetti = [];
-  for (let i=0; i<150; i++) {
-    confetti.push({
-      x: Math.random()*canvas.width,
-      y: Math.random()*canvas.height,
-      r: Math.random()*6+4,
-      d: Math.random()*150+150,
-      color: `hsl(${Math.random()*360}, 100%, 50%)`,
-      tilt: Math.random()*10-10,
-      tiltAngleIncremental: Math.random()*0.07+0.05
-    });
-  }
-
-  function drawConfetti() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confetti.forEach(c => {
-      ctx.beginPath();
-      ctx.lineWidth = c.r/2;
-      ctx.strokeStyle = c.color;
-      ctx.moveTo(c.x + c.tilt + c.r/4, c.y);
-      ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r/4);
-      ctx.stroke();
-    });
-    updateConfetti();
-    requestAnimationFrame(drawConfetti);
-  }
-
-  function updateConfetti() {
-    confetti.forEach(c => {
-      c.y += Math.cos(0.01 + c.d) + 1 + c.r/2;
-      c.x += Math.sin(0.01);
-      c.tilt += c.tiltAngleIncremental;
-      if (c.y > canvas.height) {
-        c.y = -10;
-        c.x = Math.random()*canvas.width;
-      }
-    });
-  }
-
-  drawConfetti();
+    const canvas = document.getElementById('confetti');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const pieces = [];
+    const colors = ['#ff0','#f00','#0f0','#00f','#f0f'];
+    for(let i=0;i<150;i++){
+        pieces.push({
+            x: Math.random()*canvas.width,
+            y: Math.random()*canvas.height-100,
+            r: Math.random()*6+2,
+            d: Math.random()*10+5,
+            color: colors[Math.floor(Math.random()*colors.length)]
+        });
+    }
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            p.y += p.d;
+            if(p.y>canvas.height){ p.y=-10; p.x=Math.random()*canvas.width;}
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
 }
 </script>
+
 </body>
 </html>
