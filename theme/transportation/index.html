@@ -2,142 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Transportation Game</title>
 <style>
-  * {margin:0; padding:0; box-sizing:border-box;}
-  body, html {width:100%; height:100%; font-family: 'Comic Sans MS', cursive;}
-  .slide {width:100%; height:100%; position:absolute; display:none; justify-content:center; align-items:center;}
-  #logoSlide {background:#fff; display:flex;}
-  #gameSlide {display:flex; flex-direction:column; justify-content:flex-end; align-items:center; background:#a2d2f2; position:relative;}
-  #gameSlide img#background {width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; z-index:1;}
-  .zone {position:absolute; border:2px dashed rgba(0,0,0,0.3); border-radius:10px; z-index:2;}
-  #airZone {top:10%; left:10%; width:80%; height:25%;}
-  #roadZone {top:40%; left:10%; width:80%; height:25%;}
-  #waterZone {top:70%; left:10%; width:80%; height:25%;}
-  #vehicleTray {position:absolute; bottom:10px; display:flex; justify-content:center; gap:10px; z-index:3;}
-  #vehicleTray img {width:80px; height:auto; cursor:pointer; transition: transform 0.2s;}
-  #vehicleTray img:active {transform:scale(1.2);}
-  #endSlide {background:#caffbf; display:flex; flex-direction:column; justify-content:center; align-items:center;}
-  #endSlide button {padding:10px 20px; font-size:24px; margin-top:20px; cursor:pointer;}
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body, html {width: 100%; height: 100%; font-family: 'Comic Sans MS', sans-serif;}
+    #logoScreen, #gameScreen, #endScreen {position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;}
+    #logoScreen {display: flex; justify-content: center; align-items: center; background: #fff;}
+    #gameScreen {display: flex; flex-direction: column; align-items: center; justify-content: flex-end; overflow: hidden; position: relative;}
+    #backgroundImage {position: relative; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; background-image: url('assets/background.png');}
+    .zone {position: absolute; border: 2px dashed transparent; pointer-events: none;}
+    #airZone {top:10%; left:10%; width:80%; height:25%;}
+    #roadZone {top:40%; left:10%; width:80%; height:25%;}
+    #waterZone {top:70%; left:10%; width:80%; height:25%;}
+    .vehicleTray {position: absolute; bottom:10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; z-index: 2;}
+    .vehicle {width: 80px; height: auto; margin: 5px; cursor: grab; transition: transform 0.2s;}
+    .vehicle:active {transform: scale(1.2);}
+    #endScreen {background:#b8f2d9; display:flex; flex-direction:column; justify-content:center; align-items:center;}
+    #endScreen button {padding:10px 20px; font-size:24px; margin-top:20px; cursor:pointer;}
+    .confetti-piece {position: absolute; width: 10px; height: 10px; background: #ff6b6b; animation: fall linear infinite;}
+    @keyframes fall {0% {top: -10px;} 100% {top: 100%;}}
 </style>
 </head>
 <body>
 
-<!-- Slide 1: Logo -->
-<div id="logoSlide" class="slide">
-  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+<div id="logoScreen">
+    <img src="assets/innovine-logo.png" alt="Logo" style="width:250px; height:auto;">
 </div>
 
-<!-- Slide 2: Game -->
-<div id="gameSlide" class="slide">
-  <img id="background" src="assets/background-zones.png" alt="Background">
-  <div id="airZone" class="zone"></div>
-  <div id="roadZone" class="zone"></div>
-  <div id="waterZone" class="zone"></div>
-
-  <div id="vehicleTray">
-    <img src="assets/airplane.png" id="airplane" data-target="airZone">
-    <img src="assets/helicopter.png" id="helicopter" data-target="airZone">
-    <img src="assets/car.png" id="car" data-target="roadZone">
-    <img src="assets/bus.png" id="bus" data-target="roadZone">
-    <img src="assets/truck.png" id="truck" data-target="roadZone">
-    <img src="assets/boat.png" id="boat" data-target="waterZone">
-    <img src="assets/ship.png" id="ship" data-target="waterZone">
-  </div>
+<div id="gameScreen">
+    <div id="backgroundImage">
+        <div id="airZone" class="zone"></div>
+        <div id="roadZone" class="zone"></div>
+        <div id="waterZone" class="zone"></div>
+    </div>
+    <div class="vehicleTray" id="vehicleTray">
+        <img src="assets/airplane.png" class="vehicle" draggable="true" data-zone="airZone">
+        <img src="assets/helicopter.png" class="vehicle" draggable="true" data-zone="airZone">
+        <img src="assets/car.png" class="vehicle" draggable="true" data-zone="roadZone">
+        <img src="assets/bus.png" class="vehicle" draggable="true" data-zone="roadZone">
+        <img src="assets/truck.png" class="vehicle" draggable="true" data-zone="roadZone">
+        <img src="assets/boat.png" class="vehicle" draggable="true" data-zone="waterZone">
+        <img src="assets/ship.png" class="vehicle" draggable="true" data-zone="waterZone">
+    </div>
 </div>
 
-<!-- Slide 3: End -->
-<div id="endSlide" class="slide">
-  <h1>Good Job!</h1>
-  <button onclick="playAgain()">Play Again</button>
+<div id="endScreen">
+    <h1>Good Job!</h1>
+    <button id="playAgain">Play Again</button>
+    <canvas id="confetti-canvas"></canvas>
 </div>
 
-<audio id="correctSound" src="assets/excellent.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="correctAudio" src="assets/excellent.mp3"></audio>
+<audio id="wrongAudio" src="assets/wrong.mp3"></audio>
 
 <script>
-let draggedItem = null;
-const slides = ["logoSlide", "gameSlide", "endSlide"];
+let correctCount = 0;
+const totalVehicles = 7;
+const slides = ["logoScreen","gameScreen","endScreen"];
 let currentSlide = 0;
 
-// Show Logo Slide for 5 seconds
-document.getElementById(slides[currentSlide]).style.display = "flex";
-setTimeout(()=>{showSlide(1);}, 5000);
-
-function showSlide(index){
-  slides.forEach(id=>document.getElementById(id).style.display="none");
-  currentSlide=index;
-  document.getElementById(slides[index]).style.display="flex";
+function showSlide(slideId){
+    slides.forEach(id=>document.getElementById(id).style.display="none");
+    document.getElementById(slideId).style.display="flex";
 }
 
-// Drag & Drop
-const vehicles = document.querySelectorAll("#vehicleTray img");
-vehicles.forEach(v=>{
-  v.addEventListener("dragstart", e=>{draggedItem=e.target;});
-  v.addEventListener("mousedown", e=>{draggedItem=e.target;}); // Mobile support
-});
+showSlide('logoScreen');
+setTimeout(()=> showSlide('gameScreen'), 5000);
 
-const zones = document.querySelectorAll(".zone");
-zones.forEach(z=>{
-  z.addEventListener("mouseup", e=>{
-    if(draggedItem && draggedItem.dataset.target===z.id){
-      // Correct
-      z.appendChild(draggedItem);
-      draggedItem.style.position="absolute";
-      draggedItem.style.top="10px";
-      draggedItem.style.left="10px";
-      document.getElementById("correctSound").play();
-      checkCompletion();
-    } else if(draggedItem){
-      document.getElementById("wrongSound").play();
-      draggedItem=null;
-    }
-  });
-});
+const vehicles = document.querySelectorAll('.vehicle');
+const zones = document.querySelectorAll('.zone');
 
-function checkCompletion(){
-  const airCount = document.querySelectorAll("#airZone img").length;
-  const roadCount = document.querySelectorAll("#roadZone img").length;
-  const waterCount = document.querySelectorAll("#waterZone img").length;
-  if(airCount===2 && roadCount===3 && waterCount===2){
-    setTimeout(()=>{showSlide(2)}, 500);
-  }
-}
-
-function playAgain(){
-  location.reload();
-}
-
-// Enable dragging for mobile
-vehicles.forEach(v=>{
-  v.addEventListener("touchmove", e=>{
-    const touch=e.touches[0];
-    v.style.position="absolute";
-    v.style.left=touch.pageX-40+"px";
-    v.style.top=touch.pageY-40+"px";
-  });
-  v.addEventListener("touchend", e=>{
-    zones.forEach(z=>{
-      const rect = z.getBoundingClientRect();
-      const x=e.changedTouches[0].pageX;
-      const y=e.changedTouches[0].pageY;
-      if(x>rect.left && x<rect.right && y>rect.top && y<rect.bottom){
-        if(v.dataset.target===z.id){
-          z.appendChild(v);
-          v.style.position="absolute";
-          v.style.top="10px";
-          v.style.left="10px";
-          document.getElementById("correctSound").play();
-          checkCompletion();
-        } else {
-          document.getElementById("wrongSound").play();
-          v.style.left=""; v.style.top="";
-        }
-      }
+vehicles.forEach(vehicle => {
+    vehicle.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', vehicle.src);
+        e.dataTransfer.setData('text/zone', vehicle.dataset.zone);
     });
-  });
 });
-</script>
 
+zones.forEach(zone => {
+    zone.addEventListener('dragover', e=>e.preventDefault());
+    zone.addEventListener('drop', e=>{
+        e.preventDefault();
+        const vehicleSrc = e.dataTransfer.getData('text/plain');
+        const correctZone = e.dataTransfer.getData('text/zone');
+        if(zone.id===correctZone){
+            const img = document.querySelector(`.vehicle[src="${vehicleSrc}"]`);
+            zone.appendChild(img);
+            img.style.width='auto';
+            img.style.height='80%';
+            correctCount++;
+            document.getElementById('correctAudio').play();
+            if(correctCount===totalVehicles){showEndScreen();}
+        } else {
+            document.getElementById('wrongAudio').play();
+        }
+    });
+});
+
+function showEndScreen(){
+    showSlide('endScreen');
+    launchConfetti();
+}
+
+document.getElementById('playAgain').addEventListener('click', ()=>location.reload());
+
+function launchConfetti(){
+    for(let i=0;i<50;i++){
+        const confetti = document.createElement('div');
+        confetti.className='confetti-piece';
+        confetti.style.left = Math.random()*window.innerWidth+'px';
+        confetti.style.background=`hsl(${Math.random()*360},70%,60%)`;
+        confetti.style.animationDuration=2+Math.random()*3+'s';
+        document.body.appendChild(confetti);
+        setTimeout(()=> confetti.remove(),5000);
+    }
+}
+</script>
 </body>
 </html>
