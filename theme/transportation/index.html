@@ -10,7 +10,6 @@
     padding: 0;
     font-family: 'Arial Rounded MT Bold', sans-serif;
     overflow-x: hidden;
-    background-color: #a0e1f7;
   }
   #logoScreen, #gameScreen, #endScreen {
     width: 100%;
@@ -23,6 +22,8 @@
   #logoScreen img {
     width: 300px;
   }
+
+  /* Updated game screen with background */
   #gameScreen {
     display: flex;
     flex-direction: column;
@@ -30,17 +31,16 @@
     align-items: center;
     position: relative;
     overflow: hidden;
+    background: url('assets/background.png') no-repeat center top;
+    background-size: cover;
   }
+
   #instruction {
     font-size: 2em;
-    margin: 10px 0;
+    margin-top: 10px;
     text-align: center;
   }
-  #background {
-    width: 100%;
-    max-width: 1200px;
-    position: relative;
-  }
+
   .zone {
     width: 100%;
     text-align: center;
@@ -71,6 +71,7 @@
     width: 80px;
     cursor: grab;
   }
+
   #endScreen {
     display: flex;
     flex-direction: column;
@@ -94,13 +95,16 @@
 </head>
 <body>
 
+<!-- Logo Screen -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
+<!-- Game Screen -->
 <div id="gameScreen">
   <div id="instruction">Drag the vehicle to the correct transport zone</div>
 
+  <!-- Zones with drop containers -->
   <div class="zone" id="airZone">
     <h2>Air Transport</h2>
     <div class="drop-container" id="airDrop"></div>
@@ -125,6 +129,7 @@
   </div>
 </div>
 
+<!-- End Screen -->
 <div id="endScreen">
   <h1>Good Job!</h1>
   <button id="playAgain">Play Again</button>
@@ -157,15 +162,14 @@ const dropContainers = {
 let correctCount = 0;
 const totalVehicles = Object.keys(dropContainers).length;
 
-// Show logo for 5 seconds
-document.addEventListener('DOMContentLoaded', () => {
-  logoScreen.style.display = 'flex';
-  setTimeout(() => {
-    logoScreen.style.display = 'none';
-    gameScreen.style.display = 'flex';
-  }, 5000);
-});
+// Show logo first
+logoScreen.style.display = 'flex';
+setTimeout(() => {
+  logoScreen.style.display = 'none';
+  gameScreen.style.display = 'flex';
+}, 5000);
 
+// Drag & Drop
 document.querySelectorAll('.vehicle').forEach(vehicle => {
   vehicle.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text', vehicle.id);
@@ -178,7 +182,7 @@ Object.keys(dropContainers).forEach(id => {
   container.addEventListener('drop', e => {
     e.preventDefault();
     const vehicleId = e.dataTransfer.getData('text');
-    if (vehicleId === id) {
+    if(vehicleId === id){
       const vehicle = document.getElementById(vehicleId);
       vehicle.draggable = false;
       vehicle.style.width = '70px';
@@ -187,7 +191,7 @@ Object.keys(dropContainers).forEach(id => {
       correctSound.play();
       excellentSound.play();
       correctCount++;
-      if (correctCount === totalVehicles) {
+      if(correctCount === totalVehicles){
         gameScreen.style.display = 'none';
         endScreen.style.display = 'flex';
       }
