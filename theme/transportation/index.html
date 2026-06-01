@@ -9,8 +9,8 @@
     margin: 0;
     padding: 0;
     font-family: 'Arial Rounded MT Bold', sans-serif;
-    background-color: #a0e1f7;
     overflow-x: hidden;
+    background-color: #a0e1f7;
   }
   #logoScreen, #gameScreen, #endScreen {
     width: 100%;
@@ -26,51 +26,57 @@
   #gameScreen {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     position: relative;
+    overflow: hidden;
   }
   #instruction {
     font-size: 2em;
-    margin-top: 10px;
+    margin: 10px 0;
     text-align: center;
   }
   #background {
     width: 100%;
     max-width: 1200px;
     position: relative;
-    margin-top: 10px;
   }
   .zone {
-    position: relative;
     width: 100%;
     text-align: center;
+    position: relative;
     margin-bottom: 5px;
-    background-size: cover;
-    background-position: center;
   }
   .zone h2 {
-    margin: 10px 0;
-    color: black;
+    margin: 5px 0;
     font-size: 1.8em;
+    color: black;
+  }
+  .drop-container {
+    width: 100%;
+    min-height: 100px;
+    position: relative;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
   }
   #vehicleTray {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-top: 10px;
   }
   .vehicle {
     width: 80px;
     cursor: grab;
   }
   #endScreen {
-    background-color: #c1f0c1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-color: #c1f0c1;
   }
   #endScreen h1 {
     font-size: 3em;
@@ -88,24 +94,24 @@
 </head>
 <body>
 
-<!-- Logo Screen -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
 <div id="gameScreen">
   <div id="instruction">Drag the vehicle to the correct transport zone</div>
 
-  <!-- Zones with respective backgrounds -->
-  <div class="zone" id="airZone" style="height: 200px; background-image: url('assets/background-air.png');">
+  <div class="zone" id="airZone">
     <h2>Air Transport</h2>
+    <div class="drop-container" id="airDrop"></div>
   </div>
-  <div class="zone" id="roadZone" style="height: 200px; background-image: url('assets/background-road.png');">
+  <div class="zone" id="roadZone">
     <h2>Road Transport</h2>
+    <div class="drop-container" id="roadDrop"></div>
   </div>
-  <div class="zone" id="waterZone" style="height: 200px; background-image: url('assets/background-water.png');">
+  <div class="zone" id="waterZone">
     <h2>Water Transport</h2>
+    <div class="drop-container" id="waterDrop"></div>
   </div>
 
   <div id="vehicleTray">
@@ -119,7 +125,6 @@
   </div>
 </div>
 
-<!-- End Screen -->
 <div id="endScreen">
   <h1>Good Job!</h1>
   <button id="playAgain">Play Again</button>
@@ -139,15 +144,18 @@ const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
 const excellentSound = document.getElementById('excellentSound');
 
-const zones = {
-  airplane: document.getElementById('airZone'),
-  helicopter: document.getElementById('airZone'),
-  car: document.getElementById('roadZone'),
-  bus: document.getElementById('roadZone'),
-  truck: document.getElementById('roadZone'),
-  boat: document.getElementById('waterZone'),
-  ship: document.getElementById('waterZone')
+const dropContainers = {
+  airplane: document.getElementById('airDrop'),
+  helicopter: document.getElementById('airDrop'),
+  car: document.getElementById('roadDrop'),
+  bus: document.getElementById('roadDrop'),
+  truck: document.getElementById('roadDrop'),
+  boat: document.getElementById('waterDrop'),
+  ship: document.getElementById('waterDrop')
 };
+
+let correctCount = 0;
+const totalVehicles = Object.keys(dropContainers).length;
 
 // Show logo for 5 seconds
 document.addEventListener('DOMContentLoaded', () => {
@@ -158,30 +166,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 5000);
 });
 
-let correctCount = 0;
-const totalVehicles = Object.keys(zones).length;
-
 document.querySelectorAll('.vehicle').forEach(vehicle => {
   vehicle.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text', vehicle.id);
   });
 });
 
-Object.values(zones).forEach(zone => {
-  zone.addEventListener('dragover', e => e.preventDefault());
-  zone.addEventListener('drop', e => {
+Object.keys(dropContainers).forEach(id => {
+  const container = dropContainers[id];
+  container.addEventListener('dragover', e => e.preventDefault());
+  container.addEventListener('drop', e => {
     e.preventDefault();
     const vehicleId = e.dataTransfer.getData('text');
-    const vehicle = document.getElementById(vehicleId);
-
-    if (zones[vehicleId] === zone) {
-      // Fit vehicle inside zone
-      vehicle.style.position = 'absolute';
-      const rect = zone.getBoundingClientRect();
-      vehicle.style.left = rect.left + 20 + 'px';
-      vehicle.style.top = rect.top + 50 + 'px';
+    if (vehicleId === id) {
+      const vehicle = document.getElementById(vehicleId);
       vehicle.draggable = false;
+      vehicle.style.width = '70px';
       vehicle.style.cursor = 'default';
+      container.appendChild(vehicle);
       correctSound.play();
       excellentSound.play();
       correctCount++;
