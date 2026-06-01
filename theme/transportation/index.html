@@ -3,117 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Game</title>
+<title>Transportation Sorting Game</title>
 <style>
-  * {margin:0;padding:0; box-sizing:border-box;}
-  body {font-family: Arial, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; background-color:#cce7ff;}
-  #logo-screen, #game-screen, #end-screen {width:100%; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; position:absolute; top:0; left:0;}
-  #logo-screen {background:white; z-index:10;}
-  #logo-screen img {width:40%; max-width:300px;}
-  #game-screen {display:none; flex-direction:column; position:relative;}
-  #instruction {position:absolute; top:10px; width:100%; text-align:center; background:rgba(255,255,153,0.8); font-size:1.2em; padding:10px; border-radius:10px;}
-  #background {width:100%; max-width:1000px; position:relative;}
-  .zone {position:absolute; border:2px dashed rgba(0,0,0,0.2); border-radius:10px;}
-  #air-zone {top:5%; left:5%; width:30%; height:30%;}
-  #road-zone {top:35%; left:5%; width:90%; height:25%;}
-  #water-zone {top:65%; left:5%; width:90%; height:30%;}
-  #vehicles {display:flex; justify-content:center; margin-top:10px; flex-wrap:wrap; gap:10px;}
-  .vehicle {width:80px; height:80px; background:white; display:flex; align-items:center; justify-content:center; border-radius:10px; cursor:pointer;}
-  .vehicle img {max-width:70px; max-height:70px;}
-  #end-screen {display:none; background: #fff3b0; flex-direction:column;}
-  #end-screen h1 {font-size:2em; margin-bottom:20px;}
-  #end-screen button {padding:15px 25px; font-size:1.2em; border:none; border-radius:10px; background:#ffdd57; cursor:pointer;}
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #d0f0f7;
+    overflow: hidden;
+  }
+  .slide {
+    width: 100%;
+    height: 100vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+  }
+  .active { display: flex; }
+  #logo-slide img {
+    max-width: 50%;
+  }
+  #instruction {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffb3;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1.2em;
+    text-align: center;
+  }
+  #game-slide {
+    flex-direction: column;
+  }
+  #background {
+    width: 90%;
+    max-width: 1200px;
+    height: auto;
+  }
+  #vehicles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    gap: 10px;
+  }
+  .vehicle-box {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .vehicle-box img {
+    max-width: 80px;
+    height: auto;
+  }
+  .vehicle-box:active { transform: scale(1.1); }
+  #good-job {
+    font-size: 2em;
+    text-align: center;
+  }
+  #play-again {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 10px;
+    background: #ffeb3b;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
 <!-- Logo Slide -->
-<div id="logo-screen">
+<div class="slide active" id="logo-slide">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
 <!-- Game Slide -->
-<div id="game-screen">
+<div class="slide" id="game-slide">
   <div id="instruction">Tap a vehicle, then tap the correct transport zone</div>
-  <div id="background">
-    <img src="assets/background.png" alt="Background" style="width:100%; height:auto;">
-    <div id="air-zone" class="zone"></div>
-    <div id="road-zone" class="zone"></div>
-    <div id="water-zone" class="zone"></div>
-  </div>
+  <img src="assets/background.png" id="background" alt="Transport Zones">
   <div id="vehicles">
-    <div class="vehicle" data-target="air"><img src="assets/airplane.png" alt="Airplane"></div>
-    <div class="vehicle" data-target="air"><img src="assets/helicopter.png" alt="Helicopter"></div>
-    <div class="vehicle" data-target="road"><img src="assets/car.png" alt="Car"></div>
-    <div class="vehicle" data-target="road"><img src="assets/bus.png" alt="Bus"></div>
-    <div class="vehicle" data-target="road"><img src="assets/truck.png" alt="Truck"></div>
-    <div class="vehicle" data-target="water"><img src="assets/boat.png" alt="Boat"></div>
-    <div class="vehicle" data-target="water"><img src="assets/ship.png" alt="Ship"></div>
+    <div class="vehicle-box" data-type="air"><img src="assets/airplane.png" alt="Airplane"></div>
+    <div class="vehicle-box" data-type="air"><img src="assets/helicopter.png" alt="Helicopter"></div>
+    <div class="vehicle-box" data-type="road"><img src="assets/car.png" alt="Car"></div>
+    <div class="vehicle-box" data-type="road"><img src="assets/bus.png" alt="Bus"></div>
+    <div class="vehicle-box" data-type="road"><img src="assets/truck.png" alt="Truck"></div>
+    <div class="vehicle-box" data-type="water"><img src="assets/boat.png" alt="Boat"></div>
+    <div class="vehicle-box" data-type="water"><img src="assets/ship.png" alt="Ship"></div>
   </div>
 </div>
 
-<!-- End Slide -->
-<div id="end-screen">
-  <h1>Good Job!</h1>
-  <button onclick="playAgain()">Play Again</button>
+<!-- Good Job Slide -->
+<div class="slide" id="end-slide">
+  <div id="good-job">Good Job!</div>
+  <button id="play-again">Play Again</button>
 </div>
+
+<audio id="correct-sound" src="assets/correct.mp3"></audio>
+<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
+<audio id="excellent-sound" src="assets/excellent.mp3"></audio>
+<audio id="clap-sound" src="assets/claps.mp3"></audio>
 
 <script>
-let selectedVehicle = null;
+let currentVehicle = null;
+const logoSlide = document.getElementById('logo-slide');
+const gameSlide = document.getElementById('game-slide');
+const endSlide = document.getElementById('end-slide');
+const vehicles = document.querySelectorAll('.vehicle-box');
+const correctSound = document.getElementById('correct-sound');
+const wrongSound = document.getElementById('wrong-sound');
+const excellentSound = document.getElementById('excellent-sound');
+const clapSound = document.getElementById('clap-sound');
 
-// Show logo first
-setTimeout(()=>{document.getElementById('logo-screen').style.display='none'; document.getElementById('game-screen').style.display='flex';},5000);
+const zones = {
+  air: { top: 10, left: 50, width: 400, height: 150 },
+  road: { top: 160, left: 50, width: 400, height: 150 },
+  water: { top: 310, left: 50, width: 400, height: 150 }
+};
+
+// Show logo for 5 seconds
+setTimeout(() => {
+  logoSlide.classList.remove('active');
+  gameSlide.classList.add('active');
+}, 5000);
 
 // Vehicle selection
-document.querySelectorAll('.vehicle').forEach(v=>{
-  v.addEventListener('click', ()=>{
-    selectedVehicle = v;
-    v.style.border = "3px solid #ffdd57";
+vehicles.forEach(vehicle => {
+  vehicle.addEventListener('click', () => {
+    currentVehicle = vehicle;
   });
 });
 
-// Zone click
-document.querySelectorAll('.zone').forEach(zone=>{
-  zone.addEventListener('click', ()=>{
-    if(!selectedVehicle) return;
-    const target = selectedVehicle.dataset.target;
-    if((zone.id.includes(target))){
-      const rect = zone.getBoundingClientRect();
-      selectedVehicle.style.position='absolute';
-      selectedVehicle.style.left = (rect.left + window.scrollX + 10)+'px';
-      selectedVehicle.style.top = (rect.top + window.scrollY + 10)+'px';
-      selectedVehicle.style.border='none';
-      new Audio('assets/correct.mp3').play();
-      selectedVehicle.removeAttribute('data-target');
-      selectedVehicle=null;
+// Tap on background to drop vehicle
+gameSlide.addEventListener('click', e => {
+  if(!currentVehicle) return;
 
-      // Check all vehicles placed
-      if([...document.querySelectorAll('.vehicle')].every(v=>!v.dataset.target)){
-        document.getElementById('game-screen').style.display='none';
-        document.getElementById('end-screen').style.display='flex';
-        new Audio('assets/claps.mp3').play();
+  const rect = gameSlide.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const type = currentVehicle.getAttribute('data-type');
+  const zone = zones[type];
+
+  if(x > zone.left && x < zone.left + zone.width &&
+     y > zone.top && y < zone.top + zone.height) {
+
+    // Move vehicle
+    currentVehicle.style.position = 'absolute';
+    currentVehicle.style.left = `${zone.left + 20}px`;
+    currentVehicle.style.top = `${zone.top + 20}px`;
+
+    clapSound.play();
+    clapSound.onended = () => {
+      correctSound.play();
+      // Check if all vehicles placed
+      if([...vehicles].every(v => v.style.position === 'absolute')) {
+        setTimeout(() => {
+          gameSlide.classList.remove('active');
+          endSlide.classList.add('active');
+        }, 1000);
       }
-    } else {
-      new Audio('assets/wrong.mp3').play();
-      selectedVehicle=null;
-      document.querySelectorAll('.vehicle').forEach(v=>v.style.border='none');
     }
-  });
+
+  } else {
+    wrongSound.play();
+  }
+
+  currentVehicle = null;
 });
 
 // Play again
-function playAgain(){
-  document.getElementById('end-screen').style.display='none';
-  document.getElementById('game-screen').style.display='flex';
-  document.querySelectorAll('.vehicle').forEach(v=>{
-    v.style.position='static';
-    v.style.border='none';
-    // Reset data-target
-    if(v.querySelector('img').alt.toLowerCase().includes('plane') || v.querySelector('img').alt.toLowerCase().includes('helicopter')) v.dataset.target='air';
-    if(v.querySelector('img').alt.toLowerCase().includes('car') || v.querySelector('img').alt.toLowerCase().includes('bus') || v.querySelector('img').alt.toLowerCase().includes('truck')) v.dataset.target='road';
-    if(v.querySelector('img').alt.toLowerCase().includes('boat') || v.querySelector('img').alt.toLowerCase().includes('ship')) v.dataset.target='water';
+document.getElementById('play-again').addEventListener('click', () => {
+  endSlide.classList.remove('active');
+  gameSlide.classList.add('active');
+  vehicles.forEach(v => {
+    v.style.position = '';
+    v.style.left = '';
+    v.style.top = '';
   });
-}
+});
 </script>
+
 </body>
 </html>
