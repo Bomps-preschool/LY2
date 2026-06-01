@@ -40,7 +40,7 @@ body {
   z-index: 10;
 }
 #background-img {
-  width: 70%;
+  width: 100%;
   margin-top: 60px;
   border-radius: 15px;
   position: relative;
@@ -53,8 +53,8 @@ body {
   gap: 10px;
 }
 .vehicle-box {
-  width: 60px;
-  height: 60px;
+  width: 100px;
+  height: 100px;
   background: #fff;
   border-radius: 15px;
   display: flex;
@@ -66,8 +66,8 @@ body {
   z-index: 5;
 }
 .vehicle-box img {
-  max-width: 60%;
-  max-height: 60%;
+  max-width: 80%;
+  max-height: 80%;
 }
 .vehicle-box:hover {
   transform: scale(1.1);
@@ -99,12 +99,10 @@ body {
 <body>
 
 <div id="game-container">
-  <!-- Logo Slide -->
   <div id="logo-slide">
     <img src="assets/innovine-logo.png" alt="Innovine Logo">
   </div>
 
-  <!-- Game Slide -->
   <div id="game-slide">
     <div id="instruction-box">Tap a vehicle, then tap the correct transport zone</div>
     <img id="background-img" src="assets/background.png" alt="Transportation Background">
@@ -119,7 +117,6 @@ body {
     </div>
   </div>
 
-  <!-- Good Job Slide -->
   <div id="good-job-slide">
     <h1>Good Job!</h1>
     <button id="play-again-btn">Play Again</button>
@@ -156,42 +153,33 @@ function startGame() {
 vehicles.forEach(v => {
   v.addEventListener('click', () => {
     currentVehicle = v;
-    vehicles.forEach(veh => veh.style.border = ''); // Reset borders
+    vehicles.forEach(veh => veh.style.border = '');
     v.style.border = '3px solid #ffd633';
   });
 });
 
+// Predefined zone coordinates (approx centers of air/road/water zones)
+let zones = {
+  air: {x: 150, y: 150},
+  road: {x: 500, y: 150},
+  water: {x: 850, y: 150}
+};
+
 backgroundImg.addEventListener('click', (e) => {
   if (!currentVehicle) return;
-
-  let rect = backgroundImg.getBoundingClientRect();
-  let x = e.clientX - rect.left; 
-  let width = rect.width;
   let type = currentVehicle.dataset.type;
 
-  let zone = null;
-  if (x < width / 3) zone = 'air';
-  else if (x < 2 * width / 3) zone = 'road';
-  else zone = 'water';
+  // Move vehicle to the predefined zone coordinates
+  currentVehicle.style.position = 'absolute';
+  currentVehicle.style.left = zones[type].x + 'px';
+  currentVehicle.style.top = zones[type].y + 'px';
+  currentVehicle.style.border = '';
+  currentVehicle.style.zIndex = 5;
+  currentVehicle = null;
+  clapSound.play();
 
-  if (zone === type) {
-    clapSound.play();
-    // Move vehicle to center of zone
-    let newX = 0;
-    if (zone === 'air') newX = width/6;
-    else if (zone === 'road') newX = width/2;
-    else newX = 5*width/6;
-    currentVehicle.style.position = 'absolute';
-    currentVehicle.style.left = newX - 50 + 'px';
-    currentVehicle.style.top = '150px';
-    currentVehicle.style.border = '';
-    currentVehicle = null;
-
-    if ([...vehicles].every(v => parseInt(v.style.top) > 0)) {
-      setTimeout(() => showSlide(goodJobSlide), 1000);
-    }
-  } else {
-    wrongSound.play();
+  if ([...vehicles].every(v => parseInt(v.style.top) > 0)) {
+    setTimeout(() => showSlide(goodJobSlide), 1000);
   }
 });
 
