@@ -40,9 +40,10 @@ body {
   z-index: 10;
 }
 #background-img {
-  width: 50%;
-  margin-top: 50px;
+  width: 100%;
+  margin-top: 60px;
   border-radius: 15px;
+  position: relative;
 }
 #vehicles-container {
   display: flex;
@@ -52,8 +53,8 @@ body {
   gap: 10px;
 }
 .vehicle-box {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   background: #fff;
   border-radius: 15px;
   display: flex;
@@ -61,6 +62,8 @@ body {
   align-items: center;
   cursor: pointer;
   transition: transform 0.2s;
+  position: relative;
+  z-index: 5;
 }
 .vehicle-box img {
   max-width: 80%;
@@ -136,6 +139,7 @@ let goodJobSlide = document.getElementById('good-job-slide');
 let correctSound = document.getElementById('correct-sound');
 let wrongSound = document.getElementById('wrong-sound');
 let clapSound = document.getElementById('clap-sound');
+let backgroundImg = document.getElementById('background-img');
 
 function showSlide(slide) {
   logoSlide.style.display = 'none';
@@ -157,9 +161,10 @@ vehicles.forEach(v => {
   });
 });
 
-document.getElementById('background-img').addEventListener('click', (e) => {
+backgroundImg.addEventListener('click', (e) => {
   if (!currentVehicle) return;
-  let rect = e.target.getBoundingClientRect();
+
+  let rect = backgroundImg.getBoundingClientRect();
   let x = e.clientX - rect.left; 
   let width = rect.width;
   let type = currentVehicle.dataset.type;
@@ -171,10 +176,19 @@ document.getElementById('background-img').addEventListener('click', (e) => {
 
   if (zone === type) {
     clapSound.play();
-    currentVehicle.style.display = 'none';
+    // Move vehicle to center of zone
+    let newX = 0;
+    if (zone === 'air') newX = width/6;
+    else if (zone === 'road') newX = width/2;
+    else newX = 5*width/6;
+    currentVehicle.style.position = 'absolute';
+    currentVehicle.style.left = newX - 50 + 'px';
+    currentVehicle.style.top = '150px';
+    currentVehicle.style.border = '';
     currentVehicle = null;
-    if ([...vehicles].every(v => v.style.display === 'none')) {
-      setTimeout(() => showSlide(goodJobSlide), 500);
+
+    if ([...vehicles].every(v => parseInt(v.style.top) > 0)) {
+      setTimeout(() => showSlide(goodJobSlide), 1000);
     }
   } else {
     wrongSound.play();
@@ -182,7 +196,12 @@ document.getElementById('background-img').addEventListener('click', (e) => {
 });
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
-  vehicles.forEach(v => v.style.display = 'flex');
+  vehicles.forEach(v => {
+    v.style.display = 'flex';
+    v.style.position = '';
+    v.style.left = '';
+    v.style.top = '';
+  });
   startGame();
 });
 
