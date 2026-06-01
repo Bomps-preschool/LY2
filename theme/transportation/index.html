@@ -3,255 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Sorting Game</title>
+<title>Transportation Game</title>
 <style>
-  body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #c3e6ff;
-    overflow: hidden;
-  }
-  #logoSlide, #gameSlide, #goodJobSlide {
-    display: none;
-    width: 100%;
-    height: 100vh;
-    text-align: center;
-  }
-  #logoSlide img {
-    max-width: 300px;
-    margin-top: 20%;
-  }
-  #instruction {
-    background-color: #fffaa0;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 1.2em;
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-  }
-  #gameSlide {
-    position: relative;
-  }
-  #backgroundImage {
-    width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-  }
-  .vehicle-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .vehicle {
-    width: 80px;
-    height: 80px;
-    background-color: #fff;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
-  }
-  .vehicle img {
-    max-width: 60px;
-    max-height: 60px;
-  }
-  #goodJobSlide {
-    background-color: #fff0b3;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  #playAgainBtn {
-    margin-top: 20px;
-    padding: 10px 25px;
-    font-size: 1.2em;
-    background-color: #ffd633;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-  }
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #b3e0ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+#game-container {
+  width: 100%;
+  max-width: 1000px;
+  text-align: center;
+  position: relative;
+}
+#logo-slide, #game-slide, #good-job-slide {
+  display: none;
+}
+#logo-slide img {
+  width: 300px;
+  margin-top: 50px;
+}
+#instruction-box {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffff99;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  z-index: 10;
+}
+#background-img {
+  width: 100%;
+  margin-top: 60px;
+  border-radius: 15px;
+}
+#vehicles-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.vehicle-box {
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.vehicle-box img {
+  max-width: 80%;
+  max-height: 80%;
+}
+.vehicle-box:hover {
+  transform: scale(1.1);
+}
+#good-job-slide {
+  background: #fff2cc;
+  padding: 20px;
+  border-radius: 15px;
+}
+#play-again-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #ffd633;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: red;
+  z-index: 20;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
 
-<!-- Innovine Logo Slide -->
-<div id="logoSlide">
-  <img src="assets/innovine-logo.png" alt="Innovine Logo">
-</div>
+<div id="game-container">
+  <!-- Logo Slide -->
+  <div id="logo-slide">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+  </div>
 
-<!-- Game Slide -->
-<div id="gameSlide">
-  <div id="instruction">Tap a vehicle, then tap the correct transport zone</div>
-  <img id="backgroundImage" src="assets/d19a3742-4072-4ee0-9121-031d1c88bcba.png" alt="Background">
-  <div class="vehicle-container">
-    <div class="vehicle" data-vehicle="airplane"><img src="assets/airplane.png" alt="Airplane"></div>
-    <div class="vehicle" data-vehicle="helicopter"><img src="assets/helicopter.png" alt="Helicopter"></div>
-    <div class="vehicle" data-vehicle="car"><img src="assets/car.png" alt="Car"></div>
-    <div class="vehicle" data-vehicle="bus"><img src="assets/bus.png" alt="Bus"></div>
-    <div class="vehicle" data-vehicle="truck"><img src="assets/truck.png" alt="Truck"></div>
-    <div class="vehicle" data-vehicle="boat"><img src="assets/boat.png" alt="Boat"></div>
-    <div class="vehicle" data-vehicle="ship"><img src="assets/ship.png" alt="Ship"></div>
+  <!-- Game Slide -->
+  <div id="game-slide">
+    <div id="instruction-box">Tap a vehicle, then tap the correct transport zone</div>
+    <img id="background-img" src="assets/background.png" alt="Transportation Background">
+    <div id="vehicles-container">
+      <div class="vehicle-box" data-type="air"><img src="assets/airplane.png"></div>
+      <div class="vehicle-box" data-type="air"><img src="assets/helicopter.png"></div>
+      <div class="vehicle-box" data-type="road"><img src="assets/car.png"></div>
+      <div class="vehicle-box" data-type="road"><img src="assets/bus.png"></div>
+      <div class="vehicle-box" data-type="road"><img src="assets/truck.png"></div>
+      <div class="vehicle-box" data-type="water"><img src="assets/boat.png"></div>
+      <div class="vehicle-box" data-type="water"><img src="assets/ship.png"></div>
+    </div>
+  </div>
+
+  <!-- Good Job Slide -->
+  <div id="good-job-slide">
+    <h1>Good Job!</h1>
+    <button id="play-again-btn">Play Again</button>
   </div>
 </div>
 
-<!-- Good Job Slide -->
-<div id="goodJobSlide">
-  <h1>Good Job!</h1>
-  <button id="playAgainBtn">Play Again</button>
-  <canvas id="confettiCanvas"></canvas>
-</div>
-
-<!-- Audio -->
-<audio id="rightAudio" src="assets/correct.mp3"></audio>
-<audio id="wrongAudio" src="assets/wrong.mp3"></audio>
-<audio id="clapAudio" src="assets/claps.mp3"></audio>
+<audio id="correct-sound" src="assets/correct.mp3"></audio>
+<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
+<audio id="clap-sound" src="assets/claps.mp3"></audio>
 
 <script>
-const logoSlide = document.getElementById('logoSlide');
-const gameSlide = document.getElementById('gameSlide');
-const goodJobSlide = document.getElementById('goodJobSlide');
-const vehicles = document.querySelectorAll('.vehicle');
-const rightAudio = document.getElementById('rightAudio');
-const wrongAudio = document.getElementById('wrongAudio');
-const clapAudio = document.getElementById('clapAudio');
-const playAgainBtn = document.getElementById('playAgainBtn');
-let selectedVehicle = null;
+let currentVehicle = null;
+let vehicles = document.querySelectorAll('.vehicle-box');
+let logoSlide = document.getElementById('logo-slide');
+let gameSlide = document.getElementById('game-slide');
+let goodJobSlide = document.getElementById('good-job-slide');
+let correctSound = document.getElementById('correct-sound');
+let wrongSound = document.getElementById('wrong-sound');
+let clapSound = document.getElementById('clap-sound');
 
-// Mapping vehicles to zones
-const vehicleZones = {
-  airplane: 'air',
-  helicopter: 'air',
-  car: 'road',
-  bus: 'road',
-  truck: 'road',
-  boat: 'water',
-  ship: 'water'
-};
-
-// Zones coordinates (based on your background)
-const zones = {
-  air: {x: 0.05, y: 0.05, width: 0.3, height: 0.4},
-  road: {x: 0.35, y: 0.05, width: 0.3, height: 0.5},
-  water: {x: 0.65, y: 0.05, width: 0.3, height: 0.5}
-};
-
-// Show logo for 5s
-logoSlide.style.display = 'block';
-setTimeout(() => {
+function showSlide(slide) {
   logoSlide.style.display = 'none';
-  gameSlide.style.display = 'block';
-}, 5000);
+  gameSlide.style.display = 'none';
+  goodJobSlide.style.display = 'none';
+  slide.style.display = 'block';
+}
 
-// Vehicle selection
+function startGame() {
+  showSlide(logoSlide);
+  setTimeout(() => showSlide(gameSlide), 5000);
+}
+
 vehicles.forEach(v => {
   v.addEventListener('click', () => {
-    selectedVehicle = v.dataset.vehicle;
-    v.style.transform = 'scale(1.1)';
-    setTimeout(() => v.style.transform = 'scale(1)', 200);
+    currentVehicle = v;
+    vehicles.forEach(veh => veh.style.border = ''); // Reset borders
+    v.style.border = '3px solid #ffd633';
   });
 });
 
-// Tap zones on background
-gameSlide.addEventListener('click', (e) => {
-  if(!selectedVehicle) return;
+document.getElementById('background-img').addEventListener('click', (e) => {
+  if (!currentVehicle) return;
+  let rect = e.target.getBoundingClientRect();
+  let x = e.clientX - rect.left; 
+  let width = rect.width;
+  let type = currentVehicle.dataset.type;
 
-  const rect = gameSlide.getBoundingClientRect();
-  const clickX = (e.clientX - rect.left)/rect.width;
-  const clickY = (e.clientY - rect.top)/rect.height;
-  
-  let clickedZone = null;
-  for(const [zone, coords] of Object.entries(zones)) {
-    if(clickX >= coords.x && clickX <= coords.x+coords.width &&
-       clickY >= coords.y && clickY <= coords.y+coords.height) {
-      clickedZone = zone;
-      break;
+  let zone = null;
+  if (x < width / 3) zone = 'air';
+  else if (x < 2 * width / 3) zone = 'road';
+  else zone = 'water';
+
+  if (zone === type) {
+    clapSound.play();
+    currentVehicle.style.display = 'none';
+    currentVehicle = null;
+    if ([...vehicles].every(v => v.style.display === 'none')) {
+      setTimeout(() => showSlide(goodJobSlide), 500);
     }
-  }
-
-  if(!clickedZone) return;
-
-  if(vehicleZones[selectedVehicle] === clickedZone) {
-    rightAudio.play();
-    clapAudio.play();
-    // Move vehicle to center of zone
-    const vehicleDiv = document.querySelector(`.vehicle[data-vehicle="${selectedVehicle}"]`);
-    vehicleDiv.style.position = 'absolute';
-    vehicleDiv.style.top = (zones[clickedZone].y*100)+'vh';
-    vehicleDiv.style.left = (zones[clickedZone].x*100)+'vw';
-    vehicleDiv.style.transform = 'translate(0,0)';
-    selectedVehicle = null;
-
-    // Check if all vehicles placed
-    const allPlaced = Array.from(vehicles).every(v => v.style.position === 'absolute');
-    if(allPlaced) setTimeout(showGoodJob, 800);
   } else {
-    wrongAudio.play();
+    wrongSound.play();
   }
 });
 
-function showGoodJob() {
-  gameSlide.style.display = 'none';
-  goodJobSlide.style.display = 'block';
-  startConfetti();
-}
-
-// Play again
-playAgainBtn.addEventListener('click', () => {
-  location.reload();
+document.getElementById('play-again-btn').addEventListener('click', () => {
+  vehicles.forEach(v => v.style.display = 'flex');
+  startGame();
 });
 
-// Confetti
-const canvas = document.getElementById('confettiCanvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const ctx = canvas.getContext('2d');
-let confettiParticles = [];
-
-function startConfetti() {
-  for(let i=0;i<200;i++){
-    confettiParticles.push({
-      x: Math.random()*canvas.width,
-      y: Math.random()*canvas.height,
-      r: Math.random()*6+4,
-      d: Math.random()*10+5,
-      color: `hsl(${Math.random()*360}, 70%, 60%)`,
-      tilt: Math.random()*10-10
-    });
-  }
-  requestAnimationFrame(drawConfetti);
-}
-
-function drawConfetti(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  confettiParticles.forEach(p=>{
-    ctx.beginPath();
-    ctx.lineWidth = p.r;
-    ctx.strokeStyle = p.color;
-    ctx.moveTo(p.x + p.tilt + p.r/2, p.y);
-    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r/2);
-    ctx.stroke();
-    
-    p.y += 2;
-    p.tilt += 0.5;
-    if(p.y > canvas.height) p.y = 0;
-  });
-  requestAnimationFrame(drawConfetti);
-}
+startGame();
 </script>
+
 </body>
 </html>
