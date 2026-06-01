@@ -2,134 +2,84 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Transportation Sorting Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Helpers Game</title>
 <style>
   body {
+    font-family: 'Arial', sans-serif;
     margin: 0;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: #cce6ff;
-    overflow: hidden; /* Prevent scrolling */
-  }
-
-  #logoScreen {
+    padding: 0;
+    background: #ffe6cc;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #fff;
   }
-
-  #gameScreen {
-    display: none;
+  #gameContainer {
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
     position: relative;
-    width: 100vw;
-    height: 100vh;
   }
-
-  #background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('assets/background.png') no-repeat center top;
-    background-size: contain;
-    z-index: 1;
-  }
-
-  #vehicleTray {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 2;
-  }
-
-  .vehicle {
-    width: 80px;
-    cursor: grab;
-  }
-
-  .zone {
-    position: absolute;
-  }
-
-  #airZone { top: 50px; left: 10%; width: 80%; height: 100px; }
-  #roadZone { top: 200px; left: 10%; width: 80%; height: 120px; }
-  #waterZone { top: 360px; left: 10%; width: 80%; height: 100px; }
-
   #instruction {
-    position: absolute;
-    top: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 2rem;
-    z-index: 3;
-  }
-
-  #goodJob {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    background: #d4ffcc;
-    font-size: 3rem;
+    font-size: 1.5em;
     font-weight: bold;
-    text-align: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 5;
-  }
-
-  #playAgainBtn {
-    margin-top: 20px;
-    font-size: 1.5rem;
-    padding: 10px 20px;
-    background: #ffeb3b;
-    border: none;
+    margin-bottom: 20px;
+    background: #ffd6b3;
+    padding: 15px;
     border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+  #questionBox {
+    background: #ff9999;
+    padding: 40px 20px 60px 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  #questionText {
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+  .answerBtn {
+    padding: 15px 25px;
+    margin: 10px;
+    font-size: 1.1em;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 2px solid #444;
+    background: #fff;
+    transition: transform 0.2s;
+  }
+  .answerBtn:hover {
+    transform: scale(1.05);
+  }
+  #playAgainBtn {
+    display: none;
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    border: none;
+    background: #fff333;
     cursor: pointer;
   }
-
 </style>
 </head>
 <body>
 
-<!-- Innovine Logo -->
-<div id="logoScreen">
-  <img src="assets/innovine-logo.png" alt="Innovine Logo">
-</div>
-
-<!-- Game Screen -->
-<div id="gameScreen">
-  <div id="background"></div>
-  <div id="instruction">Drag the vehicle to the correct transport zone</div>
-
-  <!-- Vehicle Tray -->
-  <div id="vehicleTray">
-    <img src="assets/airplane.png" class="vehicle" draggable="true" data-zone="airZone">
-    <img src="assets/helicopter.png" class="vehicle" draggable="true" data-zone="airZone">
-    <img src="assets/car.png" class="vehicle" draggable="true" data-zone="roadZone">
-    <img src="assets/bus.png" class="vehicle" draggable="true" data-zone="roadZone">
-    <img src="assets/truck.png" class="vehicle" draggable="true" data-zone="roadZone">
-    <img src="assets/boat.png" class="vehicle" draggable="true" data-zone="waterZone">
-    <img src="assets/ship.png" class="vehicle" draggable="true" data-zone="waterZone">
+<div id="gameContainer">
+  <div id="instruction">Listen to the question and choose the correct answer</div>
+  
+  <div id="questionBox">
+    <div id="questionText"></div>
+    <div id="answersContainer"></div>
   </div>
 
-  <!-- Invisible Drop Zones -->
-  <div id="airZone" class="zone"></div>
-  <div id="roadZone" class="zone"></div>
-  <div id="waterZone" class="zone"></div>
-</div>
-
-<!-- Good Job Screen -->
-<div id="goodJob">
-  Good Job!
   <button id="playAgainBtn">Play Again</button>
 </div>
 
@@ -138,68 +88,70 @@
 <audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-  const logoScreen = document.getElementById('logoScreen');
-  const gameScreen = document.getElementById('gameScreen');
-  const goodJob = document.getElementById('goodJob');
-  const playAgainBtn = document.getElementById('playAgainBtn');
+const questions = [
+  {text: "Who helps you keep the surroundings clean?", audio: "assets/question-1.mp3", correct: "Sweeper", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
+  {text: "Who treats sick people?", audio: "assets/question-2.mp3", correct: "Doctor", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
+  {text: "Who teaches you at school?", audio: "assets/question-3.mp3", correct: "Teacher", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
+  {text: "Who delivers letters?", audio: "assets/question-4.mp3", correct: "Postman", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]},
+  {text: "Who helps you during a fire?", audio: "assets/question-5.mp3", correct: "Firefighter", options: ["Sweeper", "Doctor", "Teacher", "Postman", "Firefighter"]}
+];
 
-  const vehicles = document.querySelectorAll('.vehicle');
-  const zones = document.querySelectorAll('.zone');
+let currentQuestionIndex = 0;
 
-  const correctSound = document.getElementById('correctSound');
-  const wrongSound = document.getElementById('wrongSound');
-  const clapSound = document.getElementById('clapSound');
+const questionText = document.getElementById("questionText");
+const answersContainer = document.getElementById("answersContainer");
+const playAgainBtn = document.getElementById("playAgainBtn");
 
-  let correctCount = 0;
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+const clapSound = document.getElementById("clapSound");
 
-  // Show game after 5s logo
-  setTimeout(() => {
-    logoScreen.style.display = 'none';
-    gameScreen.style.display = 'block';
-  }, 5000);
+function loadQuestion() {
+  if(currentQuestionIndex >= questions.length){
+    questionText.textContent = "Good Job!";
+    answersContainer.innerHTML = "";
+    playAgainBtn.style.display = "block";
+    return;
+  }
 
-  vehicles.forEach(v => {
-    v.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text', v.dataset.zone);
-      e.dataTransfer.setData('vehicleId', v.src);
-    });
+  const q = questions[currentQuestionIndex];
+  questionText.textContent = q.text;
+  answersContainer.innerHTML = "";
+
+  q.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "answerBtn";
+    btn.textContent = opt;
+    btn.onclick = () => checkAnswer(opt);
+    answersContainer.appendChild(btn);
   });
 
-  zones.forEach(zone => {
-    zone.addEventListener('dragover', e => e.preventDefault());
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      const zoneId = e.dataTransfer.getData('text');
-      const vehicleSrc = e.dataTransfer.getData('vehicleId');
-      const dragged = Array.from(vehicles).find(v => v.src === vehicleSrc);
+  // play question audio
+  const audio = new Audio(q.audio);
+  audio.play();
+}
 
-      if(zoneId === zone.id && !dragged.dataset.placed) {
-        // Correct drop
-        dragged.dataset.placed = 'true';
-        dragged.style.pointerEvents = 'none';
-        dragged.style.position = 'absolute';
-        dragged.style.left = e.clientX - dragged.width/2 + 'px';
-        dragged.style.top = e.clientY - dragged.height/2 + 'px';
-        correctSound.play();
-        clapSound.play();
+function checkAnswer(selected){
+  const q = questions[currentQuestionIndex];
+  if(selected === q.correct){
+    clapSound.play();
+    clapSound.onended = () => {
+      currentQuestionIndex++;
+      loadQuestion();
+    }
+  } else {
+    wrongSound.play();
+  }
+}
 
-        // Wait until clap finishes to increment
-        clapSound.onended = () => {
-          correctCount++;
-          if(correctCount === vehicles.length) {
-            gameScreen.style.display = 'none';
-            goodJob.style.display = 'flex';
-          }
-        };
-      } else {
-        wrongSound.play();
-      }
-    });
-  });
+playAgainBtn.onclick = () => {
+  currentQuestionIndex = 0;
+  playAgainBtn.style.display = "none";
+  loadQuestion();
+}
 
-  playAgainBtn.addEventListener('click', () => {
-    window.location.reload();
-  });
+window.onload = loadQuestion;
 </script>
+
 </body>
 </html>
