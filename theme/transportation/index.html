@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transportation Game – LY2</title>
+<title>Transportation Sorting Game</title>
 <style>
 body {
   margin: 0;
@@ -33,22 +33,25 @@ body {
   text-align: center;
   z-index: 10;
 }
+/* Adjusted background size */
 #backgroundContainer {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  max-width: 1000px;
-  width: 100%;
-  height: 100%;
+  max-width: 900px;  /* slightly smaller width */
+  width: 90%;
+  height: 90%;       /* slightly smaller height */
   background: url('assets/background.png') no-repeat center center;
-  background-size: cover;
+  background-size: contain;
 }
 #vehicleTray {
   position: absolute;
   bottom: 20px;
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
   z-index: 20;
 }
 .vehicle {
@@ -70,14 +73,18 @@ body {
   position: absolute;
 }
 #airZone { top: 30px; left: 20px; width: 300px; height: 300px; }
-#roadZone { top: 30px; left: 340px; width: 300px; height: 300px; }
-#waterZone { top: 30px; left: 660px; width: 300px; height: 300px; }
+#roadZone { top: 30px; left: 360px; width: 300px; height: 300px; }
+#waterZone { top: 30px; left: 670px; width: 300px; height: 300px; }
 
 #endScreen {
   background: #fff3b0;
   color: #000;
   font-size: 2em;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 #endScreen button {
   margin-top: 20px;
@@ -100,19 +107,20 @@ body {
 <!-- Game Screen -->
 <div id="game">
   <div id="instructionBox">Tap a vehicle, then tap the correct transport zone</div>
-  <div id="backgroundContainer">
-    <div class="zone" id="airZone"></div>
-    <div class="zone" id="roadZone"></div>
-    <div class="zone" id="waterZone"></div>
-    <div id="vehicleTray">
-      <div class="vehicle" data-vehicle="airplane"><img src="assets/airplane.png"></div>
-      <div class="vehicle" data-vehicle="boat"><img src="assets/boat.png"></div>
-      <div class="vehicle" data-vehicle="car"><img src="assets/car.png"></div>
-      <div class="vehicle" data-vehicle="helicopter"><img src="assets/helicopter.png"></div>
-      <div class="vehicle" data-vehicle="bus"><img src="assets/bus.png"></div>
-      <div class="vehicle" data-vehicle="ship"><img src="assets/ship.png"></div>
-      <div class="vehicle" data-vehicle="truck"><img src="assets/truck.png"></div>
-    </div>
+  <!-- Zones -->
+  <div id="airZone" class="zone"></div>
+  <div id="roadZone" class="zone"></div>
+  <div id="waterZone" class="zone"></div>
+
+  <!-- Vehicles Tray -->
+  <div id="vehicleTray">
+    <div class="vehicle" data-type="air" id="airplane"><img src="assets/airplane.png" alt="Airplane"></div>
+    <div class="vehicle" data-type="water" id="boat"><img src="assets/boat.png" alt="Boat"></div>
+    <div class="vehicle" data-type="road" id="car"><img src="assets/car.png" alt="Car"></div>
+    <div class="vehicle" data-type="air" id="helicopter"><img src="assets/helicopter.png" alt="Helicopter"></div>
+    <div class="vehicle" data-type="road" id="bus"><img src="assets/bus.png" alt="Bus"></div>
+    <div class="vehicle" data-type="water" id="ship"><img src="assets/ship.png" alt="Ship"></div>
+    <div class="vehicle" data-type="road" id="truck"><img src="assets/truck.png" alt="Truck"></div>
   </div>
 </div>
 
@@ -127,23 +135,19 @@ body {
 <audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-const splash = document.getElementById('splash');
-const game = document.getElementById('game');
-const endScreen = document.getElementById('endScreen');
-const vehicles = document.querySelectorAll('.vehicle');
-const zones = {
-  air: document.getElementById('airZone'),
-  road: document.getElementById('roadZone'),
-  water: document.getElementById('waterZone')
-};
-const rightSound = document.getElementById('rightSound');
-const wrongSound = document.getElementById('wrongSound');
-const clapSound = document.getElementById('clapSound');
-
 let selectedVehicle = null;
-let placedVehicles = { air: [], road: [], water: [] };
+let zones = { air: document.getElementById('airZone'), road: document.getElementById('roadZone'), water: document.getElementById('waterZone') };
+let vehicles = document.querySelectorAll('.vehicle');
+let game = document.getElementById('game');
+let splash = document.getElementById('splash');
+let endScreen = document.getElementById('endScreen');
+let playAgainBtn = document.getElementById('playAgain');
+let correctSound = document.getElementById('rightSound');
+let wrongSound = document.getElementById('wrongSound');
+let clapSound = document.getElementById('clap');
+let placedCount = { air:0, road:0, water:0 };
 
-// Show splash first
+// Splash Screen for 5s
 splash.style.display = 'flex';
 setTimeout(() => {
   splash.style.display = 'none';
@@ -159,7 +163,7 @@ vehicles.forEach(v => {
   });
 });
 
-// Zone click
+// Zone click logic
 Object.entries(zones).forEach(([zoneName, zone]) => {
   zone.addEventListener('click', () => {
     if (!selectedVehicle) return;
@@ -169,35 +173,27 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
                          : 'water';
 
     if (zoneName === correctZone) {
-      // Place the vehicle in the zone
+      // Place the vehicle in the zone vertically
       const clone = selectedVehicle.cloneNode(true);
       clone.style.position = 'absolute';
-      clone.style.top = (20 + placedVehicles[zoneName].length * 90) + 'px'; // stack vertically
-      clone.style.left = '20px';
+      clone.style.left = '10px';
+      clone.style.top = (10 + placedCount[zoneName]*90) + 'px';
       zone.appendChild(clone);
-
-      rightSound.play();
+      placedCount[zoneName]++;
+      correctSound.play();
       clapSound.play();
-
-      // Remove original vehicle from tray
       selectedVehicle.remove();
       selectedVehicle = null;
       vehicles.forEach(ve => ve.style.opacity = '1');
 
-      // Track placed vehicles
-      placedVehicles[zoneName].push(clone);
-
-      // Check if all vehicles placed
-      const totalPlaced = placedVehicles.air.length + placedVehicles.road.length + placedVehicles.water.length;
+      const totalPlaced = placedCount.air + placedCount.road + placedCount.water;
       if (totalPlaced === 7) {
         setTimeout(() => {
           game.style.display = 'none';
           endScreen.style.display = 'flex';
         }, 500);
       }
-
     } else {
-      // Play wrong sound
       wrongSound.play();
       selectedVehicle = null;
       vehicles.forEach(ve => ve.style.opacity = '1');
@@ -205,23 +201,17 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
   });
 });
 
-document.getElementById('playAgain').addEventListener('click', () => {
+// Play Again logic
+playAgainBtn.addEventListener('click', () => {
   endScreen.style.display = 'none';
   game.style.display = 'flex';
-  // Reset zones
   Object.keys(zones).forEach(z => {
     zones[z].innerHTML = '';
   });
-  // Reset tray
   document.querySelectorAll('#vehicleTray .vehicle').forEach(v => {
     v.style.display = 'flex';
   });
-  // Re-add all original vehicles to tray
-  vehicles.forEach(v => {
-    document.getElementById('vehicleTray').appendChild(v);
-    v.style.opacity = '1';
-  });
-  placedVehicles = { air: [], road: [], water: [] };
+  placedCount = { air:0, road:0, water:0 };
   selectedVehicle = null;
 });
 </script>
