@@ -73,7 +73,6 @@ body {
 }
 .zone {
   position: absolute;
-  border: 2px dashed transparent;
 }
 #airZone { top: 30px; left: 20px; width: 300px; height: 300px; }
 #roadZone { top: 30px; left: 340px; width: 300px; height: 300px; }
@@ -148,18 +147,7 @@ const wrongSound = document.getElementById('wrongSound');
 const clapSound = document.getElementById('clapSound');
 
 let selectedVehicle = null;
-let placedCount = 0;
-
-// Define vehicle zone mapping
-const zoneMap = {
-  airplane: 'air',
-  helicopter: 'air',
-  car: 'road',
-  bus: 'road',
-  truck: 'road',
-  boat: 'water',
-  ship: 'water'
-};
+let placedVehicles = { air: [], road: [], water: [] };
 
 // Show splash first
 splash.style.display = 'flex';
@@ -182,24 +170,38 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
   zone.addEventListener('click', () => {
     if (!selectedVehicle) return;
     const vehicleName = selectedVehicle.dataset.vehicle;
-    if (zoneMap[vehicleName] === zoneName) {
+    const correctZone = (vehicleName === 'airplane' || vehicleName === 'helicopter') ? 'air'
+                         : (vehicleName === 'car' || vehicleName === 'bus' || vehicleName === 'truck') ? 'road'
+                         : 'water';
+
+    if (zoneName === correctZone) {
+      // Place the vehicle in the zone
+      const clone = selectedVehicle.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.top = (20 + placedVehicles[zoneName].length * 90) + 'px'; // stack vertically
+      clone.style.left = '20px';
+      zone.appendChild(clone);
+
       rightSound.play();
       clapSound.play();
-      selectedVehicle.style.position = 'absolute';
-      selectedVehicle.style.top = (zone.offsetTop + 20) + 'px';
-      selectedVehicle.style.left = (zone.offsetLeft + 20 + placedCount*90) + 'px';
-      selectedVehicle.style.opacity = '1';
-      placedCount++;
-      selectedVehicle.removeEventListener('click', () => {});
+
+      // Remove original vehicle from tray
+      selectedVehicle.remove();
       selectedVehicle = null;
       vehicles.forEach(ve => ve.style.opacity = '1');
-      // Check end
-      if (placedCount === Object.keys(zoneMap).length + 4) {
+
+      // Track placed vehicles
+      placedVehicles[zoneName].push(clone);
+
+      // Check if all vehicles placed
+      const totalPlaced = placedVehicles.air.length + placedVehicles.road.length + placedVehicles.water.length;
+      if (totalPlaced === 7) {
         setTimeout(() => {
           game.style.display = 'none';
           endScreen.style.display = 'flex';
         }, 500);
       }
+
     } else {
       wrongSound.play();
       selectedVehicle = null;
@@ -211,13 +213,15 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
 function restartGame() {
   endScreen.style.display = 'none';
   game.style.display = 'flex';
+  // Reset tray
   vehicles.forEach(v => {
+    document.getElementById('vehicleTray').appendChild(v);
     v.style.position = '';
     v.style.top = '';
     v.style.left = '';
     v.style.opacity = '1';
   });
-  placedCount = 0;
+  placedVehicles = { air: [], road: [], water: [] };
   selectedVehicle = null;
 }
 </script>
