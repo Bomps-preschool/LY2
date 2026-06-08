@@ -26,48 +26,51 @@ body {
   position:absolute;
   top:0;
   left:0;
-  padding-top:20px;
 }
-#logoScreen img { width:200px; }
-#oneAndManyBox {
-  background:white;
-  padding:15px 25px;
-  border-radius:10px;
-  font-size:32px;
-  color:#000;
-  text-align:center;
-  margin-bottom:10px;
-}
-#listenInstruction {
-  font-size:28px;
-  color:#333;
-  margin-bottom:10px;
-  text-align:center;
-}
-#slideInstructionBox {
-  background:white;
-  padding:12px 20px;
-  border-radius:10px;
-  font-size:26px;
-  text-align:center;
-  margin-bottom:10px;
-}
-#roundCounter {
-  font-size:24px;
+#logoScreen img { width:200px; margin-top:50px; }
+#topBox {
+  background: #ffffffc9; /* white with slight transparency */
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 32px;
   font-weight:bold;
-  color:#f18f01;
+  margin-top:20px;
+  text-align: center;
+}
+#instructionMain {
+  font-size: 24px;
+  color:#1E3D7B;
+  margin:10px 0;
+  text-align: center;
+}
+#instructionBox {
+  background:#ffffffc9; 
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+#instructionBox img { width:40px; cursor:pointer; }
+#roundCounter {
+  font-size:20px;
+  color:#3E3E3E;
   margin-bottom:20px;
 }
 #objects {
   display:flex;
-  gap:25px;
+  gap:20px;
   flex-wrap: wrap;
   justify-content:center;
 }
 #objects img {
-  width:150px;
-  height:150px;
-  border-radius:12px;
+  width:140px;
+  height:140px;
+  border-radius:10px;
   background:white;
   padding:5px;
   box-shadow:2px 2px 5px rgba(0,0,0,0.2);
@@ -76,15 +79,15 @@ body {
 #scoreScreen {
   background:#fff7e0;
   flex-direction:column;
-  font-size:28px;
+  font-size:24px;
   display:none;
   align-items:center;
   justify-content:center;
   height:100%;
 }
 #scoreScreen button {
-  padding:12px 24px;
-  font-size:22px;
+  padding:10px 20px;
+  font-size:20px;
   background:#ffdd57;
   border:none;
   border-radius:8px;
@@ -93,8 +96,10 @@ body {
 }
 #confetti-canvas {
   position:absolute;
-  top:0; left:0;
-  width:100%; height:100%;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
   pointer-events:none;
 }
 </style>
@@ -108,10 +113,13 @@ body {
 
 <!-- Game Screen -->
 <div id="gameScreen" style="display:none;">
-  <div id="oneAndManyBox">One and Many</div>
-  <div id="listenInstruction">Listen and click to the correct picture</div>
-  <div id="slideInstructionBox"></div>
-  <div id="roundCounter">Round 1 / 5</div>
+  <div id="topBox">One and Many</div>
+  <div id="instructionMain">Listen and click to the correct picture</div>
+  <div id="instructionBox">
+    <span id="instructionText"></span>
+    <img id="voiceIcon" src="assets/voice-icon.png" alt="Voice">
+  </div>
+  <div id="roundCounter"></div>
   <div id="objects"></div>
 </div>
 
@@ -151,11 +159,12 @@ function loadSlide(index){
   const objectsDiv = document.getElementById("objects");
   objectsDiv.innerHTML="";
 
-  document.getElementById("slideInstructionBox").textContent = slide.instruction;
+  document.getElementById("instructionText").textContent = slide.instruction;
   document.getElementById("roundCounter").textContent = `Round ${index+1} / ${slides.length}`;
 
-  // Play instruction audio
+  // play instruction audio
   const audio = new Audio(slide.audio);
+  document.getElementById("voiceIcon").onclick = ()=>audio.play();
   audio.play();
 
   slide.objects.forEach((obj,index)=>{
