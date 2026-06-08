@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One and Many Game</title>
+<style>
+body {
+  margin:0;
+  font-family: 'Arial', sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  background: #e0f7ff;
+}
+#logoScreen, #gameScreen, #scoreScreen {
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:absolute;
+  top:0;
+  left:0;
+}
+#logoScreen img { width:200px; }
+#instructionBox {
+  background: #fffca0;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 26px;
+  margin-bottom: 20px;
+  text-align: center;
+  position:absolute;
+  top:20px;
+}
+#objects {
+  display:flex;
+  gap:20px;
+  flex-wrap: wrap;
+  justify-content:center;
+  margin-top:120px;
+}
+#objects img {
+  width:130px;
+  height:130px;
+  border-radius:10px;
+  background:white;
+  padding:5px;
+  box-shadow:2px 2px 5px rgba(0,0,0,0.2);
+  cursor:pointer;
+}
+#scoreScreen {
+  background:#fff7e0;
+  flex-direction:column;
+  font-size:24px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+}
+#scoreScreen button {
+  padding:10px 20px;
+  font-size:20px;
+  background:#ffdd57;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:20px;
+}
+#confetti-canvas {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<!-- Innovine Logo Slide -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen" style="display:none;">
+  <div id="instructionBox">One and Many</div>
+  <div id="instructionAudioText">Tap to listen to the instruction</div>
+  <div id="objects"></div>
+</div>
+
+<!-- Score Screen -->
+<div id="scoreScreen">
+  <div id="scoreText"></div>
+  <canvas id="confetti-canvas"></canvas>
+  <button id="playAgain">Play Again</button>
+</div>
+
+<script>
+const slides = [
+  { instruction:"Tap the fruit basket which has many fruit.", objects:["one-fruit.png","many-fruit.png"], audio:"assets/fruit-basket.mp3", correctIndex:1 },
+  { instruction:"Tap the boy with one balloon.", objects:["one-balloon.png","many-balloon.png"], audio:"assets/balloon.mp3", correctIndex:0 },
+  { instruction:"Tap the toffy jar which has many toffies.", objects:["one-toffy.png","many-toffies.png"], audio:"assets/toffy-jar.mp3", correctIndex:1 },
+  { instruction:"Tap the stacking ring with many rings in it.", objects:["one-ring.png","many-rings.png"], audio:"assets/stacking-ring.mp3", correctIndex:1 },
+  { instruction:"Tap the toy box which has one toy in it.", objects:["one-toy.png","many-toys.png"], audio:"assets/toy-box.mp3", correctIndex:0 }
+];
+
+let currentSlide=0;
+
+// Audio
+const correctSound = new Audio("assets/correct.mp3");
+const wrongSound = new Audio("assets/wrong.mp3");
+
+// Show logo for 5s
+window.onload = () => {
+  setTimeout(()=>{
+    document.getElementById("logoScreen").style.display="none";
+    document.getElementById("gameScreen").style.display="flex";
+    loadSlide(currentSlide);
+  },5000);
+};
+
+function loadSlide(index){
+  const slide = slides[index];
+  const objectsDiv = document.getElementById("objects");
+  objectsDiv.innerHTML="";
+
+  document.getElementById("instructionBox").textContent = "One and Many";
+  document.getElementById("instructionAudioText").textContent = slide.instruction;
+  
+  // Play instruction audio
+  const audio = new Audio(slide.audio);
+  audio.play();
+
+  slide.objects.forEach((obj,index)=>{
+    const img = document.createElement("img");
+    img.src = `assets/${obj}`;
+    img.addEventListener("click", ()=>{
+      if(index===slide.correctIndex){
+        correctSound.play();
+        // Wait until clap/correct finishes to go next
+        correctSound.onended = ()=>{
+          currentSlide++;
+          if(currentSlide<slides.length){
+            loadSlide(currentSlide);
+          } else {
+            document.getElementById("gameScreen").style.display="none";
+            document.getElementById("scoreText").textContent="Well Done!";
+            document.getElementById("scoreScreen").style.display="flex";
+            launchConfetti();
+          }
+        };
+      } else {
+        wrongSound.play();
+      }
+    });
+    objectsDiv.appendChild(img);
+  });
+}
+
+// Play again button
+document.getElementById("playAgain").onclick = () => {
+  currentSlide=0;
+  document.getElementById("scoreScreen").style.display="none";
+  document.getElementById("gameScreen").style.display="flex";
+  loadSlide(currentSlide);
+};
+
+// Confetti effect
+function launchConfetti(){
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const confettis = [];
+  for(let i=0;i<200;i++){
+    confettis.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*6+4, d:Math.random()*20+10, color:`hsl(${Math.random()*360},100%,50%)`});
+  }
+  let angle = 0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettis.forEach(c=>{
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
+      ctx.fill();
+      c.y += 1+Math.sin(angle)*2;
+      if(c.y>canvas.height){c.y=-10; c.x=Math.random()*canvas.width;}
+    });
+    angle += 0.01;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
