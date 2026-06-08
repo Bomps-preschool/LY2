@@ -3,91 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Circle Game 6-10</title>
+<title>One and Many Game</title>
 <style>
-  body {
-    margin:0;
-    font-family: 'Arial', sans-serif;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
-    background: url('assets/background.png') no-repeat center center;
-    background-size: cover;
-  }
-  #logoScreen, #gameScreen, #scoreScreen {
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    position:absolute;
-    top:0;
-    left:0;
-  }
-  #logoScreen img { width:200px; }
-  #instruction {
-    background: #fffca0;
-    padding:20px 30px;
-    border-radius:10px;
-    font-size:36px; /* Increased font size */
-    margin-bottom:20px;
-    text-align:center;
-    position:absolute;
-    top:20px;
-  }
-  #numbers {
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    justify-content:center;
-    margin-top:120px;
-  }
-  .number-row {
-    display:flex;
-    gap:25px;
-    justify-content:center;
-    flex-wrap: wrap;
-  }
-  .number {
-    padding:18px 25px;
-    font-size:42px; /* Increased font size */
-    border-radius:10px;
-    border:2px solid #000;
-    background:white;
-    cursor:pointer;
-    user-select:none;
-  }
-  .number.correct { background:#a0ffaf; }
-  .number.wrong { background:#ff9a9a; }
-  #scoreScreen {
-    background:#fff7e0;
-    flex-direction:column;
-    font-size:24px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-  }
-  #scoreScreen button {
-    padding:10px 20px;
-    font-size:20px;
-    background:#ffdd57;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin-top:20px;
-  }
-  #confetti-canvas {
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-  }
+body {
+  margin:0;
+  font-family: 'Arial', sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  background: #e0f7ff;
+}
+#logoScreen, #gameScreen, #scoreScreen {
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:absolute;
+  top:0;
+  left:0;
+}
+#logoScreen img { width:200px; }
+#instructionBox {
+  background: #fffca0;
+  padding: 16px 25px;
+  border-radius: 10px;
+  font-size: 32px; /* increased font size */
+  margin-bottom: 10px;
+  text-align: center;
+  position:absolute;
+  top:20px;
+}
+#roundCounter {
+  font-size:24px; /* added round counter font size */
+  margin-top:70px;
+  color:#333;
+}
+#instructionAudioText {
+  font-size:28px; /* instruction under box */
+  margin-top:10px;
+  text-align:center;
+}
+#objects {
+  display:flex;
+  gap:20px;
+  flex-wrap: wrap;
+  justify-content:center;
+  margin-top:100px;
+}
+#objects img {
+  width:130px;
+  height:130px;
+  border-radius:10px;
+  background:white;
+  padding:5px;
+  box-shadow:2px 2px 5px rgba(0,0,0,0.2);
+  cursor:pointer;
+}
+#scoreScreen {
+  background:#fff7e0;
+  flex-direction:column;
+  font-size:24px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+}
+#scoreScreen button {
+  padding:10px 20px;
+  font-size:20px;
+  background:#ffdd57;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:20px;
+}
+#confetti-canvas {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -99,8 +100,10 @@
 
 <!-- Game Screen -->
 <div id="gameScreen" style="display:none;">
-  <div id="instruction">Tap on the correct number</div>
-  <div id="numbers"></div>
+  <div id="instructionBox">One and Many</div>
+  <div id="roundCounter">Round 1 / 5</div> <!-- Added round counter -->
+  <div id="instructionAudioText">Tap to listen to the instruction</div>
+  <div id="objects"></div>
 </div>
 
 <!-- Score Screen -->
@@ -112,15 +115,14 @@
 
 <script>
 const slides = [
-  {number:10, numbers:[[6,8,10,9,10],[8,10,9,10]], audio:"assets/number-10.mp3"},
-  {number:8, numbers:[[7,8,9,6,8],[8,6,10,8]], audio:"assets/number-8.mp3"},
-  {number:6, numbers:[[6,7,6,8],[9,6,7,6]], audio:"assets/number-6.mp3"},
-  {number:9, numbers:[[9,6,7,9],[8,9,10,9]], audio:"assets/number-9.mp3"},
-  {number:7, numbers:[[7,8,6,7],[9,7,6,8]], audio:"assets/number-7.mp3"}
+  { instruction:"Tap the fruit basket which has many fruit.", objects:["one-fruit.png","many-fruit.png"], audio:"assets/fruit-basket.mp3", correctIndex:1 },
+  { instruction:"Tap the boy with one balloon.", objects:["one-balloon.png","many-balloon.png"], audio:"assets/balloon.mp3", correctIndex:0 },
+  { instruction:"Tap the toffy jar which has many toffies.", objects:["one-toffy.png","many-toffies.png"], audio:"assets/toffy-jar.mp3", correctIndex:1 },
+  { instruction:"Tap the stacking ring with many rings in it.", objects:["one-ring.png","many-rings.png"], audio:"assets/stacking-ring.mp3", correctIndex:1 },
+  { instruction:"Tap the toy box which has one toy in it.", objects:["one-toy.png","many-toys.png"], audio:"assets/toy-box.mp3", correctIndex:0 }
 ];
 
-let currentSlide = 0;
-let circledCount = 0;
+let currentSlide=0;
 
 // Audio
 const correctSound = new Audio("assets/correct.mp3");
@@ -128,7 +130,7 @@ const wrongSound = new Audio("assets/wrong.mp3");
 
 // Show logo for 5s
 window.onload = () => {
-  setTimeout(()=> {
+  setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
     document.getElementById("gameScreen").style.display="flex";
     loadSlide(currentSlide);
@@ -137,72 +139,45 @@ window.onload = () => {
 
 function loadSlide(index){
   const slide = slides[index];
-  circledCount = 0;
-  const numbersDiv = document.getElementById("numbers");
-  numbersDiv.innerHTML="";
+  const objectsDiv = document.getElementById("objects");
+  objectsDiv.innerHTML="";
 
-  // play slide audio
-  const slideAudio = new Audio(slide.audio);
-  slideAudio.play();
+  document.getElementById("instructionBox").textContent = "One and Many";
+  document.getElementById("instructionAudioText").textContent = slide.instruction;
+  
+  // Update round counter
+  document.getElementById("roundCounter").textContent = `Round ${index+1} / ${slides.length}`;
+  
+  // Play instruction audio
+  const audio = new Audio(slide.audio);
+  audio.play();
 
-  // instruction
-  document.getElementById("instruction").textContent = `Tap on the correct number ${slide.number}`;
-
-  // render numbers in rows
-  slide.numbers.forEach(row=>{
-    const rowDiv = document.createElement("div");
-    rowDiv.className="number-row";
-    row.forEach(n=>{
-      const div = document.createElement("div");
-      div.className="number";
-      div.textContent=n;
-      div.addEventListener("click",()=> selectNumber(div, slide.number, slide.audio));
-      rowDiv.appendChild(div);
+  slide.objects.forEach((obj,index)=>{
+    const img = document.createElement("img");
+    img.src = `assets/${obj}`;
+    img.addEventListener("click", ()=>{
+      if(index===slide.correctIndex){
+        correctSound.play();
+        correctSound.onended = ()=>{
+          currentSlide++;
+          if(currentSlide<slides.length){
+            loadSlide(currentSlide);
+          } else {
+            document.getElementById("gameScreen").style.display="none";
+            document.getElementById("scoreText").textContent="Well Done!";
+            document.getElementById("scoreScreen").style.display="flex";
+            launchConfetti();
+          }
+        };
+      } else {
+        wrongSound.play();
+      }
     });
-    numbersDiv.appendChild(rowDiv);
+    objectsDiv.appendChild(img);
   });
 }
 
-function selectNumber(el, correctNumber, audioFile){
-  const n = parseInt(el.textContent);
-  if(n===correctNumber && !el.classList.contains("correct")){
-    el.classList.add("correct");
-    correctSound.play();
-    circledCount++;
-    // check if all required numbers are circled
-    const correctNeeded = Array.from(document.querySelectorAll(".number"))
-      .filter(d=>parseInt(d.textContent)===correctNumber).length;
-    if(circledCount===correctNeeded){
-      correctSound.onended = ()=>{
-        // play instruction for next slide
-        if(currentSlide<slides.length-1){
-          const nextSlideAudio = new Audio(slides[currentSlide+1].audio);
-          nextSlideAudio.play();
-        }
-      };
-      setTimeout(nextSlide,800);
-      launchConfetti(); // confetti after each correct set
-    }
-  } else if(n!==correctNumber){
-    el.classList.add("wrong");
-    wrongSound.play();
-    setTimeout(()=>el.classList.remove("wrong"),600);
-  }
-}
-
-function nextSlide(){
-  if(currentSlide<slides.length-1){
-    currentSlide++;
-    loadSlide(currentSlide);
-  } else {
-    // show score screen
-    document.getElementById("gameScreen").style.display="none";
-    document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
-    document.getElementById("scoreScreen").style.display="flex";
-    launchConfetti();
-  }
-}
-
+// Play again button
 document.getElementById("playAgain").onclick = () => {
   currentSlide=0;
   document.getElementById("scoreScreen").style.display="none";
@@ -210,7 +185,7 @@ document.getElementById("playAgain").onclick = () => {
   loadSlide(currentSlide);
 };
 
-// Simple confetti animation
+// Confetti effect
 function launchConfetti(){
   const canvas = document.getElementById('confetti-canvas');
   canvas.width = window.innerWidth;
