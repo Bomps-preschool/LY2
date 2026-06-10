@@ -101,9 +101,18 @@ body {
 <div id="game">
   <div id="instructionBox">Tap a vehicle, then tap the correct transport zone</div>
   <div id="backgroundContainer">
-    <div class="zone" id="airZone"></div>
-    <div class="zone" id="roadZone"></div>
-    <div class="zone" id="waterZone"></div>
+    
+    <!-- Zones with labels -->
+    <div class="zone" id="airZone">
+      <div style="position:absolute; top:5px; left:5px; font-size:1.5em; font-weight:bold; color:#003366;">Air Transport</div>
+    </div>
+    <div class="zone" id="roadZone">
+      <div style="position:absolute; top:5px; left:5px; font-size:1.5em; font-weight:bold; color:#003366;">Road Transport</div>
+    </div>
+    <div class="zone" id="waterZone">
+      <div style="position:absolute; top:5px; left:5px; font-size:1.5em; font-weight:bold; color:#003366;">Water Transport</div>
+    </div>
+
     <div id="vehicleTray">
       <div class="vehicle" data-vehicle="airplane"><img src="assets/airplane.png"></div>
       <div class="vehicle" data-vehicle="boat"><img src="assets/boat.png"></div>
@@ -172,7 +181,7 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
       // Place the vehicle in the zone
       const clone = selectedVehicle.cloneNode(true);
       clone.style.position = 'absolute';
-      clone.style.top = (20 + placedVehicles[zoneName].length * 90) + 'px'; // stack vertically
+      clone.style.top = (20 + placedVehicles[zoneName].length * 90) + 'px';
       clone.style.left = '20px';
       zone.appendChild(clone);
 
@@ -210,7 +219,7 @@ document.getElementById('playAgain').addEventListener('click', () => {
   game.style.display = 'flex';
   // Reset zones
   Object.keys(zones).forEach(z => {
-    zones[z].innerHTML = '';
+    zones[z].innerHTML = `<div style="position:absolute; top:5px; left:5px; font-size:1.5em; font-weight:bold; color:#003366;">${z.charAt(0).toUpperCase() + z.slice(1)} Transport</div>`;
   });
   // Reset tray
   document.querySelectorAll('#vehicleTray .vehicle').forEach(v => {
