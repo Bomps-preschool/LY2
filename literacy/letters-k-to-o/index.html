@@ -124,9 +124,14 @@ function showObjectSlide() {
   });
 }
 
+// --- Updated click to play object sound ---
 objectBox.onclick = () => {
+  const slide = slides[currentSlide];
   revealedObject.style.display='block';
   objectBox.style.display='none';
+  // Play object sound
+  const objectName = slide.object.split('/').pop().split('.')[0]; // e.g., "kiwi"
+  new Audio('assets/' + objectName + '.mp3').play();
 };
 
 function selectLetter(l){
