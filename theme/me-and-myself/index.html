@@ -9,51 +9,51 @@
 body{
   margin:0;
   font-family:Arial;
-  background:#dff6ff;
+  background:url("/mnt/data/c159fb23-b3a2-4efc-8a6e-34b127ddd673.png") no-repeat center center fixed;
+  background-size:cover;
   overflow:hidden;
 }
 
-/* SCREEN */
+/* SCREENS */
 .screen{
   width:100vw;
   height:100vh;
   position:absolute;
   display:none;
-}
-
-/* LOGO */
-#logoScreen{
-  display:flex;
   justify-content:center;
   align-items:center;
-  background:white;
 }
-#logoScreen img{ width:220px; }
+
+/* SPLASH */
+#splash{
+  background:white;
+  display:flex;
+}
+#splash img{
+  width:220px;
+}
 
 /* LEVEL SCREEN */
 #levelScreen{
-  background:#fff8e6;
-  display:flex;
   flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  background:rgba(255,255,255,0.8);
 }
 
 .levelCard{
   background:white;
-  padding:20px;
+  padding:18px;
   margin:10px;
-  border-radius:15px;
   width:200px;
   text-align:center;
+  border-radius:12px;
   font-weight:bold;
-  box-shadow:0 5px 12px rgba(0,0,0,0.15);
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
 }
 
 /* GAME SCREEN */
-#gameScreen{
-  background:#eaf6ff;
+#game{
+  background:transparent;
 }
 
 /* TOP BAR */
@@ -72,35 +72,31 @@ body{
   cursor:pointer;
 }
 
-/* TITLE */
-#title{
+/* INSTRUCTION */
+#instructionRow{
   position:absolute;
-  top:60px;
-  width:100%;
-  text-align:center;
-  font-size:26px;
-  font-weight:bold;
-  color:#ff4d6d;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-/* INSTRUCTION */
 #instruction{
-  position:absolute;
-  top:100px;
-  width:100%;
-  text-align:center;
-  font-size:22px;
   background:white;
-  display:inline-block;
-  padding:10px;
+  padding:10px 16px;
   border-radius:12px;
+  font-size:22px;
+  font-weight:bold;
+  color:#ff4d6d;
 }
 
 /* LEFT PANEL */
 #leftPanel{
   position:absolute;
   left:10px;
-  top:160px;
+  top:150px;
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -109,18 +105,22 @@ body{
 .part{
   background:white;
   padding:10px 14px;
-  border-radius:12px;
+  border-radius:10px;
   font-weight:bold;
   cursor:pointer;
 }
 
-/* BOY */
-#boy{
+/* BOY WRAPPER (FIXED ALIGNMENT SYSTEM) */
+#boy-wrapper{
   position:absolute;
   left:50%;
   top:55%;
   transform:translate(-50%,-50%);
-  width:280px;
+  width:320px;
+}
+
+#boy{
+  width:100%;
 }
 
 /* GLOW */
@@ -130,7 +130,7 @@ body{
   height:50px;
   border-radius:50%;
   border:4px solid yellow;
-  box-shadow:0 0 15px yellow;
+  box-shadow:0 0 18px yellow;
   display:none;
   transform:translate(-50%,-50%);
 }
@@ -139,29 +139,37 @@ body{
 
 <body>
 
-<!-- LOGO -->
-<div id="logoScreen" class="screen">
-  <img src="assets/innovine-logo.png">
+<!-- SPLASH -->
+<div id="splash" class="screen">
+  <img src="/mnt/data/48ab77cc-bdd2-471e-847d-ec919107c595.png">
 </div>
 
-<!-- LEVEL -->
+<!-- LEVEL SCREEN -->
 <div id="levelScreen" class="screen">
-  <div class="levelCard" onclick="startLevel(1)">Level 1<br>Ear Eye Nose</div>
-  <div class="levelCard" onclick="startLevel(2)">Level 2<br>Mouth Arm Leg</div>
-  <div class="levelCard" onclick="startLevel(3)">Level 3<br>All Parts</div>
+  <div class="levelCard" onclick="startLevel(1)">
+    Level 1<br>Ear Eye Nose
+  </div>
+  <div class="levelCard" onclick="startLevel(2)">
+    Level 2<br>Mouth Arm Leg
+  </div>
+  <div class="levelCard" onclick="startLevel(3)">
+    Level 3<br>All Parts
+  </div>
 </div>
 
 <!-- GAME -->
-<div id="gameScreen" class="screen">
+<div id="game" class="screen">
 
   <div id="topBar">
-    <img src="assets/home-button.png" class="icon" onclick="goHome()">
-    <img src="assets/voice-icon.png" class="icon" onclick="repeatVoice()">
-    <img src="assets/next-button.png" class="icon" onclick="nextQ()">
+    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png" onclick="goHome()">
+    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png" onclick="repeatVoice()">
+    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png">
   </div>
 
-  <div id="title">My Body Parts</div>
-  <div id="instruction">Loading...</div>
+  <div id="instructionRow">
+    <div id="instruction">My Body Parts</div>
+    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png">
+  </div>
 
   <div id="leftPanel">
     <div class="part">Ear</div>
@@ -172,8 +180,10 @@ body{
     <div class="part">Leg</div>
   </div>
 
-  <img id="boy" src="assets/boy-body.png">
-  <div id="glow"></div>
+  <div id="boy-wrapper">
+    <img id="boy" src="assets/boy-body.png">
+    <div id="glow"></div>
+  </div>
 
 </div>
 
@@ -183,44 +193,56 @@ let level=1;
 let index=0;
 let order=[];
 
-/* START FLOW */
-window.onload = ()=>{
-  document.getElementById("logoScreen").style.display="flex";
+/* START */
+window.onload=()=>{
   setTimeout(()=>{
-    document.getElementById("logoScreen").style.display="none";
+    document.getElementById("splash").style.display="none";
     document.getElementById("levelScreen").style.display="flex";
-  },5000);
+  },3000);
 };
 
-/* LEVEL SETUP */
+/* LEVEL CONTROL */
 function startLevel(lv){
   level=lv;
+  index=0;
+
   document.getElementById("levelScreen").style.display="none";
-  document.getElementById("gameScreen").style.display="block";
+  document.getElementById("game").style.display="block";
 
   if(level==1) order=["ear","eye","nose"];
   if(level==2) order=["mouth","arm","leg"];
   if(level==3) order=["ear","eye","nose","mouth","arm","leg"];
 
-  index=0;
-  loadQ();
+  nextQ();
 }
 
-/* SPEECH */
-function speak(t){
-  let msg=new SpeechSynthesisUtterance(t);
+/* VOICE */
+function speak(text){
+  let msg=new SpeechSynthesisUtterance(text);
   msg.rate=0.9;
   window.speechSynthesis.speak(msg);
 }
 
-/* QUESTION */
-function loadQ(){
-  let q=order[index];
-  document.getElementById("instruction").innerText="Touch the "+q;
-  speak("Touch the "+q);
+function repeatVoice(){
+  speak(order[index]);
 }
 
-/* GLOW FIXED (NO SHIFT ISSUE) */
+/* QUESTION */
+function nextQ(){
+
+  if(index>=order.length){
+    if(level<3){
+      startLevel(level+1); // AUTO NEXT LEVEL
+    } else {
+      alert("🎉 All Levels Completed!");
+    }
+    return;
+  }
+
+  speak("Touch the " + order[index]);
+}
+
+/* FIXED GLow POSITION (NO BUG NOW) */
 function showGlow(part){
 
   const map={
@@ -234,45 +256,33 @@ function showGlow(part){
 
   let boy=document.getElementById("boy");
   let rect=boy.getBoundingClientRect();
-
   let g=document.getElementById("glow");
 
   g.style.left=(rect.left + rect.width*map[part].x)+"px";
   g.style.top=(rect.top + rect.height*map[part].y)+"px";
-
   g.style.display="block";
 
   setTimeout(()=>g.style.display="none",1200);
 }
 
-/* CLICK HANDLER */
+/* CLICK */
 document.querySelectorAll(".part").forEach(el=>{
   el.onclick=()=>{
+
     let part=el.innerText.toLowerCase();
 
     if(part===order[index]){
       showGlow(part);
       index++;
-      setTimeout(()=>{
-        if(index<order.length){
-          loadQ();
-        }else{
-          alert("🎉 Level Completed!");
-        }
-      },1200);
-    }else{
+      nextQ();
+    } else {
       alert("Try again");
     }
-  }
+
+  };
 });
 
-/* NAV */
-function nextQ(){
-  alert("Use correct answer");
-}
-function repeatVoice(){
-  loadQ();
-}
+/* HOME */
 function goHome(){
   location.reload();
 }
