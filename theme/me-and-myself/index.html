@@ -3,82 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Body Parts Game</title>
+<title>My Body Parts - Version 1</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:url("/mnt/data/c159fb23-b3a2-4efc-8a6e-34b127ddd673.png") no-repeat center center fixed;
+  background:url("assets/background.png") no-repeat center center fixed;
   background-size:cover;
   overflow:hidden;
 }
 
-/* SCREENS */
-.screen{
-  width:100vw;
-  height:100vh;
-  position:absolute;
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-
 /* SPLASH */
 #splash{
-  background:white;
-  display:flex;
-}
-#splash img{
-  width:220px;
-}
-
-/* LEVEL SCREEN */
-#levelScreen{
-  flex-direction:column;
-  background:rgba(255,255,255,0.8);
-}
-
-.levelCard{
-  background:white;
-  padding:18px;
-  margin:10px;
-  width:200px;
-  text-align:center;
-  border-radius:12px;
-  font-weight:bold;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
-  cursor:pointer;
-}
-
-/* GAME SCREEN */
-#game{
-  background:transparent;
-}
-
-/* TOP BAR */
-#topBar{
   position:absolute;
-  top:10px;
   width:100%;
+  height:100%;
+  background:white;
   display:flex;
-  justify-content:space-between;
-  padding:0 15px;
-  box-sizing:border-box;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
 }
 
-.icon{
-  width:40px;
-  cursor:pointer;
+/* GAME */
+#game{
+  display:none;
+  width:100vw;
+  height:100vh;
+  position:relative;
+}
+
+/* TITLE */
+#title{
+  position:absolute;
+  top:15px;
+  width:100%;
+  text-align:center;
+  font-size:26px;
+  font-weight:bold;
+  color:#ff4d6d;
 }
 
 /* INSTRUCTION */
 #instructionRow{
   position:absolute;
-  top:70px;
-  left:50%;
-  transform:translateX(-50%);
+  top:60px;
+  width:100%;
   display:flex;
+  justify-content:center;
   align-items:center;
   gap:10px;
 }
@@ -89,7 +62,52 @@ body{
   border-radius:12px;
   font-size:22px;
   font-weight:bold;
-  color:#ff4d6d;
+}
+
+#voice{
+  width:40px;
+  cursor:pointer;
+}
+
+/* BOY CONTAINER */
+#boy-container{
+  position:absolute;
+  left:50%;
+  top:55%;
+  transform:translate(-50%,-50%);
+  width:320px;
+}
+
+#boy{
+  width:100%;
+  display:block;
+}
+
+/* HOTSPOTS (CLICK AREAS) */
+.hotspot{
+  position:absolute;
+  cursor:pointer;
+}
+
+/* PRECISE HOTSPOTS OVER IMAGE */
+#ear{ top:18%; left:62%; width:60px; height:60px; }
+#eye{ top:16%; left:52%; width:60px; height:40px; }
+#nose{ top:28%; left:52%; width:60px; height:60px; }
+#mouth{ top:38%; left:52%; width:70px; height:60px; }
+#arm{ top:50%; left:30%; width:90px; height:120px; }
+#leg{ top:75%; left:50%; width:80px; height:120px; }
+
+/* HIGHLIGHT */
+.highlight{
+  position:absolute;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:4px solid yellow;
+  box-shadow:0 0 18px yellow;
+  display:none;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
 }
 
 /* LEFT PANEL */
@@ -102,37 +120,12 @@ body{
   gap:10px;
 }
 
-.part{
+.btn{
   background:white;
   padding:10px 14px;
   border-radius:10px;
   font-weight:bold;
   cursor:pointer;
-}
-
-/* BOY WRAPPER (FIXED ALIGNMENT SYSTEM) */
-#boy-wrapper{
-  position:absolute;
-  left:50%;
-  top:55%;
-  transform:translate(-50%,-50%);
-  width:320px;
-}
-
-#boy{
-  width:100%;
-}
-
-/* GLOW */
-#glow{
-  position:absolute;
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  border:4px solid yellow;
-  box-shadow:0 0 18px yellow;
-  display:none;
-  transform:translate(-50%,-50%);
 }
 </style>
 </head>
@@ -140,49 +133,36 @@ body{
 <body>
 
 <!-- SPLASH -->
-<div id="splash" class="screen">
-  <img src="/mnt/data/48ab77cc-bdd2-471e-847d-ec919107c595.png">
-</div>
-
-<!-- LEVEL SCREEN -->
-<div id="levelScreen" class="screen">
-  <div class="levelCard" onclick="startLevel(1)">
-    Level 1<br>Ear Eye Nose
-  </div>
-  <div class="levelCard" onclick="startLevel(2)">
-    Level 2<br>Mouth Arm Leg
-  </div>
-  <div class="levelCard" onclick="startLevel(3)">
-    Level 3<br>All Parts
-  </div>
+<div id="splash">
+  <img src="assets/innovine-logo.png" width="200">
 </div>
 
 <!-- GAME -->
-<div id="game" class="screen">
+<div id="game">
 
-  <div id="topBar">
-    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png" onclick="goHome()">
-    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png" onclick="repeatVoice()">
-    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png">
-  </div>
+  <div id="title">My Body Parts</div>
 
   <div id="instructionRow">
-    <div id="instruction">My Body Parts</div>
-    <img class="icon" src="/mnt/data/15f02931-2872-4ab9-a28b-1b097c26b515.png">
+    <div id="instruction">Loading...</div>
+    <img id="voice" src="assets/voice-icon.png" onclick="repeatVoice()">
   </div>
 
-  <div id="leftPanel">
-    <div class="part">Ear</div>
-    <div class="part">Eye</div>
-    <div class="part">Nose</div>
-    <div class="part">Mouth</div>
-    <div class="part">Arm</div>
-    <div class="part">Leg</div>
-  </div>
+  <!-- BOY -->
+  <div id="boy-container">
 
-  <div id="boy-wrapper">
     <img id="boy" src="assets/boy-body.png">
-    <div id="glow"></div>
+
+    <!-- HIGHLIGHT -->
+    <div id="highlight" class="highlight"></div>
+
+    <!-- HOTSPOTS -->
+    <div id="ear" class="hotspot"></div>
+    <div id="eye" class="hotspot"></div>
+    <div id="nose" class="hotspot"></div>
+    <div id="mouth" class="hotspot"></div>
+    <div id="arm" class="hotspot"></div>
+    <div id="leg" class="hotspot"></div>
+
   </div>
 
 </div>
@@ -193,21 +173,20 @@ let level=1;
 let index=0;
 let order=[];
 
-/* START */
+/* SPLASH */
 window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("splash").style.display="none";
-    document.getElementById("levelScreen").style.display="flex";
+    document.getElementById("game").style.display="block";
+    startLevel(1);
   },3000);
 };
 
-/* LEVEL CONTROL */
+/* LEVEL */
 function startLevel(lv){
+
   level=lv;
   index=0;
-
-  document.getElementById("levelScreen").style.display="none";
-  document.getElementById("game").style.display="block";
 
   if(level==1) order=["ear","eye","nose"];
   if(level==2) order=["mouth","arm","leg"];
@@ -216,7 +195,7 @@ function startLevel(lv){
   nextQ();
 }
 
-/* VOICE */
+/* SPEECH */
 function speak(text){
   let msg=new SpeechSynthesisUtterance(text);
   msg.rate=0.9;
@@ -232,7 +211,7 @@ function nextQ(){
 
   if(index>=order.length){
     if(level<3){
-      startLevel(level+1); // AUTO NEXT LEVEL
+      startLevel(level+1);
     } else {
       alert("🎉 All Levels Completed!");
     }
@@ -240,52 +219,42 @@ function nextQ(){
   }
 
   speak("Touch the " + order[index]);
+  document.getElementById("instruction").innerText="Touch the " + order[index];
 }
 
-/* FIXED GLow POSITION (NO BUG NOW) */
-function showGlow(part){
+/* FIXED HOTSPOT SYSTEM */
+function activate(part){
 
-  const map={
-    ear:{x:0.62,y:0.28},
-    eye:{x:0.55,y:0.25},
-    nose:{x:0.55,y:0.38},
-    mouth:{x:0.55,y:0.50},
-    arm:{x:0.35,y:0.60},
-    leg:{x:0.55,y:0.82}
-  };
+  if(part!==order[index]) return;
 
-  let boy=document.getElementById("boy");
-  let rect=boy.getBoundingClientRect();
-  let g=document.getElementById("glow");
+  let h=document.getElementById("highlight");
 
-  g.style.left=(rect.left + rect.width*map[part].x)+"px";
-  g.style.top=(rect.top + rect.height*map[part].y)+"px";
-  g.style.display="block";
+  let target=document.getElementById(part);
+  let rect=target.getBoundingClientRect();
 
-  setTimeout(()=>g.style.display="none",1200);
+  let container=document.getElementById("boy-container");
+  let crect=container.getBoundingClientRect();
+
+  let x=rect.left - crect.left + rect.width/2;
+  let y=rect.top - crect.top + rect.height/2;
+
+  h.style.left=x+"px";
+  h.style.top=y+"px";
+  h.style.display="block";
+
+  setTimeout(()=>{
+    h.style.display="none";
+    index++;
+    nextQ();
+  },1000);
 }
 
-/* CLICK */
-document.querySelectorAll(".part").forEach(el=>{
+/* EVENTS */
+document.querySelectorAll(".hotspot").forEach(el=>{
   el.onclick=()=>{
-
-    let part=el.innerText.toLowerCase();
-
-    if(part===order[index]){
-      showGlow(part);
-      index++;
-      nextQ();
-    } else {
-      alert("Try again");
-    }
-
+    activate(el.id);
   };
 });
-
-/* HOME */
-function goHome(){
-  location.reload();
-}
 
 </script>
 
