@@ -3,107 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Me and Myself - Body Parts</title>
+<title>Me and Myself App</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:url("assets/background.png") no-repeat center center fixed;
-  background-size:cover;
+  background:#eaf6ff;
   overflow:hidden;
 }
 
-/* SPLASH */
-#splash{
+/* BACKGROUND */
+.bg{
   position:absolute;
   width:100%;
   height:100%;
-  background:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:10;
+  object-fit:cover;
+  opacity:0.25;
+  z-index:-1;
 }
 
-#splash img{
-  width:220px;
-}
-
-/* GAME */
-#game{
-  display:none;
+/* SCREEN BASE */
+.screen{
   width:100vw;
   height:100vh;
-  position:relative;
+  display:none;
+  position:absolute;
+  justify-content:center;
+  align-items:center;
+}
+
+/* HOME */
+#home{
+  display:flex;
+  flex-direction:column;
+  background:white;
+}
+
+.logo{
+  width:200px;
+}
+
+.playBtn{
+  margin-top:20px;
+  padding:12px 30px;
+  font-size:22px;
+  border:none;
+  border-radius:12px;
+  background:#4CAF50;
+  color:white;
+}
+
+/* LEVEL SCREEN */
+#levels{
+  flex-direction:column;
+  background:#fff7e6;
+}
+
+.levelCard{
+  width:220px;
+  background:white;
+  padding:15px;
+  margin:10px;
+  border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  text-align:center;
+  cursor:pointer;
+}
+
+/* GAME SCREEN */
+#game{
+  background:transparent;
+}
+
+/* TOP BAR */
+.topbar{
+  position:absolute;
+  top:10px;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:0 15px;
+  align-items:center;
+}
+
+.icon{
+  width:40px;
+  cursor:pointer;
 }
 
 /* TITLE */
-#title{
+#instruction{
   position:absolute;
-  top:10px;
+  top:60px;
   left:50%;
   transform:translateX(-50%);
   background:white;
   padding:10px 18px;
   border-radius:12px;
-  font-size:24px;
+  font-size:20px;
   font-weight:bold;
   color:#ff4d6d;
 }
 
 /* BOY */
 #boy{
-  position:absolute;
-  left:50%;
-  top:55%;
-  transform:translate(-50%,-50%);
   width:260px;
-  max-width:70vw;
+  position:absolute;
+  top:55%;
+  left:50%;
+  transform:translate(-50%,-50%);
 }
 
 /* LABELS */
 .label{
   position:absolute;
   background:white;
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:18px;
-  font-weight:bold;
+  padding:6px 10px;
+  border-radius:8px;
   cursor:pointer;
-  box-shadow:0 3px 6px rgba(0,0,0,0.2);
+  font-weight:bold;
 }
 
-/* POSITIONING */
-#ear{ top:25%; left:15%; }
-#eye{ top:35%; left:15%; }
-#nose{ top:45%; left:15%; }
-#mouth{ top:55%; left:15%; }
-#arm{ top:65%; left:15%; }
-#leg{ top:75%; left:15%; }
+/* POSITIONS */
+#ear{top:35%;left:12%;}
+#eye{top:42%;left:12%;}
+#nose{top:49%;left:12%;}
+#mouth{top:56%;left:12%;}
+#arm{top:63%;left:12%;}
+#leg{top:70%;left:12%;}
 
-/* GLOW */
-#glow{
+/* GLOW CIRCLE */
+.glow{
   position:absolute;
-  width:120px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  border:4px solid rgba(255,255,0,0.8);
+  box-shadow:0 0 15px yellow;
   display:none;
   pointer-events:none;
-  transform:translate(-50%,-50%);
 }
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <img src="assets/innovine-logo.png">
+<img class="bg" src="assets/background.png">
+
+<!-- HOME -->
+<div id="home" class="screen" style="display:flex;">
+  <img class="logo" src="assets/innovine-logo.png">
+  <button class="playBtn" onclick="showLevels()">▶ Play</button>
+</div>
+
+<!-- LEVELS -->
+<div id="levels" class="screen">
+
+  <div class="levelCard" onclick="startGame(1)">
+    Level 1<br>Ear • Eye • Nose
+  </div>
+
+  <div class="levelCard" onclick="startGame(2)">
+    Level 2<br>Mouth • Arm • Leg
+  </div>
+
+  <div class="levelCard" onclick="startGame(3)">
+    Level 3<br>All Parts
+  </div>
+
 </div>
 
 <!-- GAME -->
-<div id="game">
+<div id="game" class="screen">
 
-  <div id="title">Touch the body part</div>
+  <div class="topbar">
+    <img src="assets/home-button.png" class="icon" onclick="goHome()">
+    <img src="assets/voice-icon.png" class="icon" onclick="repeatVoice()">
+    <img src="assets/next-button.png" class="icon" onclick="next()">
+  </div>
+
+  <div id="instruction">Touch the body part</div>
 
   <img id="boy" src="assets/boy-body.png">
 
@@ -114,86 +194,105 @@ body{
   <div id="arm" class="label">Arm</div>
   <div id="leg" class="label">Leg</div>
 
-</div>
+  <div id="glow" class="glow"></div>
 
-<img id="glow">
+</div>
 
 <script>
 
-setTimeout(()=>{
-  document.getElementById("splash").style.display="none";
-  document.getElementById("game").style.display="block";
-  nextRound();
-},5000);
-
-const order = ["ear","eye","nose","mouth","arm","leg"];
+let level = 1;
+let order = [];
 let index = 0;
 
-const correct = new Audio("assets/correct.mp3");
-const wrong = new Audio("assets/wrong.mp3");
-
-const glowMap = {
-  ear:"assets/ear-glow.png",
-  eye:"assets/eye-glow.png",
-  nose:"assets/nose-glow.png",
-  mouth:"assets/mouth-glow.png",
-  arm:"assets/arm-glow.png",
-  leg:"assets/leg-glow.png"
-};
-
-const voiceMap = {
-  ear:"assets/touch-ear.mp3",
-  eye:"assets/touch-eye.mp3",
-  nose:"assets/touch-nose.mp3",
-  mouth:"assets/touch-mouth.mp3",
-  arm:"assets/touch-arm.mp3",
-  leg:"assets/touch-leg.mp3"
-};
-
-function speak(text){
-  let msg = new SpeechSynthesisUtterance(text);
-  msg.rate = 0.9;
-  window.speechSynthesis.speak(msg);
+function showLevels(){
+  document.getElementById("home").style.display="none";
+  document.getElementById("levels").style.display="flex";
 }
 
-function nextRound(){
-  if(index >= order.length){
-    alert("🎉 Well Done!");
-    return;
-  }
+function startGame(lv){
+  level = lv;
+  document.getElementById("levels").style.display="none";
+  document.getElementById("game").style.display="block";
+
+  if(level===1) order=["ear","eye","nose"];
+  if(level===2) order=["mouth","arm","leg"];
+  if(level===3) order=["ear","eye","nose","mouth","arm","leg"];
+
+  index=0;
+  updateInstruction();
+}
+
+function updateInstruction(){
   let part = order[index];
-  document.getElementById("title").innerText = "Touch the " + part;
+  document.getElementById("instruction").innerText="Touch the " + part;
   speak("Touch the " + part);
 }
 
+function speak(text){
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.rate=0.9;
+  window.speechSynthesis.speak(msg);
+}
+
 function showGlow(part){
-  let glow = document.getElementById("glow");
-  glow.src = glowMap[part];
-  glow.style.display="block";
-  glow.style.left="50%";
-  glow.style.top="55%";
+  let g=document.getElementById("glow");
 
-  new Audio(voiceMap[part]).play();
+  let pos={
+    ear:["35%","18%"],
+    eye:["42%","18%"],
+    nose:["49%","18%"],
+    mouth:["56%","18%"],
+    arm:["63%","18%"],
+    leg:["70%","18%"]
+  };
 
-  setTimeout(()=>{
-    glow.style.display="none";
-    index++;
-    nextRound();
-  },2000);
+  g.style.display="block";
+  g.style.top=pos[part][0];
+  g.style.left=pos[part][1];
+
+  setTimeout(()=>g.style.display="none",1200);
+}
+
+function handle(part){
+  if(part===order[index]){
+    new Audio("assets/correct.mp3").play();
+    new Audio("assets/touch-"+part+".mp3").play();
+
+    showGlow(part);
+
+    setTimeout(()=>{
+      index++;
+      if(index<order.length){
+        updateInstruction();
+      } else {
+        alert("🎉 Well Done!");
+      }
+    },1200);
+  } else {
+    new Audio("assets/wrong.mp3").play();
+  }
+}
+
+function repeatVoice(){
+  updateInstruction();
+}
+
+function next(){
+  index++;
+  if(index<order.length){
+    updateInstruction();
+  } else {
+    alert("Completed!");
+  }
+}
+
+function goHome(){
+  location.reload();
 }
 
 /* EVENTS */
-document.querySelectorAll(".label").forEach(el=>{
-  el.addEventListener("click",()=>{
-    let part = el.id;
-
-    if(part === order[index]){
-      correct.play();
-      showGlow(part);
-    } else {
-      wrong.play();
-    }
-  });
+["ear","eye","nose","mouth","arm","leg"].forEach(id=>{
+  document.getElementById(id).onclick=()=>handle(id);
 });
 
 </script>
