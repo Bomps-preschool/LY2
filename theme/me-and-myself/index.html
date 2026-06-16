@@ -3,85 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Me and Myself - Body Parts Game</title>
+<title>Me and Myself - Body Parts</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  overflow:hidden;
   background:url("assets/background.png") no-repeat center center fixed;
   background-size:cover;
+  overflow:hidden;
 }
 
 /* SPLASH */
-#logoScreen{
+#splash{
   position:absolute;
   width:100%;
   height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
   background:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
 }
 
-#logoScreen img{
+#splash img{
   width:220px;
 }
 
-/* GAME AREA */
-#gameScreen{
+/* GAME */
+#game{
   display:none;
   width:100vw;
   height:100vh;
-  position:absolute;
+  position:relative;
 }
 
 /* TITLE */
 #title{
   position:absolute;
-  top:15px;
+  top:10px;
   left:50%;
   transform:translateX(-50%);
   background:white;
-  padding:12px 20px;
+  padding:10px 18px;
   border-radius:12px;
-  font-size:26px;
+  font-size:24px;
   font-weight:bold;
   color:#ff4d6d;
 }
 
-/* BOY IMAGE */
+/* BOY */
 #boy{
   position:absolute;
   left:50%;
   top:55%;
   transform:translate(-50%,-50%);
-  width:280px;
-  max-width:80vw;
+  width:260px;
+  max-width:70vw;
 }
 
-/* CLICK ZONES */
-.zone{
+/* LABELS */
+.label{
   position:absolute;
+  background:white;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:18px;
+  font-weight:bold;
   cursor:pointer;
+  box-shadow:0 3px 6px rgba(0,0,0,0.2);
 }
 
-/* POSITIONS (adjusted for responsiveness) */
-#ear{ top:40%; left:52%; width:60px; height:60px; }
-#eye{ top:38%; left:47%; width:60px; height:60px; }
-#nose{ top:48%; left:50%; width:60px; height:60px; }
-#mouth{ top:55%; left:50%; width:60px; height:60px; }
-#arm{ top:60%; left:38%; width:80px; height:80px; }
-#leg{ top:75%; left:50%; width:80px; height:80px; }
+/* POSITIONING */
+#ear{ top:25%; left:15%; }
+#eye{ top:35%; left:15%; }
+#nose{ top:45%; left:15%; }
+#mouth{ top:55%; left:15%; }
+#arm{ top:65%; left:15%; }
+#leg{ top:75%; left:15%; }
 
-/* GLOW EFFECT */
-.glow{
+/* GLOW */
+#glow{
   position:absolute;
   width:120px;
   display:none;
-  transform:translate(-50%,-50%);
   pointer-events:none;
+  transform:translate(-50%,-50%);
 }
 </style>
 </head>
@@ -89,99 +96,105 @@ body{
 <body>
 
 <!-- SPLASH -->
-<div id="logoScreen">
+<div id="splash">
   <img src="assets/innovine-logo.png">
 </div>
 
 <!-- GAME -->
-<div id="gameScreen">
+<div id="game">
 
   <div id="title">Touch the body part</div>
 
   <img id="boy" src="assets/boy-body.png">
 
-  <!-- CLICK AREAS -->
-  <div id="ear" class="zone"></div>
-  <div id="eye" class="zone"></div>
-  <div id="nose" class="zone"></div>
-  <div id="mouth" class="zone"></div>
-  <div id="arm" class="zone"></div>
-  <div id="leg" class="zone"></div>
+  <div id="ear" class="label">Ear</div>
+  <div id="eye" class="label">Eye</div>
+  <div id="nose" class="label">Nose</div>
+  <div id="mouth" class="label">Mouth</div>
+  <div id="arm" class="label">Arm</div>
+  <div id="leg" class="label">Leg</div>
 
 </div>
 
-<!-- GLOW IMAGE -->
-<img id="glow" class="glow">
+<img id="glow">
 
 <script>
 
-const correctSound = new Audio("assets/correct.mp3");
-const wrongSound = new Audio("assets/wrong.mp3");
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+  document.getElementById("game").style.display="block";
+  nextRound();
+},5000);
 
-const map = {
-  ear: {img:"assets/ear-glow.png", audio:"assets/touch-ear.mp3"},
-  eye: {img:"assets/eye-glow.png", audio:"assets/touch-eye.mp3"},
-  nose: {img:"assets/nose-glow.png", audio:"assets/touch-nose.mp3"},
-  mouth: {img:"assets/mouth-glow.png", audio:"assets/touch-mouth.mp3"},
-  arm: {img:"assets/arm-glow.png", audio:"assets/touch-arm.mp3"},
-  leg: {img:"assets/leg-glow.png", audio:"assets/touch-leg.mp3"}
+const order = ["ear","eye","nose","mouth","arm","leg"];
+let index = 0;
+
+const correct = new Audio("assets/correct.mp3");
+const wrong = new Audio("assets/wrong.mp3");
+
+const glowMap = {
+  ear:"assets/ear-glow.png",
+  eye:"assets/eye-glow.png",
+  nose:"assets/nose-glow.png",
+  mouth:"assets/mouth-glow.png",
+  arm:"assets/arm-glow.png",
+  leg:"assets/leg-glow.png"
 };
 
-let order = ["ear","eye","nose","mouth","arm","leg"];
-let current = 0;
-
-window.onload = () => {
-  setTimeout(()=>{
-    document.getElementById("logoScreen").style.display="none";
-    document.getElementById("gameScreen").style.display="block";
-    speakNext();
-  },5000);
+const voiceMap = {
+  ear:"assets/touch-ear.mp3",
+  eye:"assets/touch-eye.mp3",
+  nose:"assets/touch-nose.mp3",
+  mouth:"assets/touch-mouth.mp3",
+  arm:"assets/touch-arm.mp3",
+  leg:"assets/touch-leg.mp3"
 };
 
-function speakNext(){
-  let part = order[current];
-  let msg = new SpeechSynthesisUtterance("Touch the " + part);
+function speak(text){
+  let msg = new SpeechSynthesisUtterance(text);
   msg.rate = 0.9;
   window.speechSynthesis.speak(msg);
 }
 
-function handleClick(part){
-
-  if(part === order[current]){
-
-    correctSound.play();
-
-    let glow = document.getElementById("glow");
-    glow.src = map[part].img;
-    glow.style.display="block";
-    glow.style.left="50%";
-    glow.style.top="50%";
-
-    let audio = new Audio(map[part].audio);
-    audio.play();
-
-    setTimeout(()=>{
-      glow.style.display="none";
-      current++;
-      if(current < order.length){
-        speakNext();
-      } else {
-        alert("🎉 Well Done!");
-      }
-    },2000);
-
-  } else {
-    wrongSound.play();
+function nextRound(){
+  if(index >= order.length){
+    alert("🎉 Well Done!");
+    return;
   }
+  let part = order[index];
+  document.getElementById("title").innerText = "Touch the " + part;
+  speak("Touch the " + part);
 }
 
-/* EVENT LISTENERS */
-document.getElementById("ear").onclick = ()=>handleClick("ear");
-document.getElementById("eye").onclick = ()=>handleClick("eye");
-document.getElementById("nose").onclick = ()=>handleClick("nose");
-document.getElementById("mouth").onclick = ()=>handleClick("mouth");
-document.getElementById("arm").onclick = ()=>handleClick("arm");
-document.getElementById("leg").onclick = ()=>handleClick("leg");
+function showGlow(part){
+  let glow = document.getElementById("glow");
+  glow.src = glowMap[part];
+  glow.style.display="block";
+  glow.style.left="50%";
+  glow.style.top="55%";
+
+  new Audio(voiceMap[part]).play();
+
+  setTimeout(()=>{
+    glow.style.display="none";
+    index++;
+    nextRound();
+  },2000);
+}
+
+/* EVENTS */
+document.querySelectorAll(".label").forEach(el=>{
+  el.addEventListener("click",()=>{
+    let part = el.id;
+
+    if(part === order[index]){
+      correct.play();
+      showGlow(part);
+    } else {
+      wrong.play();
+    }
+  });
+});
 
 </script>
 
