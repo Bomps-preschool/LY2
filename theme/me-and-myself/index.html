@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Body Parts Match Game</title>
+<title>Body Parts Game</title>
 
 <style>
 *{
@@ -13,7 +13,7 @@
 }
 
 body{
-  background: linear-gradient(135deg,#f6f8ff,#fff1f5);
+  background: linear-gradient(135deg,#f5f7ff,#fff0f5);
   overflow:hidden;
 }
 
@@ -41,7 +41,7 @@ body{
   font-weight:bold;
 }
 
-/* GAME LAYOUT */
+/* GAME AREA */
 #game{
   display:none;
   width:100%;
@@ -49,48 +49,50 @@ body{
   position:relative;
 }
 
-/* CENTER BOY */
+/* BOY */
 #boy{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
   width:260px;
-  z-index:2;
+  z-index:3;
 }
 
-/* BOX STYLE */
+/* BOXES */
 .box{
   width:75px;
   height:75px;
   border:3px dashed #333;
   border-radius:10px;
+  background:white;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:white;
   position:absolute;
   font-size:22px;
+  z-index:4;
 }
 
-/* LEFT SIDE POSITIONS */
-#eyeBox{ left:40px; top:120px; }
-#noseBox{ left:40px; top:250px; }
-#armBox{ left:40px; top:380px; }
+/* LEFT SIDE */
+#eyeBox{ left:40px; top:140px; }
+#noseBox{ left:40px; top:270px; }
+#armBox{ left:40px; top:400px; }
 
-/* RIGHT SIDE POSITIONS */
-#earBox{ right:40px; top:120px; }
-#mouthBox{ right:40px; top:250px; }
-#legBox{ right:40px; top:380px; }
+/* RIGHT SIDE */
+#earBox{ right:40px; top:140px; }
+#mouthBox{ right:40px; top:270px; }
+#legBox{ right:40px; top:400px; }
 
-/* PARTS PANEL */
+/* PARTS */
 #parts{
   position:absolute;
-  bottom:10px;
+  bottom:15px;
   width:100%;
   display:flex;
   justify-content:center;
   gap:25px;
+  z-index:5;
 }
 
 .part{
@@ -113,15 +115,15 @@ body{
   border:4px solid #4CAF50;
 }
 
-/* SVG ARROWS */
+/* SVG LINES */
 svg{
   position:absolute;
   width:100%;
   height:100%;
   top:0;
   left:0;
+  z-index:2;
   pointer-events:none;
-  z-index:1;
 }
 
 line{
@@ -140,6 +142,7 @@ line{
   align-items:center;
   flex-direction:column;
   text-align:center;
+  z-index:20;
 }
 
 #congrats h1{
@@ -166,27 +169,26 @@ button{
 </div>
 
 <div id="instruction">
-  Tap a body part and match it to the correct box
+  Tap the correct body part and match it
 </div>
 
-<!-- GAME -->
 <div id="game">
+
+  <!-- ARROWS (FIXED + PROPERLY ALIGNED) -->
+  <svg>
+    <!-- LEFT SIDE -->
+    <line x1="120" y1="175" x2="320" y2="175"/>
+    <line x1="120" y1="305" x2="320" y2="305"/>
+    <line x1="120" y1="435" x2="320" y2="435"/>
+
+    <!-- RIGHT SIDE -->
+    <line x1="520" y1="175" x2="340" y2="175"/>
+    <line x1="520" y1="305" x2="340" y2="305"/>
+    <line x1="520" y1="435" x2="340" y2="435"/>
+  </svg>
 
   <!-- BOY -->
   <img id="boy" src="assets/boy-body.png">
-
-  <!-- ARROWS (IMPORTANT: outside boy, no overlap) -->
-  <svg>
-    <!-- LEFT SIDE -->
-    <line x1="120" y1="150" x2="40" y2="150"></line> <!-- eye -->
-    <line x1="120" y1="260" x2="40" y2="260"></line> <!-- nose -->
-    <line x1="120" y1="380" x2="40" y2="380"></line> <!-- arm -->
-
-    <!-- RIGHT SIDE -->
-    <line x1="520" y1="150" x2="600" y2="150"></line> <!-- ear -->
-    <line x1="520" y1="260" x2="600" y2="260"></line> <!-- mouth -->
-    <line x1="520" y1="380" x2="600" y2="380"></line> <!-- leg -->
-  </svg>
 
   <!-- LEFT BOXES -->
   <div class="box" id="eyeBox" data-part="eye"></div>
