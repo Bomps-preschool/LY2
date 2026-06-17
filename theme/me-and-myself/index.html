@@ -77,19 +77,19 @@ body{
   width:100%;
 }
 
-/* ANCHORS (FIXED ACCURATE POSITIONS) */
+/* ANCHORS */
 .anchor{
   position:absolute;
   width:10px;
   height:10px;
 }
 
-#eyeAnchor{ top:22%; left:52%; }
-#noseAnchor{ top:30%; left:52%; }
-#mouthAnchor{ top:38%; left:52%; }
-#earAnchor{ top:22%; left:38%; }
+#eyeAnchor{ top:18%; left:55%; }
+#noseAnchor{ top:28%; left:55%; }
+#mouthAnchor{ top:38%; left:55%; }
+#earAnchor{ top:20%; left:35%; }
 #armAnchor{ top:55%; left:75%; }
-#legAnchor{ top:82%; left:52%; }
+#legAnchor{ top:78%; left:55%; }
 
 /* BOXES */
 .box{
@@ -162,15 +162,40 @@ line{
   stroke:#444;
   stroke-width:3;
 }
+
+/* CONGRATS */
+#congrats{
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,#fff6e5,#e6fff7);
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:20;
+}
+
+button{
+  margin-top:20px;
+  padding:12px 25px;
+  font-size:18px;
+  border:none;
+  background:#4CAF50;
+  color:white;
+  border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
+<!-- SPLASH -->
 <div id="splash">
   <img src="assets/innovine-logo.png">
 </div>
 
+<!-- GAME -->
 <div id="gameContainer">
   <div id="gameStage">
 
@@ -212,15 +237,42 @@ line{
   </div>
 </div>
 
+<!-- CONGRATS -->
+<div id="congrats">
+  <h1>🎉 Great Job!</h1>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<audio id="correct" src="assets/correct.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
 <script>
 
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("gameContainer").style.display="flex";
+  scaleGame();
   setTimeout(drawLines,500);
 },5000);
 
+function scaleGame(){
+  const stage = document.getElementById("gameStage");
+
+  const scale = Math.min(
+    window.innerWidth / 1280,
+    window.innerHeight / 720
+  );
+
+  stage.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener("resize",()=>{
+  scaleGame();
+  drawLines();
+});
+
 let selected=null;
+let done=0;
 
 document.querySelectorAll(".part").forEach(p=>{
   p.onclick=()=>{
@@ -230,10 +282,64 @@ document.querySelectorAll(".part").forEach(p=>{
   }
 });
 
-/* 🎯 FINAL PERFECT LINE SYSTEM (EDGE TO EDGE TOUCH) */
+document.querySelectorAll(".box").forEach(box=>{
+  box.onclick=()=>{
+
+    if(!selected) return;
+
+    if(selected === box.dataset.part){
+      document.getElementById("correct").play();
+      box.innerHTML="✔";
+      box.style.background="lightgreen";
+      done++;
+
+      selected=null;
+      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
+
+      drawLines();
+
+      if(done===6){
+        document.getElementById("gameContainer").style.display="none";
+        document.getElementById("congrats").style.display="flex";
+      }
+
+    } else {
+      document.getElementById("wrong").play();
+    }
+  }
+});
+
+/* 🔥 FINAL FIX: LINES TOUCH THE TARGET PROPERLY */
+function getPos(el, stage){
+  const r = el.getBoundingClientRect();
+  const s = stage.getBoundingClientRect();
+
+  const scaleX = 1280 / s.width;
+  const scaleY = 720 / s.height;
+
+  return {
+    x: (r.left - s.left + r.width/2) * scaleX,
+    y: (r.top - s.top + r.height/2) * scaleY
+  };
+}
+
+/* EXTEND LINE SLIGHTLY INTO TARGET */
+function extendLine(x1,y1,x2,y2,extend=12){
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+
+  return {
+    x2: x2 + (dx/len)*extend,
+    y2: y2 + (dy/len)*extend
+  };
+}
+
+/* DRAW */
 function drawLines(){
 
   const svg = document.getElementById("svgLines");
+  const stage = document.getElementById("gameStage");
   svg.innerHTML = "";
 
   const pairs = [
@@ -247,38 +353,24 @@ function drawLines(){
 
   pairs.forEach(([b,a])=>{
 
-    const box = document.getElementById(b).getBoundingClientRect();
-    const anchor = document.getElementById(a).getBoundingClientRect();
+    const box = document.getElementById(b);
+    const anchor = document.getElementById(a);
 
-    let x1 = box.left + box.width/2;
-    let y1 = box.top + box.height/2;
+    const p1 = getPos(box, stage);
+    const p2 = getPos(anchor, stage);
 
-    let x2 = anchor.left + anchor.width/2;
-    let y2 = anchor.top + anchor.height/2;
-
-    // direction vector
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let len = Math.sqrt(dx*dx + dy*dy);
-
-    // move endpoint slightly INTO the target (touch effect)
-    let extend = 18;
-
-    x2 = x2 - (dx/len)*extend;
-    y2 = y2 - (dy/len)*extend;
+    const fixed = extendLine(p1.x,p1.y,p2.x,p2.y,14);
 
     const line = document.createElementNS("http://www.w3.org/2000/svg","line");
 
-    line.setAttribute("x1", x1);
-    line.setAttribute("y1", y1);
-    line.setAttribute("x2", x2);
-    line.setAttribute("y2", y2);
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", fixed.x2);
+    line.setAttribute("y2", fixed.y2);
 
     svg.appendChild(line);
   });
 }
-
-window.addEventListener("resize",drawLines);
 
 </script>
 
