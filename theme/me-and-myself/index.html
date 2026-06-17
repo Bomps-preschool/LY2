@@ -59,7 +59,6 @@ body{
   align-items:center;
 }
 
-/* WRAPPER */
 #boyWrapper{
   position:relative;
   width:360px;
@@ -70,59 +69,27 @@ body{
   display:block;
 }
 
-/* BOX STYLE */
+/* BOXES */
 .box{
   width:70px;
   height:70px;
   border:3px dashed #333;
   border-radius:8px;
+  position:absolute;
   display:flex;
-  align-items:center;
   justify-content:center;
-  background:transparent;
-  position:relative;
-  z-index:2;
+  align-items:center;
 }
 
-/* LEFT COLUMN */
-.leftCol{
-  position:absolute;
-  left:-140px;
-  top:120px;
-  display:flex;
-  flex-direction:column;
-  gap:70px;
-}
+/* LEFT SIDE */
+#eyeBox{ left:-140px; top:120px; }
+#noseBox{ left:-140px; top:220px; }
+#armBox{ left:-140px; top:340px; }
 
-/* RIGHT COLUMN */
-.rightCol{
-  position:absolute;
-  right:-140px;
-  top:80px;
-  display:flex;
-  flex-direction:column;
-  gap:70px;
-}
-
-/* ⭐ VISUAL LINES (FIXED & ALWAYS VISIBLE) */
-
-.box::before{
-  content:"";
-  position:absolute;
-  width:120px;
-  height:2px;
-  background:#333;
-  top:50%;
-  left:-120px;
-  transform:translateY(-50%);
-  z-index:1;
-}
-
-/* right side lines */
-.rightCol .box::before{
-  left:auto;
-  right:-120px;
-}
+/* RIGHT SIDE */
+#earBox{ right:-140px; top:120px; }
+#mouthBox{ right:-140px; top:220px; }
+#legBox{ right:-140px; top:340px; }
 
 /* PARTS */
 #parts{
@@ -155,31 +122,19 @@ body{
   border:4px solid #4CAF50;
 }
 
-/* CONGRATS */
-#congrats{
-  display:none;
-  position:fixed;
+/* LINES */
+svg{
+  position:absolute;
+  top:0;
+  left:0;
   width:100%;
   height:100%;
-  background:linear-gradient(135deg,#fff3e6,#e6fff5);
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  text-align:center;
+  pointer-events:none;
 }
 
-#congrats h1{
-  font-size:55px;
-}
-
-button{
-  margin-top:20px;
-  padding:12px 25px;
-  font-size:20px;
-  border:none;
-  background:#4CAF50;
-  color:white;
-  border-radius:10px;
+line{
+  stroke:#333;
+  stroke-width:2;
 }
 </style>
 </head>
@@ -193,7 +148,7 @@ button{
 
 <!-- INSTRUCTION -->
 <div id="instruction">
-  Tap a body part and then tap the correct place on the boy
+  Tap a body part and match it to the correct box
 </div>
 
 <!-- GAME -->
@@ -204,19 +159,28 @@ button{
 
       <img id="boy" src="assets/boy-body.png">
 
-      <!-- LEFT -->
-      <div class="leftCol">
-        <div class="box" data-part="eye"></div>
-        <div class="box" data-part="nose"></div>
-        <div class="box" data-part="arm"></div>
-      </div>
+      <!-- FIXED LINES -->
+      <svg>
+        <!-- LEFT -->
+        <line x1="180" y1="140" x2="0" y2="140"></line>  <!-- eye -->
+        <line x1="180" y1="240" x2="0" y2="240"></line>  <!-- nose -->
+        <line x1="180" y1="360" x2="0" y2="360"></line>  <!-- arm -->
 
-      <!-- RIGHT -->
-      <div class="rightCol">
-        <div class="box" data-part="ear"></div>
-        <div class="box" data-part="mouth"></div>
-        <div class="box" data-part="leg"></div>
-      </div>
+        <!-- RIGHT -->
+        <line x1="180" y1="140" x2="360" y2="140"></line> <!-- ear -->
+        <line x1="180" y1="240" x2="360" y2="240"></line> <!-- mouth -->
+        <line x1="180" y1="360" x2="360" y2="360"></line> <!-- leg -->
+      </svg>
+
+      <!-- LEFT BOXES -->
+      <div class="box" id="eyeBox"></div>
+      <div class="box" id="noseBox"></div>
+      <div class="box" id="armBox"></div>
+
+      <!-- RIGHT BOXES -->
+      <div class="box" id="earBox"></div>
+      <div class="box" id="mouthBox"></div>
+      <div class="box" id="legBox"></div>
 
     </div>
   </div>
@@ -233,23 +197,13 @@ button{
 
 </div>
 
-<!-- CONGRATS -->
-<div id="congrats">
-  <h1>🎉 Congratulations!</h1>
-  <button onclick="location.reload()">Play Again</button>
-</div>
-
 <script>
-
-/* SPLASH */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("game").style.display="flex";
 },5000);
 
-/* GAME LOGIC */
 let selected=null;
-let done=0;
 
 document.querySelectorAll(".part").forEach(p=>{
   p.onclick=()=>{
@@ -261,26 +215,12 @@ document.querySelectorAll(".part").forEach(p=>{
 
 document.querySelectorAll(".box").forEach(box=>{
   box.onclick=()=>{
-
-    if(!selected) return;
-
-    if(selected===box.dataset.part){
+    if(selected===box.id.replace("Box","")){
       box.style.background="lightgreen";
       box.innerHTML="✔";
-      done++;
-
-      selected=null;
-      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
-
-      if(done===6){
-        document.getElementById("game").style.display="none";
-        document.getElementById("congrats").style.display="flex";
-      }
-
     }
   }
 });
-
 </script>
 
 </body>
