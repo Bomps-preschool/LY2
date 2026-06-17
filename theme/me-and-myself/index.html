@@ -72,44 +72,56 @@ body{
 
 /* BOX STYLE */
 .box{
-  width:65px;
-  height:65px;
+  width:70px;
+  height:70px;
   border:3px dashed #333;
   border-radius:8px;
   display:flex;
   align-items:center;
   justify-content:center;
   background:transparent;
+  position:relative;
+  z-index:2;
 }
 
-/* LEFT COLUMN (Eye, Nose, Arm) */
+/* LEFT COLUMN */
 .leftCol{
   position:absolute;
   left:-140px;
   top:120px;
   display:flex;
   flex-direction:column;
-  gap:60px;
+  gap:70px;
 }
 
-/* RIGHT COLUMN (Ear, Mouth, Leg) */
+/* RIGHT COLUMN */
 .rightCol{
   position:absolute;
   right:-140px;
   top:80px;
   display:flex;
   flex-direction:column;
-  gap:60px;
+  gap:70px;
 }
 
-/* LINES SVG */
-#lines{
+/* ⭐ VISUAL LINES (FIXED & ALWAYS VISIBLE) */
+
+.box::before{
+  content:"";
   position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
+  width:120px;
+  height:2px;
+  background:#333;
+  top:50%;
+  left:-120px;
+  transform:translateY(-50%);
+  z-index:1;
+}
+
+/* right side lines */
+.rightCol .box::before{
+  left:auto;
+  right:-120px;
 }
 
 /* PARTS */
@@ -188,28 +200,18 @@ button{
 <div id="game">
 
   <div id="boyArea">
-
     <div id="boyWrapper">
+
       <img id="boy" src="assets/boy-body.png">
 
-      <!-- SVG for lines -->
-      <svg id="lines">
-        <line id="eyeLine" stroke="#000" stroke-width="2" />
-        <line id="earLine" stroke="#000" stroke-width="2" />
-        <line id="noseLine" stroke="#000" stroke-width="2" />
-        <line id="mouthLine" stroke="#000" stroke-width="2" />
-        <line id="handLine" stroke="#000" stroke-width="2" />
-        <line id="legLine" stroke="#000" stroke-width="2" />
-      </svg>
-
-      <!-- LEFT COLUMN -->
+      <!-- LEFT -->
       <div class="leftCol">
         <div class="box" data-part="eye"></div>
         <div class="box" data-part="nose"></div>
         <div class="box" data-part="arm"></div>
       </div>
 
-      <!-- RIGHT COLUMN -->
+      <!-- RIGHT -->
       <div class="rightCol">
         <div class="box" data-part="ear"></div>
         <div class="box" data-part="mouth"></div>
@@ -237,19 +239,18 @@ button{
   <button onclick="location.reload()">Play Again</button>
 </div>
 
-<audio id="correct" src="assets/correct.mp3"></audio>
-<audio id="wrong" src="assets/wrong.mp3"></audio>
-
 <script>
+
+/* SPLASH */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("game").style.display="flex";
 },5000);
 
+/* GAME LOGIC */
 let selected=null;
 let done=0;
 
-// tap part selection
 document.querySelectorAll(".part").forEach(p=>{
   p.onclick=()=>{
     selected=p.dataset.name;
@@ -258,16 +259,16 @@ document.querySelectorAll(".part").forEach(p=>{
   }
 });
 
-// tap box placement
 document.querySelectorAll(".box").forEach(box=>{
   box.onclick=()=>{
+
     if(!selected) return;
 
     if(selected===box.dataset.part){
-      document.getElementById("correct").play();
       box.style.background="lightgreen";
       box.innerHTML="✔";
       done++;
+
       selected=null;
       document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
 
@@ -275,63 +276,12 @@ document.querySelectorAll(".box").forEach(box=>{
         document.getElementById("game").style.display="none";
         document.getElementById("congrats").style.display="flex";
       }
-    }else{
-      document.getElementById("wrong").play();
+
     }
   }
 });
 
-// draw connecting lines
-function updateLines(){
-  const body = document.getElementById('boy');
-  const rectBoy = body.getBoundingClientRect();
-
-  const boxes = {
-    eye: document.getElementById('eyeBox'),
-    ear: document.getElementById('earBox'),
-    nose: document.getElementById('noseBox'),
-    mouth: document.getElementById('mouthBox'),
-    hand: document.getElementById('handBox'),
-    leg: document.getElementById('legBox')
-  };
-
-  const lines = {
-    eye: document.getElementById('eyeLine'),
-    ear: document.getElementById('earLine'),
-    nose: document.getElementById('noseLine'),
-    mouth: document.getElementById('mouthLine'),
-    hand: document.getElementById('handLine'),
-    leg: document.getElementById('legLine')
-  };
-
-  Object.keys(boxes).forEach(part=>{
-    const box = boxes[part];
-    const line = lines[part];
-
-    let startX = rectBoy.width/2;
-    let startY = rectBoy.height*0.2;
-    switch(part){
-      case 'eye': startY = rectBoy.height*0.2; break;
-      case 'ear': startY = rectBoy.height*0.2; break;
-      case 'nose': startY = rectBoy.height*0.3; break;
-      case 'mouth': startY = rectBoy.height*0.35; break;
-      case 'hand': startY = rectBoy.height*0.5; break;
-      case 'leg': startY = rectBoy.height*0.75; break;
-    }
-
-    const endX = box.offsetLeft + box.offsetWidth/2;
-    const endY = box.offsetTop + box.offsetHeight/2;
-
-    line.setAttribute('x1', startX);
-    line.setAttribute('y1', startY);
-    line.setAttribute('x2', endX);
-    line.setAttribute('y2', endY);
-  });
-}
-
-setTimeout(updateLines,100);
-window.addEventListener('resize',updateLines);
-
 </script>
+
 </body>
 </html>
