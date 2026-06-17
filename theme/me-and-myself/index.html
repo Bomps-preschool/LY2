@@ -78,26 +78,27 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  background:transparent;
 }
 
-/* LEFT COLUMN */
+/* LEFT COLUMN (Eye, Nose, Arm) */
 .leftCol{
   position:absolute;
-  left:-120px;
+  left:-140px;
+  top:120px;
   display:flex;
   flex-direction:column;
   gap:60px;
-  top:120px;
 }
 
-/* RIGHT COLUMN */
+/* RIGHT COLUMN (Ear, Mouth, Leg) */
 .rightCol{
   position:absolute;
-  right:-120px;
+  right:-140px;
+  top:80px;
   display:flex;
   flex-direction:column;
-  gap:35px;
-  top:60px;
+  gap:60px;
 }
 
 /* PARTS */
@@ -176,20 +177,20 @@ button{
 <div id="game">
 
   <div id="boyArea">
-
     <div id="boyWrapper">
+
       <img id="boy" src="assets/boy-body.png">
 
-      <!-- LEFT COLUMN -->
+      <!-- LEFT SIDE -->
       <div class="leftCol">
         <div class="box" data-part="eye"></div>
-        <div class="box" data-part="hand"></div>
+        <div class="box" data-part="nose"></div>
+        <div class="box" data-part="arm"></div>
       </div>
 
-      <!-- RIGHT COLUMN -->
+      <!-- RIGHT SIDE -->
       <div class="rightCol">
         <div class="box" data-part="ear"></div>
-        <div class="box" data-part="nose"></div>
         <div class="box" data-part="mouth"></div>
         <div class="box" data-part="leg"></div>
       </div>
@@ -203,10 +204,16 @@ button{
     <div class="part" data-name="ear"><img src="assets/ear.png"></div>
     <div class="part" data-name="nose"><img src="assets/nose.png"></div>
     <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
-    <div class="part" data-name="hand"><img src="assets/arm.png"></div>
+    <div class="part" data-name="arm"><img src="assets/arm.png"></div>
     <div class="part" data-name="leg"><img src="assets/leg.png"></div>
   </div>
 
+</div>
+
+<!-- CONGRATS -->
+<div id="congrats">
+  <h1>🎉 Congratulations!</h1>
+  <button onclick="location.reload()">Play Again</button>
 </div>
 
 <script>
@@ -240,7 +247,8 @@ document.querySelectorAll(".box").forEach(box=>{
       selected=null;
 
       if(done===6){
-        alert("Congratulations!");
+        document.getElementById("game").style.display="none";
+        document.getElementById("congrats").style.display="flex";
       }
     }
   }
