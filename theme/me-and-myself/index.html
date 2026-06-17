@@ -2,130 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Body Parts - Version 1</title>
+<title>Body Parts Game</title>
 
 <style>
-body{
+*{
   margin:0;
-  font-family:Arial;
-  background:url("assets/background.png") no-repeat center center fixed;
-  background-size:cover;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Comic Sans MS;
+}
+
+body{
+  background: linear-gradient(135deg,#ffe6f2,#e6f7ff);
   overflow:hidden;
 }
 
 /* SPLASH */
 #splash{
-  position:absolute;
+  position:fixed;
   width:100%;
   height:100%;
-  background:white;
+  background:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
   z-index:10;
 }
 
-/* GAME */
+#splash img{
+  width:250px;
+}
+
+/* GAME LAYOUT */
 #game{
   display:none;
-  width:100vw;
+  width:100%;
   height:100vh;
-  position:relative;
+  flex-direction:row;
 }
 
-/* TITLE */
-#title{
-  position:absolute;
-  top:15px;
-  width:100%;
-  text-align:center;
-  font-size:26px;
-  font-weight:bold;
-  color:#ff4d6d;
-}
-
-/* INSTRUCTION */
-#instructionRow{
-  position:absolute;
-  top:60px;
-  width:100%;
+/* LEFT BOY AREA */
+#boyArea{
+  width:60%;
   display:flex;
   justify-content:center;
   align-items:center;
-  gap:10px;
-}
-
-#instruction{
-  background:white;
-  padding:10px 16px;
-  border-radius:12px;
-  font-size:22px;
-  font-weight:bold;
-}
-
-#voice{
-  width:40px;
-  cursor:pointer;
-}
-
-/* BOY CONTAINER */
-#boy-container{
-  position:absolute;
-  left:50%;
-  top:55%;
-  transform:translate(-50%,-50%);
-  width:320px;
+  position:relative;
 }
 
 #boy{
-  width:100%;
-  display:block;
+  width:320px;
 }
 
-/* HOTSPOTS (CLICK AREAS) */
-.hotspot{
+/* CLICK BOXES */
+.box{
   position:absolute;
-  cursor:pointer;
-}
-
-/* PRECISE HOTSPOTS OVER IMAGE */
-#ear{ top:18%; left:62%; width:60px; height:60px; }
-#eye{ top:16%; left:52%; width:60px; height:40px; }
-#nose{ top:28%; left:52%; width:60px; height:60px; }
-#mouth{ top:38%; left:52%; width:70px; height:60px; }
-#arm{ top:50%; left:30%; width:90px; height:120px; }
-#leg{ top:75%; left:50%; width:80px; height:120px; }
-
-/* HIGHLIGHT */
-.highlight{
-  position:absolute;
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  border:4px solid yellow;
-  box-shadow:0 0 18px yellow;
-  display:none;
-  pointer-events:none;
-  transform:translate(-50%,-50%);
-}
-
-/* LEFT PANEL */
-#leftPanel{
-  position:absolute;
-  left:10px;
-  top:150px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.btn{
-  background:white;
-  padding:10px 14px;
+  width:60px;
+  height:60px;
+  border:3px dashed #333;
   border-radius:10px;
-  font-weight:bold;
+}
+
+/* positions */
+#eyeBox{ top:120px; left:210px; }
+#earBox{ top:140px; left:120px; }
+#noseBox{ top:180px; left:170px; }
+#mouthBox{ top:220px; left:170px; }
+#handBox{ top:260px; left:80px; }
+#legBox{ top:360px; left:170px; }
+
+/* RIGHT PANEL */
+#parts{
+  width:40%;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:20px;
+  padding:20px;
+}
+
+.part{
+  width:100px;
+  height:100px;
+  background:#fff;
+  border-radius:15px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
   cursor:pointer;
+}
+
+.part img{
+  width:70px;
+}
+
+.selected{
+  border:4px solid #4CAF50;
+}
+
+/* CONGRATS */
+#congrats{
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,#fff3e6,#e6fff5);
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+}
+
+#congrats h1{
+  font-size:60px;
+}
+
+button{
+  margin-top:20px;
+  padding:10px 20px;
+  font-size:20px;
+  border:none;
+  background:#4CAF50;
+  color:#fff;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -134,127 +135,94 @@ body{
 
 <!-- SPLASH -->
 <div id="splash">
-  <img src="assets/innovine-logo.png" width="200">
+  <img src="assets/innovine-logo.png">
 </div>
 
 <!-- GAME -->
 <div id="game">
 
-  <div id="title">My Body Parts</div>
-
-  <div id="instructionRow">
-    <div id="instruction">Loading...</div>
-    <img id="voice" src="assets/voice-icon.png" onclick="repeatVoice()">
-  </div>
-
   <!-- BOY -->
-  <div id="boy-container">
-
+  <div id="boyArea">
     <img id="boy" src="assets/boy-body.png">
 
-    <!-- HIGHLIGHT -->
-    <div id="highlight" class="highlight"></div>
+    <div class="box" id="eyeBox" data-part="eye"></div>
+    <div class="box" id="earBox" data-part="ear"></div>
+    <div class="box" id="noseBox" data-part="nose"></div>
+    <div class="box" id="mouthBox" data-part="mouth"></div>
+    <div class="box" id="handBox" data-part="hand"></div>
+    <div class="box" id="legBox" data-part="leg"></div>
 
-    <!-- HOTSPOTS -->
-    <div id="ear" class="hotspot"></div>
-    <div id="eye" class="hotspot"></div>
-    <div id="nose" class="hotspot"></div>
-    <div id="mouth" class="hotspot"></div>
-    <div id="arm" class="hotspot"></div>
-    <div id="leg" class="hotspot"></div>
+  </div>
 
+  <!-- PARTS -->
+  <div id="parts">
+    <div class="part" data-name="eye"><img src="assets/eye.png"></div>
+    <div class="part" data-name="ear"><img src="assets/ear.png"></div>
+    <div class="part" data-name="nose"><img src="assets/nose.png"></div>
+    <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
+    <div class="part" data-name="hand"><img src="assets/hand.png"></div>
+    <div class="part" data-name="leg"><img src="assets/leg.png"></div>
   </div>
 
 </div>
 
+<!-- CONGRATS -->
+<div id="congrats">
+  <h1>🎉 Congratulations!</h1>
+  <p>You matched all body parts!</p>
+  <button onclick="restart()">Play Again</button>
+</div>
+
+<!-- AUDIO -->
+<audio id="correct" src="assets/correct.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
 <script>
 
-let level=1;
-let index=0;
-let order=[];
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+  document.getElementById("game").style.display="flex";
+},5000);
 
-/* SPLASH */
-window.onload=()=>{
-  setTimeout(()=>{
-    document.getElementById("splash").style.display="none";
-    document.getElementById("game").style.display="block";
-    startLevel(1);
-  },3000);
-};
+let selected=null;
+let done=0;
 
-/* LEVEL */
-function startLevel(lv){
-
-  level=lv;
-  index=0;
-
-  if(level==1) order=["ear","eye","nose"];
-  if(level==2) order=["mouth","arm","leg"];
-  if(level==3) order=["ear","eye","nose","mouth","arm","leg"];
-
-  nextQ();
-}
-
-/* SPEECH */
-function speak(text){
-  let msg=new SpeechSynthesisUtterance(text);
-  msg.rate=0.9;
-  window.speechSynthesis.speak(msg);
-}
-
-function repeatVoice(){
-  speak(order[index]);
-}
-
-/* QUESTION */
-function nextQ(){
-
-  if(index>=order.length){
-    if(level<3){
-      startLevel(level+1);
-    } else {
-      alert("🎉 All Levels Completed!");
-    }
-    return;
+document.querySelectorAll(".part").forEach(p=>{
+  p.onclick=()=>{
+    selected=p.dataset.name;
+    document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
+    p.classList.add("selected");
   }
-
-  speak("Touch the " + order[index]);
-  document.getElementById("instruction").innerText="Touch the " + order[index];
-}
-
-/* FIXED HOTSPOT SYSTEM */
-function activate(part){
-
-  if(part!==order[index]) return;
-
-  let h=document.getElementById("highlight");
-
-  let target=document.getElementById(part);
-  let rect=target.getBoundingClientRect();
-
-  let container=document.getElementById("boy-container");
-  let crect=container.getBoundingClientRect();
-
-  let x=rect.left - crect.left + rect.width/2;
-  let y=rect.top - crect.top + rect.height/2;
-
-  h.style.left=x+"px";
-  h.style.top=y+"px";
-  h.style.display="block";
-
-  setTimeout(()=>{
-    h.style.display="none";
-    index++;
-    nextQ();
-  },1000);
-}
-
-/* EVENTS */
-document.querySelectorAll(".hotspot").forEach(el=>{
-  el.onclick=()=>{
-    activate(el.id);
-  };
 });
+
+document.querySelectorAll(".box").forEach(box=>{
+  box.onclick=()=>{
+
+    if(!selected) return;
+
+    if(selected===box.dataset.part){
+      document.getElementById("correct").play();
+      box.style.background="lightgreen";
+      box.innerHTML="✔";
+      done++;
+
+      selected=null;
+      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
+
+      if(done===6){
+        document.getElementById("game").style.display="none";
+        document.getElementById("congrats").style.display="flex";
+      }
+
+    }else{
+      document.getElementById("wrong").play();
+    }
+  }
+});
+
+function restart(){
+  location.reload();
+}
 
 </script>
 
