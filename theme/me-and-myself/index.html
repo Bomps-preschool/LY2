@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Body Parts Game</title>
 
 <style>
@@ -30,23 +33,24 @@ body{
 }
 
 #splash img{
-  width:220px;
+  width:clamp(160px, 25vw, 220px);
 }
 
 /* INSTRUCTION */
 #instruction{
   text-align:center;
-  font-size:22px;
+  font-size:clamp(14px, 2.5vw, 22px);
   padding:10px;
   font-weight:bold;
 }
 
-/* GAME AREA */
+/* GAME */
 #game{
   display:none;
-  width:100%;
+  width:100vw;
   height:100vh;
   position:relative;
+  overflow:hidden;
 }
 
 /* BOY WRAPPER */
@@ -55,8 +59,7 @@ body{
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
-  width:260px;
-  height:auto;
+  width:clamp(180px, 25vw, 320px);
   z-index:3;
 }
 
@@ -64,15 +67,14 @@ body{
   width:100%;
 }
 
-/* ANCHORS (invisible points on body) */
+/* ANCHORS */
 .anchor{
   position:absolute;
   width:12px;
   height:12px;
-  border-radius:50%;
-  background:transparent;
 }
 
+/* Adjusted proportional positions */
 #eyeAnchor{ top:18%; left:55%; }
 #noseAnchor{ top:28%; left:55%; }
 #mouthAnchor{ top:38%; left:55%; }
@@ -82,8 +84,8 @@ body{
 
 /* BOXES */
 .box{
-  width:75px;
-  height:75px;
+  width:clamp(55px, 8vw, 80px);
+  height:clamp(55px, 8vw, 80px);
   border:3px dashed #333;
   border-radius:10px;
   background:white;
@@ -91,19 +93,20 @@ body{
   justify-content:center;
   align-items:center;
   position:absolute;
-  font-size:22px;
+  font-size:18px;
   z-index:4;
+  touch-action:manipulation;
 }
 
-/* LEFT SIDE */
-#eyeBox{ left:40px; top:140px; }
-#noseBox{ left:40px; top:270px; }
-#armBox{ left:40px; top:400px; }
+/* LEFT */
+#eyeBox{ left:2vw; top:20vh; }
+#noseBox{ left:2vw; top:40vh; }
+#armBox{ left:2vw; top:60vh; }
 
-/* RIGHT SIDE */
-#earBox{ right:40px; top:140px; }
-#mouthBox{ right:40px; top:270px; }
-#legBox{ right:40px; top:400px; }
+/* RIGHT */
+#earBox{ right:2vw; top:20vh; }
+#mouthBox{ right:2vw; top:40vh; }
+#legBox{ right:2vw; top:60vh; }
 
 /* PARTS */
 #parts{
@@ -112,13 +115,13 @@ body{
   width:100%;
   display:flex;
   justify-content:center;
-  gap:25px;
+  gap:clamp(10px, 2vw, 25px);
   z-index:5;
 }
 
 .part{
-  width:90px;
-  height:90px;
+  width:clamp(55px, 10vw, 90px);
+  height:clamp(55px, 10vw, 90px);
   background:white;
   border-radius:15px;
   display:flex;
@@ -126,10 +129,11 @@ body{
   align-items:center;
   box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
+  touch-action:manipulation;
 }
 
 .part img{
-  width:60px;
+  width:60%;
 }
 
 .selected{
@@ -167,13 +171,13 @@ line{
 }
 
 #congrats h1{
-  font-size:60px;
+  font-size:clamp(30px, 6vw, 60px);
 }
 
 button{
   margin-top:20px;
   padding:12px 25px;
-  font-size:20px;
+  font-size:18px;
   border:none;
   background:#4CAF50;
   color:white;
@@ -195,28 +199,28 @@ button{
 
 <div id="game">
 
-  <!-- SVG LINES -->
+  <!-- SVG -->
   <svg id="svgLines"></svg>
 
   <!-- BOY -->
   <div id="boyWrapper">
+
     <img id="boy" src="assets/boy-body.png">
 
-    <!-- ANCHORS -->
     <div class="anchor" id="eyeAnchor"></div>
     <div class="anchor" id="noseAnchor"></div>
     <div class="anchor" id="mouthAnchor"></div>
     <div class="anchor" id="earAnchor"></div>
     <div class="anchor" id="armAnchor"></div>
     <div class="anchor" id="legAnchor"></div>
+
   </div>
 
-  <!-- LEFT BOXES -->
+  <!-- BOXES -->
   <div class="box" id="eyeBox" data-part="eye"></div>
   <div class="box" id="noseBox" data-part="nose"></div>
   <div class="box" id="armBox" data-part="arm"></div>
 
-  <!-- RIGHT BOXES -->
   <div class="box" id="earBox" data-part="ear"></div>
   <div class="box" id="mouthBox" data-part="mouth"></div>
   <div class="box" id="legBox" data-part="leg"></div>
@@ -253,6 +257,7 @@ setTimeout(()=>{
 let selected=null;
 let done=0;
 
+/* SELECT PART */
 document.querySelectorAll(".part").forEach(p=>{
   p.onclick=()=>{
     selected=p.dataset.name;
@@ -261,6 +266,7 @@ document.querySelectorAll(".part").forEach(p=>{
   }
 });
 
+/* MATCH BOX */
 document.querySelectorAll(".box").forEach(box=>{
   box.onclick=()=>{
 
@@ -304,20 +310,17 @@ function drawLines(){
   ];
 
   pairs.forEach(([boxId, anchorId])=>{
+
     const box = document.getElementById(boxId).getBoundingClientRect();
     const anchor = document.getElementById(anchorId).getBoundingClientRect();
 
-    const x1 = box.right;
-    const y1 = box.top + box.height/2;
-
-    const x2 = anchor.left;
-    const y2 = anchor.top + anchor.height/2;
-
     const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("x1",x1);
-    line.setAttribute("y1",y1);
-    line.setAttribute("x2",x2);
-    line.setAttribute("y2",y2);
+
+    line.setAttribute("x1", box.right);
+    line.setAttribute("y1", box.top + box.height/2);
+
+    line.setAttribute("x2", anchor.left);
+    line.setAttribute("y2", anchor.top + anchor.height/2);
 
     svg.appendChild(line);
   });
