@@ -45,7 +45,7 @@ body{
   align-items:center;
 }
 
-/* FIXED STAGE */
+/* STAGE */
 #gameStage{
   position:relative;
   width:1280px;
@@ -84,6 +84,7 @@ body{
   height:10px;
 }
 
+/* BODY POINTS */
 #eyeAnchor{ top:18%; left:55%; }
 #noseAnchor{ top:28%; left:55%; }
 #mouthAnchor{ top:38%; left:55%; }
@@ -91,7 +92,7 @@ body{
 #armAnchor{ top:55%; left:75%; }
 #legAnchor{ top:78%; left:55%; }
 
-/* BOXES — MOVED CLOSER */
+/* BOXES (CLOSER) */
 .box{
   width:70px;
   height:70px;
@@ -106,12 +107,12 @@ body{
   z-index:4;
 }
 
-/* LEFT SIDE (closer now) */
+/* LEFT */
 #eyeBox{ left:140px; top:210px; }
 #noseBox{ left:140px; top:330px; }
 #armBox{ left:140px; top:450px; }
 
-/* RIGHT SIDE (closer now) */
+/* RIGHT */
 #earBox{ right:140px; top:210px; }
 #mouthBox{ right:140px; top:330px; }
 #legBox{ right:140px; top:450px; }
@@ -248,7 +249,6 @@ button{
 
 <script>
 
-/* SPLASH */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("gameContainer").style.display="flex";
@@ -256,7 +256,7 @@ setTimeout(()=>{
   setTimeout(drawLines,500);
 },5000);
 
-/* RESPONSIVE SCALE */
+/* SCALE SYSTEM */
 function scaleGame(){
   const stage = document.getElementById("gameStage");
 
@@ -312,10 +312,22 @@ document.querySelectorAll(".box").forEach(box=>{
   }
 });
 
-/* FIXED LINE DRAWING (CENTER TO CENTER) */
+/* 🔥 FINAL FIX: CORRECT COORDINATE SYSTEM */
+function getPos(el, parent){
+  const r1 = el.getBoundingClientRect();
+  const r2 = parent.getBoundingClientRect();
+
+  return {
+    x: r1.left - r2.left + r1.width/2,
+    y: r1.top - r2.top + r1.height/2
+  };
+}
+
+/* DRAW LINES */
 function drawLines(){
 
   const svg = document.getElementById("svgLines");
+  const stage = document.getElementById("gameStage");
   svg.innerHTML = "";
 
   const pairs = [
@@ -327,23 +339,20 @@ function drawLines(){
     ["legBox","legAnchor"]
   ];
 
-  pairs.forEach(([boxId, anchorId])=>{
+  pairs.forEach(([b,a])=>{
 
-    const box = document.getElementById(boxId).getBoundingClientRect();
-    const anchor = document.getElementById(anchorId).getBoundingClientRect();
+    const box = document.getElementById(b);
+    const anchor = document.getElementById(a);
+
+    const p1 = getPos(box, stage);
+    const p2 = getPos(anchor, stage);
 
     const line = document.createElementNS("http://www.w3.org/2000/svg","line");
 
-    const x1 = box.left + box.width/2;
-    const y1 = box.top + box.height/2;
-
-    const x2 = anchor.left + anchor.width/2;
-    const y2 = anchor.top + anchor.height/2;
-
-    line.setAttribute("x1", x1);
-    line.setAttribute("y1", y1);
-    line.setAttribute("x2", x2);
-    line.setAttribute("y2", y2);
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
 
     svg.appendChild(line);
   });
