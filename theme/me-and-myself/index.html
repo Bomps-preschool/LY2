@@ -43,7 +43,7 @@ body{
   background:#ffffffcc;
 }
 
-/* GAME WRAPPER */
+/* GAME */
 #game{
   display:none;
   width:100%;
@@ -51,7 +51,7 @@ body{
   flex-direction:row;
 }
 
-/* BOY CONTAINER (IMPORTANT FIX) */
+/* BOY AREA */
 #boyArea{
   width:65%;
   display:flex;
@@ -59,7 +59,7 @@ body{
   align-items:center;
 }
 
-/* RELATIVE WRAPPER FOR IMAGE + BOXES */
+/* WRAPPER */
 #boyWrapper{
   position:relative;
   width:360px;
@@ -70,24 +70,29 @@ body{
   display:block;
 }
 
-/* BOXES NOW RELATIVE (KEY FIX) */
+/* BOXES */
 .box{
   position:absolute;
-  width:12%;
-  height:10%;
+  width:65px;
+  height:65px;
   border:3px dashed #333;
   border-radius:8px;
+  background:transparent;
 }
 
-/* ✅ PROPER PROPORTIONAL ALIGNMENT */
-#eyeBox{ top:18%; left:62%; }
-#earBox{ top:20%; left:25%; }
-#noseBox{ top:28%; left:55%; }
-#mouthBox{ top:35%; left:55%; }
-#handBox{ top:45%; left:18%; }
-#legBox{ top:70%; left:55%; }
+/* ✅ MOVED OUTSIDE BOY (FIX) */
 
-/* RIGHT SIDE */
+/* left side boxes pushed further left */
+#earBox{ top:20%; left:-5%; }
+#handBox{ top:45%; left:-10%; }
+
+/* right side boxes pushed further right */
+#eyeBox{ top:18%; left:92%; }
+#noseBox{ top:28%; left:90%; }
+#mouthBox{ top:36%; left:90%; }
+#legBox{ top:70%; left:92%; }
+
+/* RIGHT PANEL */
 #parts{
   width:35%;
   display:grid;
@@ -193,9 +198,6 @@ button{
   <button onclick="location.reload()">Play Again</button>
 </div>
 
-<audio id="correct" src="assets/correct.mp3"></audio>
-<audio id="wrong" src="assets/wrong.mp3"></audio>
-
 <script>
 
 setTimeout(()=>{
@@ -220,7 +222,6 @@ document.querySelectorAll(".box").forEach(box=>{
     if(!selected) return;
 
     if(selected===box.dataset.part){
-      document.getElementById("correct").play();
       box.style.background="lightgreen";
       box.innerHTML="✔";
       done++;
@@ -232,8 +233,6 @@ document.querySelectorAll(".box").forEach(box=>{
         document.getElementById("congrats").style.display="flex";
       }
 
-    }else{
-      document.getElementById("wrong").play();
     }
   }
 });
