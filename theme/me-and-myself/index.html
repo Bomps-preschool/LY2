@@ -33,7 +33,7 @@ body{
 }
 
 #splash img{
-  width:200px;
+  width:240px;
 }
 
 /* GAME CONTAINER */
@@ -59,7 +59,7 @@ body{
   top:10px;
   width:100%;
   text-align:center;
-  font-size:24px;
+  font-size:26px;
   font-weight:bold;
 }
 
@@ -69,7 +69,7 @@ body{
   left:50%;
   top:55%;
   transform:translate(-50%,-50%);
-  width:260px;
+  width:360px;   /* 🔥 INCREASED */
   z-index:3;
 }
 
@@ -92,10 +92,10 @@ body{
 #armAnchor{ top:55%; left:75%; }
 #legAnchor{ top:78%; left:55%; }
 
-/* BOXES (CLOSER) */
+/* BOXES (BIGGER + CLOSER) */
 .box{
-  width:70px;
-  height:70px;
+  width:95px;     /* 🔥 INCREASED */
+  height:95px;    /* 🔥 INCREASED */
   border:3px dashed #333;
   border-radius:10px;
   background:white;
@@ -103,19 +103,19 @@ body{
   justify-content:center;
   align-items:center;
   position:absolute;
-  font-size:18px;
+  font-size:22px;
   z-index:4;
 }
 
-/* LEFT SIDE (closer) */
-#eyeBox{ left:160px; top:220px; }
-#noseBox{ left:160px; top:340px; }
-#armBox{ left:160px; top:460px; }
+/* LEFT SIDE */
+#eyeBox{ left:120px; top:220px; }
+#noseBox{ left:120px; top:340px; }
+#armBox{ left:120px; top:460px; }
 
-/* RIGHT SIDE (closer) */
-#earBox{ right:160px; top:220px; }
-#mouthBox{ right:160px; top:340px; }
-#legBox{ right:160px; top:460px; }
+/* RIGHT SIDE */
+#earBox{ right:120px; top:220px; }
+#mouthBox{ right:120px; top:340px; }
+#legBox{ right:120px; top:460px; }
 
 /* PARTS */
 #parts{
@@ -124,15 +124,15 @@ body{
   width:100%;
   display:flex;
   justify-content:center;
-  gap:18px;
+  gap:22px;
   z-index:5;
 }
 
 .part{
-  width:80px;
-  height:80px;
+  width:120px;   /* 🔥 INCREASED */
+  height:120px;  /* 🔥 INCREASED */
   background:white;
-  border-radius:15px;
+  border-radius:18px;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -141,14 +141,15 @@ body{
 }
 
 .part img{
-  width:55%;
+  width:70%;
 }
 
+/* SELECTED */
 .selected{
   border:4px solid #4CAF50;
 }
 
-/* SVG FIXED LAYER */
+/* SVG */
 svg{
   position:absolute;
   width:1280px;
@@ -186,6 +187,13 @@ button{
   color:white;
   border-radius:10px;
 }
+
+/* MOBILE */
+@media (max-width:768px){
+  #boyWrapper{ width:280px; }
+  .box{ width:80px; height:80px; }
+  .part{ width:95px; height:95px; }
+}
 </style>
 </head>
 
@@ -214,7 +222,6 @@ button{
       <div class="anchor" id="earAnchor"></div>
       <div class="anchor" id="armAnchor"></div>
       <div class="anchor" id="legAnchor"></div>
-
     </div>
 
     <!-- BOXES -->
@@ -257,7 +264,7 @@ setTimeout(()=>{
   setTimeout(drawLines,500);
 },5000);
 
-/* SCALE GAME */
+/* SCALE */
 function scaleGame(){
   const stage = document.getElementById("gameStage");
 
@@ -274,7 +281,7 @@ window.addEventListener("resize",()=>{
   drawLines();
 });
 
-/* GAME LOGIC */
+/* GAME */
 let selected=null;
 let done=0;
 
@@ -313,7 +320,7 @@ document.querySelectorAll(".box").forEach(box=>{
   }
 });
 
-/* 🔥 FINAL FIXED LINE SYSTEM (STAGE-BASED) */
+/* 🔥 PERFECT LINE SYSTEM */
 function getPos(el, stage){
   const r = el.getBoundingClientRect();
   const s = stage.getBoundingClientRect();
@@ -327,12 +334,10 @@ function getPos(el, stage){
   };
 }
 
-/* DRAW LINES */
 function drawLines(){
 
   const svg = document.getElementById("svgLines");
   const stage = document.getElementById("gameStage");
-
   svg.innerHTML = "";
 
   const pairs = [
