@@ -33,33 +33,43 @@ body{
 }
 
 #splash img{
-  width:clamp(160px, 25vw, 220px);
+  width:200px;
 }
 
-/* INSTRUCTION */
+/* CENTER STAGE WRAPPER (KEY FIX) */
+#gameContainer{
+  width:100vw;
+  height:100vh;
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+/* FIXED DESIGN STAGE */
+#gameStage{
+  position:relative;
+  width:1280px;
+  height:720px;
+  transform-origin:center center;
+}
+
+/* TITLE */
 #instruction{
+  position:absolute;
+  top:10px;
+  width:100%;
   text-align:center;
-  font-size:clamp(14px, 2.5vw, 22px);
-  padding:10px;
+  font-size:24px;
   font-weight:bold;
 }
 
-/* GAME */
-#game{
-  display:none;
-  width:100vw;
-  height:100vh;
-  position:relative;
-  overflow:hidden;
-}
-
-/* BOY WRAPPER */
+/* BOY */
 #boyWrapper{
   position:absolute;
   left:50%;
-  top:50%;
+  top:55%;
   transform:translate(-50%,-50%);
-  width:clamp(180px, 25vw, 320px);
+  width:260px;
   z-index:3;
 }
 
@@ -70,11 +80,10 @@ body{
 /* ANCHORS */
 .anchor{
   position:absolute;
-  width:12px;
-  height:12px;
+  width:10px;
+  height:10px;
 }
 
-/* Adjusted proportional positions */
 #eyeAnchor{ top:18%; left:55%; }
 #noseAnchor{ top:28%; left:55%; }
 #mouthAnchor{ top:38%; left:55%; }
@@ -84,8 +93,8 @@ body{
 
 /* BOXES */
 .box{
-  width:clamp(55px, 8vw, 80px);
-  height:clamp(55px, 8vw, 80px);
+  width:70px;
+  height:70px;
   border:3px dashed #333;
   border-radius:10px;
   background:white;
@@ -95,33 +104,32 @@ body{
   position:absolute;
   font-size:18px;
   z-index:4;
-  touch-action:manipulation;
 }
 
-/* LEFT */
-#eyeBox{ left:2vw; top:20vh; }
-#noseBox{ left:2vw; top:40vh; }
-#armBox{ left:2vw; top:60vh; }
+/* LEFT SIDE */
+#eyeBox{ left:40px; top:180px; }
+#noseBox{ left:40px; top:320px; }
+#armBox{ left:40px; top:460px; }
 
-/* RIGHT */
-#earBox{ right:2vw; top:20vh; }
-#mouthBox{ right:2vw; top:40vh; }
-#legBox{ right:2vw; top:60vh; }
+/* RIGHT SIDE */
+#earBox{ right:40px; top:180px; }
+#mouthBox{ right:40px; top:320px; }
+#legBox{ right:40px; top:460px; }
 
-/* PARTS */
+/* PARTS BAR (FIXED INSIDE STAGE) */
 #parts{
   position:absolute;
-  bottom:15px;
+  bottom:10px;
   width:100%;
   display:flex;
   justify-content:center;
-  gap:clamp(10px, 2vw, 25px);
+  gap:18px;
   z-index:5;
 }
 
 .part{
-  width:clamp(55px, 10vw, 90px);
-  height:clamp(55px, 10vw, 90px);
+  width:80px;
+  height:80px;
   background:white;
   border-radius:15px;
   display:flex;
@@ -129,18 +137,17 @@ body{
   align-items:center;
   box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
-  touch-action:manipulation;
 }
 
 .part img{
-  width:60%;
+  width:55%;
 }
 
 .selected{
   border:4px solid #4CAF50;
 }
 
-/* SVG */
+/* SVG LINES */
 svg{
   position:absolute;
   width:100%;
@@ -166,12 +173,7 @@ line{
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  text-align:center;
   z-index:20;
-}
-
-#congrats h1{
-  font-size:clamp(30px, 6vw, 60px);
 }
 
 button{
@@ -193,53 +195,53 @@ button{
   <img src="assets/innovine-logo.png">
 </div>
 
-<div id="instruction">
-  Tap the correct body part and match it
-</div>
+<!-- GAME CONTAINER -->
+<div id="gameContainer">
+  <div id="gameStage">
 
-<div id="game">
+    <div id="instruction">
+      Tap the correct body part and match it
+    </div>
 
-  <!-- SVG -->
-  <svg id="svgLines"></svg>
+    <svg id="svgLines"></svg>
 
-  <!-- BOY -->
-  <div id="boyWrapper">
+    <!-- BOY -->
+    <div id="boyWrapper">
+      <img id="boy" src="assets/boy-body.png">
 
-    <img id="boy" src="assets/boy-body.png">
+      <div class="anchor" id="eyeAnchor"></div>
+      <div class="anchor" id="noseAnchor"></div>
+      <div class="anchor" id="mouthAnchor"></div>
+      <div class="anchor" id="earAnchor"></div>
+      <div class="anchor" id="armAnchor"></div>
+      <div class="anchor" id="legAnchor"></div>
+    </div>
 
-    <div class="anchor" id="eyeAnchor"></div>
-    <div class="anchor" id="noseAnchor"></div>
-    <div class="anchor" id="mouthAnchor"></div>
-    <div class="anchor" id="earAnchor"></div>
-    <div class="anchor" id="armAnchor"></div>
-    <div class="anchor" id="legAnchor"></div>
+    <!-- BOXES -->
+    <div class="box" id="eyeBox" data-part="eye"></div>
+    <div class="box" id="noseBox" data-part="nose"></div>
+    <div class="box" id="armBox" data-part="arm"></div>
+
+    <div class="box" id="earBox" data-part="ear"></div>
+    <div class="box" id="mouthBox" data-part="mouth"></div>
+    <div class="box" id="legBox" data-part="leg"></div>
+
+    <!-- PARTS -->
+    <div id="parts">
+      <div class="part" data-name="eye"><img src="assets/eye.png"></div>
+      <div class="part" data-name="ear"><img src="assets/ear.png"></div>
+      <div class="part" data-name="nose"><img src="assets/nose.png"></div>
+      <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
+      <div class="part" data-name="arm"><img src="assets/arm.png"></div>
+      <div class="part" data-name="leg"><img src="assets/leg.png"></div>
+    </div>
 
   </div>
-
-  <!-- BOXES -->
-  <div class="box" id="eyeBox" data-part="eye"></div>
-  <div class="box" id="noseBox" data-part="nose"></div>
-  <div class="box" id="armBox" data-part="arm"></div>
-
-  <div class="box" id="earBox" data-part="ear"></div>
-  <div class="box" id="mouthBox" data-part="mouth"></div>
-  <div class="box" id="legBox" data-part="leg"></div>
-
-  <!-- PARTS -->
-  <div id="parts">
-    <div class="part" data-name="eye"><img src="assets/eye.png"></div>
-    <div class="part" data-name="ear"><img src="assets/ear.png"></div>
-    <div class="part" data-name="nose"><img src="assets/nose.png"></div>
-    <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
-    <div class="part" data-name="arm"><img src="assets/arm.png"></div>
-    <div class="part" data-name="leg"><img src="assets/leg.png"></div>
-  </div>
-
 </div>
 
 <!-- CONGRATS -->
 <div id="congrats">
-  <h1>🎉 Congratulations!</h1>
+  <h1>🎉 Great Job!</h1>
   <button onclick="location.reload()">Play Again</button>
 </div>
 
@@ -248,16 +250,35 @@ button{
 
 <script>
 
+/* SPLASH */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
-  document.getElementById("game").style.display="block";
+  document.getElementById("gameContainer").style.display="flex";
+  scaleGame();
   setTimeout(drawLines,500);
 },5000);
 
+/* RESPONSIVE SCALING (KEY FIX) */
+function scaleGame(){
+  const stage = document.getElementById("gameStage");
+
+  const scaleX = window.innerWidth / 1280;
+  const scaleY = window.innerHeight / 720;
+
+  const scale = Math.min(scaleX, scaleY);
+
+  stage.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener("resize", ()=>{
+  scaleGame();
+  drawLines();
+});
+
+/* GAME LOGIC */
 let selected=null;
 let done=0;
 
-/* SELECT PART */
 document.querySelectorAll(".part").forEach(p=>{
   p.onclick=()=>{
     selected=p.dataset.name;
@@ -266,7 +287,6 @@ document.querySelectorAll(".part").forEach(p=>{
   }
 });
 
-/* MATCH BOX */
 document.querySelectorAll(".box").forEach(box=>{
   box.onclick=()=>{
 
@@ -284,7 +304,7 @@ document.querySelectorAll(".box").forEach(box=>{
       drawLines();
 
       if(done===6){
-        document.getElementById("game").style.display="none";
+        document.getElementById("gameContainer").style.display="none";
         document.getElementById("congrats").style.display="flex";
       }
 
@@ -325,8 +345,6 @@ function drawLines(){
     svg.appendChild(line);
   });
 }
-
-window.addEventListener("resize",drawLines);
 
 </script>
 
