@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Body Parts Game</title>
+<title>Body Parts Match Game</title>
 
 <style>
 *{
@@ -13,7 +13,7 @@
 }
 
 body{
-  background: linear-gradient(135deg,#f5f7ff,#fff0f5);
+  background: linear-gradient(135deg,#f6f8ff,#fff1f5);
   overflow:hidden;
 }
 
@@ -30,17 +30,15 @@ body{
 }
 
 #splash img{
-  width:240px;
+  width:220px;
 }
 
 /* INSTRUCTION */
 #instruction{
-  width:100%;
   text-align:center;
   font-size:22px;
+  padding:10px;
   font-weight:bold;
-  padding:12px;
-  background:#ffffffcc;
 }
 
 /* GAME LAYOUT */
@@ -48,71 +46,87 @@ body{
   display:none;
   width:100%;
   height:100vh;
-  flex-direction:row;
+  position:relative;
 }
 
-/* LEFT PANEL */
-#left{
-  width:25%;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:60px;
-}
-
-/* CENTER */
-#center{
-  width:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
+/* CENTER BOY */
 #boy{
-  width:320px;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:260px;
+  z-index:2;
 }
 
-/* RIGHT PANEL */
-#right{
-  width:25%;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:60px;
-}
-
-/* BOX */
+/* BOX STYLE */
 .box{
-  width:80px;
-  height:80px;
+  width:75px;
+  height:75px;
   border:3px dashed #333;
   border-radius:10px;
   display:flex;
   justify-content:center;
   align-items:center;
+  background:white;
+  position:absolute;
+  font-size:22px;
 }
 
-/* PARTS */
+/* LEFT SIDE POSITIONS */
+#eyeBox{ left:40px; top:120px; }
+#noseBox{ left:40px; top:250px; }
+#armBox{ left:40px; top:380px; }
+
+/* RIGHT SIDE POSITIONS */
+#earBox{ right:40px; top:120px; }
+#mouthBox{ right:40px; top:250px; }
+#legBox{ right:40px; top:380px; }
+
+/* PARTS PANEL */
+#parts{
+  position:absolute;
+  bottom:10px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:25px;
+}
+
 .part{
-  width:100px;
-  height:100px;
+  width:90px;
+  height:90px;
   background:white;
   border-radius:15px;
   display:flex;
   justify-content:center;
   align-items:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.12);
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
 }
 
 .part img{
-  width:70px;
+  width:60px;
 }
 
 .selected{
   border:4px solid #4CAF50;
+}
+
+/* SVG ARROWS */
+svg{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  pointer-events:none;
+  z-index:1;
+}
+
+line{
+  stroke:#444;
+  stroke-width:3;
 }
 
 /* CONGRATS */
@@ -121,10 +135,11 @@ body{
   position:fixed;
   width:100%;
   height:100%;
-  background:linear-gradient(135deg,#fff3e6,#e6fff5);
+  background:linear-gradient(135deg,#fff6e5,#e6fff7);
   justify-content:center;
   align-items:center;
   flex-direction:column;
+  text-align:center;
 }
 
 #congrats h1{
@@ -150,31 +165,47 @@ button{
   <img src="assets/innovine-logo.png">
 </div>
 
-<!-- INSTRUCTION -->
 <div id="instruction">
-  Tap the body part and match it correctly
+  Tap a body part and match it to the correct box
 </div>
 
 <!-- GAME -->
 <div id="game">
 
-  <!-- LEFT SIDE BOXES -->
-  <div id="left">
-    <div class="box" data-part="eye"></div>
-    <div class="box" data-part="nose"></div>
-    <div class="box" data-part="arm"></div>
-  </div>
+  <!-- BOY -->
+  <img id="boy" src="assets/boy-body.png">
 
-  <!-- CENTER BOY -->
-  <div id="center">
-    <img id="boy" src="assets/boy-body.png">
-  </div>
+  <!-- ARROWS (IMPORTANT: outside boy, no overlap) -->
+  <svg>
+    <!-- LEFT SIDE -->
+    <line x1="120" y1="150" x2="40" y2="150"></line> <!-- eye -->
+    <line x1="120" y1="260" x2="40" y2="260"></line> <!-- nose -->
+    <line x1="120" y1="380" x2="40" y2="380"></line> <!-- arm -->
 
-  <!-- RIGHT SIDE BOXES -->
-  <div id="right">
-    <div class="box" data-part="ear"></div>
-    <div class="box" data-part="mouth"></div>
-    <div class="box" data-part="leg"></div>
+    <!-- RIGHT SIDE -->
+    <line x1="520" y1="150" x2="600" y2="150"></line> <!-- ear -->
+    <line x1="520" y1="260" x2="600" y2="260"></line> <!-- mouth -->
+    <line x1="520" y1="380" x2="600" y2="380"></line> <!-- leg -->
+  </svg>
+
+  <!-- LEFT BOXES -->
+  <div class="box" id="eyeBox" data-part="eye"></div>
+  <div class="box" id="noseBox" data-part="nose"></div>
+  <div class="box" id="armBox" data-part="arm"></div>
+
+  <!-- RIGHT BOXES -->
+  <div class="box" id="earBox" data-part="ear"></div>
+  <div class="box" id="mouthBox" data-part="mouth"></div>
+  <div class="box" id="legBox" data-part="leg"></div>
+
+  <!-- PARTS -->
+  <div id="parts">
+    <div class="part" data-name="eye"><img src="assets/eye.png"></div>
+    <div class="part" data-name="ear"><img src="assets/ear.png"></div>
+    <div class="part" data-name="nose"><img src="assets/nose.png"></div>
+    <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
+    <div class="part" data-name="arm"><img src="assets/arm.png"></div>
+    <div class="part" data-name="leg"><img src="assets/leg.png"></div>
   </div>
 
 </div>
@@ -190,13 +221,11 @@ button{
 
 <script>
 
-/* SPLASH SCREEN */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
-  document.getElementById("game").style.display="flex";
+  document.getElementById("game").style.display="block";
 },5000);
 
-/* GAME LOGIC */
 let selected=null;
 let done=0;
 
@@ -208,16 +237,15 @@ document.querySelectorAll(".part").forEach(p=>{
   }
 });
 
-/* BOX CLICK */
 document.querySelectorAll(".box").forEach(box=>{
   box.onclick=()=>{
 
     if(!selected) return;
 
-    if(selected===box.dataset.part){
+    if(selected === box.dataset.part){
       document.getElementById("correct").play();
-      box.style.background="lightgreen";
       box.innerHTML="✔";
+      box.style.background="lightgreen";
       done++;
 
       selected=null;
