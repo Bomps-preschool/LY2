@@ -49,15 +49,36 @@ body{
   position:relative;
 }
 
-/* BOY */
-#boy{
+/* BOY WRAPPER */
+#boyWrapper{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
   width:260px;
+  height:auto;
   z-index:3;
 }
+
+#boy{
+  width:100%;
+}
+
+/* ANCHORS (invisible points on body) */
+.anchor{
+  position:absolute;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:transparent;
+}
+
+#eyeAnchor{ top:18%; left:55%; }
+#noseAnchor{ top:28%; left:55%; }
+#mouthAnchor{ top:38%; left:55%; }
+#earAnchor{ top:20%; left:35%; }
+#armAnchor{ top:55%; left:75%; }
+#legAnchor{ top:78%; left:55%; }
 
 /* BOXES */
 .box{
@@ -115,7 +136,7 @@ body{
   border:4px solid #4CAF50;
 }
 
-/* SVG LINES */
+/* SVG */
 svg{
   position:absolute;
   width:100%;
@@ -174,21 +195,21 @@ button{
 
 <div id="game">
 
-  <!-- ARROWS (FIXED + PROPERLY ALIGNED) -->
-  <svg>
-    <!-- LEFT SIDE -->
-    <line x1="120" y1="175" x2="320" y2="175"/>
-    <line x1="120" y1="305" x2="320" y2="305"/>
-    <line x1="120" y1="435" x2="320" y2="435"/>
-
-    <!-- RIGHT SIDE -->
-    <line x1="520" y1="175" x2="340" y2="175"/>
-    <line x1="520" y1="305" x2="340" y2="305"/>
-    <line x1="520" y1="435" x2="340" y2="435"/>
-  </svg>
+  <!-- SVG LINES -->
+  <svg id="svgLines"></svg>
 
   <!-- BOY -->
-  <img id="boy" src="assets/boy-body.png">
+  <div id="boyWrapper">
+    <img id="boy" src="assets/boy-body.png">
+
+    <!-- ANCHORS -->
+    <div class="anchor" id="eyeAnchor"></div>
+    <div class="anchor" id="noseAnchor"></div>
+    <div class="anchor" id="mouthAnchor"></div>
+    <div class="anchor" id="earAnchor"></div>
+    <div class="anchor" id="armAnchor"></div>
+    <div class="anchor" id="legAnchor"></div>
+  </div>
 
   <!-- LEFT BOXES -->
   <div class="box" id="eyeBox" data-part="eye"></div>
@@ -226,6 +247,7 @@ button{
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("game").style.display="block";
+  setTimeout(drawLines,500);
 },5000);
 
 let selected=null;
@@ -253,6 +275,8 @@ document.querySelectorAll(".box").forEach(box=>{
       selected=null;
       document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
 
+      drawLines();
+
       if(done===6){
         document.getElementById("game").style.display="none";
         document.getElementById("congrats").style.display="flex";
@@ -263,6 +287,43 @@ document.querySelectorAll(".box").forEach(box=>{
     }
   }
 });
+
+/* DRAW LINES */
+function drawLines(){
+
+  const svg = document.getElementById("svgLines");
+  svg.innerHTML = "";
+
+  const pairs = [
+    ["eyeBox","eyeAnchor"],
+    ["noseBox","noseAnchor"],
+    ["armBox","armAnchor"],
+    ["earBox","earAnchor"],
+    ["mouthBox","mouthAnchor"],
+    ["legBox","legAnchor"]
+  ];
+
+  pairs.forEach(([boxId, anchorId])=>{
+    const box = document.getElementById(boxId).getBoundingClientRect();
+    const anchor = document.getElementById(anchorId).getBoundingClientRect();
+
+    const x1 = box.right;
+    const y1 = box.top + box.height/2;
+
+    const x2 = anchor.left;
+    const y2 = anchor.top + anchor.height/2;
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1",x1);
+    line.setAttribute("y1",y1);
+    line.setAttribute("x2",x2);
+    line.setAttribute("y2",y2);
+
+    svg.appendChild(line);
+  });
+}
+
+window.addEventListener("resize",drawLines);
 
 </script>
 
