@@ -67,32 +67,40 @@ body{
 
 #boy{
   width:100%;
-  display:block;
 }
 
-/* BOXES */
+/* BOX STYLE */
 .box{
-  position:absolute;
-  width:65px;
-  height:65px;
+  width:70px;
+  height:70px;
   border:3px dashed #333;
   border-radius:8px;
-  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-/* ✅ MOVED OUTSIDE BOY (FIX) */
+/* LEFT COLUMN */
+.leftCol{
+  position:absolute;
+  left:-120px;
+  display:flex;
+  flex-direction:column;
+  gap:60px;
+  top:120px;
+}
 
-/* left side boxes pushed further left */
-#earBox{ top:20%; left:-5%; }
-#handBox{ top:45%; left:-10%; }
+/* RIGHT COLUMN */
+.rightCol{
+  position:absolute;
+  right:-120px;
+  display:flex;
+  flex-direction:column;
+  gap:35px;
+  top:60px;
+}
 
-/* right side boxes pushed further right */
-#eyeBox{ top:18%; left:92%; }
-#noseBox{ top:28%; left:90%; }
-#mouthBox{ top:36%; left:90%; }
-#legBox{ top:70%; left:92%; }
-
-/* RIGHT PANEL */
+/* PARTS */
 #parts{
   width:35%;
   display:grid;
@@ -168,19 +176,28 @@ button{
 <div id="game">
 
   <div id="boyArea">
+
     <div id="boyWrapper">
       <img id="boy" src="assets/boy-body.png">
 
-      <div class="box" id="eyeBox" data-part="eye"></div>
-      <div class="box" id="earBox" data-part="ear"></div>
-      <div class="box" id="noseBox" data-part="nose"></div>
-      <div class="box" id="mouthBox" data-part="mouth"></div>
-      <div class="box" id="handBox" data-part="hand"></div>
-      <div class="box" id="legBox" data-part="leg"></div>
+      <!-- LEFT COLUMN -->
+      <div class="leftCol">
+        <div class="box" data-part="eye"></div>
+        <div class="box" data-part="hand"></div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="rightCol">
+        <div class="box" data-part="ear"></div>
+        <div class="box" data-part="nose"></div>
+        <div class="box" data-part="mouth"></div>
+        <div class="box" data-part="leg"></div>
+      </div>
 
     </div>
   </div>
 
+  <!-- PARTS -->
   <div id="parts">
     <div class="part" data-name="eye"><img src="assets/eye.png"></div>
     <div class="part" data-name="ear"><img src="assets/ear.png"></div>
@@ -190,12 +207,6 @@ button{
     <div class="part" data-name="leg"><img src="assets/leg.png"></div>
   </div>
 
-</div>
-
-<!-- CONGRATS -->
-<div id="congrats">
-  <h1>🎉 Congratulations!</h1>
-  <button onclick="location.reload()">Play Again</button>
 </div>
 
 <script>
@@ -229,10 +240,8 @@ document.querySelectorAll(".box").forEach(box=>{
       selected=null;
 
       if(done===6){
-        document.getElementById("game").style.display="none";
-        document.getElementById("congrats").style.display="flex";
+        alert("Congratulations!");
       }
-
     }
   }
 });
