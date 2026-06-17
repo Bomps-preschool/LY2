@@ -43,7 +43,7 @@ body{
   background:#ffffffcc;
 }
 
-/* GAME */
+/* GAME WRAPPER */
 #game{
   display:none;
   width:100%;
@@ -51,20 +51,43 @@ body{
   flex-direction:row;
 }
 
-/* LEFT SIDE (BOY) */
+/* BOY CONTAINER (IMPORTANT FIX) */
 #boyArea{
   width:65%;
   display:flex;
   justify-content:center;
   align-items:center;
-  position:relative;
 }
 
-#boy{
+/* RELATIVE WRAPPER FOR IMAGE + BOXES */
+#boyWrapper{
+  position:relative;
   width:360px;
 }
 
-/* RIGHT SIDE (PARTS) */
+#boy{
+  width:100%;
+  display:block;
+}
+
+/* BOXES NOW RELATIVE (KEY FIX) */
+.box{
+  position:absolute;
+  width:12%;
+  height:10%;
+  border:3px dashed #333;
+  border-radius:8px;
+}
+
+/* ✅ PROPER PROPORTIONAL ALIGNMENT */
+#eyeBox{ top:18%; left:62%; }
+#earBox{ top:20%; left:25%; }
+#noseBox{ top:28%; left:55%; }
+#mouthBox{ top:35%; left:55%; }
+#handBox{ top:45%; left:18%; }
+#legBox{ top:70%; left:55%; }
+
+/* RIGHT SIDE */
 #parts{
   width:35%;
   display:grid;
@@ -94,24 +117,6 @@ body{
 .selected{
   border:4px solid #4CAF50;
 }
-
-/* ✅ FIXED ALIGNMENT BOXES (BASED ON BODY HEIGHT) */
-.box{
-  position:absolute;
-  width:65px;
-  height:65px;
-  border:3px dashed #333;
-  border-radius:10px;
-  background:transparent;
-}
-
-/* 👇 Proper alignment like textbook diagram */
-#eyeBox{ top:115px; left:230px; }
-#earBox{ top:135px; left:120px; }
-#noseBox{ top:175px; left:200px; }
-#mouthBox{ top:215px; left:200px; }
-#handBox{ top:270px; left:90px; }
-#legBox{ top:370px; left:210px; }
 
 /* CONGRATS */
 #congrats{
@@ -158,15 +163,17 @@ button{
 <div id="game">
 
   <div id="boyArea">
-    <img id="boy" src="assets/boy-body.png">
+    <div id="boyWrapper">
+      <img id="boy" src="assets/boy-body.png">
 
-    <div class="box" id="eyeBox" data-part="eye"></div>
-    <div class="box" id="earBox" data-part="ear"></div>
-    <div class="box" id="noseBox" data-part="nose"></div>
-    <div class="box" id="mouthBox" data-part="mouth"></div>
-    <div class="box" id="handBox" data-part="hand"></div>
-    <div class="box" id="legBox" data-part="leg"></div>
+      <div class="box" id="eyeBox" data-part="eye"></div>
+      <div class="box" id="earBox" data-part="ear"></div>
+      <div class="box" id="noseBox" data-part="nose"></div>
+      <div class="box" id="mouthBox" data-part="mouth"></div>
+      <div class="box" id="handBox" data-part="hand"></div>
+      <div class="box" id="legBox" data-part="leg"></div>
 
+    </div>
   </div>
 
   <div id="parts">
@@ -219,7 +226,6 @@ document.querySelectorAll(".box").forEach(box=>{
       done++;
 
       selected=null;
-      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
 
       if(done===6){
         document.getElementById("game").style.display="none";
