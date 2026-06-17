@@ -13,7 +13,7 @@
 }
 
 body{
-  background: linear-gradient(135deg,#f5f7ff,#ffeef5);
+  background: linear-gradient(135deg,#f5f7ff,#fff0f5);
   overflow:hidden;
 }
 
@@ -30,20 +30,20 @@ body{
 }
 
 #splash img{
-  width:250px;
+  width:240px;
 }
 
-/* TOP INSTRUCTION */
+/* INSTRUCTION */
 #instruction{
   width:100%;
   text-align:center;
-  padding:15px;
   font-size:22px;
   font-weight:bold;
+  padding:12px;
   background:#ffffffcc;
 }
 
-/* GAME AREA */
+/* GAME */
 #game{
   display:none;
   width:100%;
@@ -51,7 +51,7 @@ body{
   flex-direction:row;
 }
 
-/* LEFT SIDE BOY */
+/* LEFT SIDE (BOY) */
 #boyArea{
   width:65%;
   display:flex;
@@ -61,33 +61,15 @@ body{
 }
 
 #boy{
-  width:380px;
+  width:360px;
 }
 
-/* BOXES OVER BOY (ALIGNED WITH ARROWS) */
-.box{
-  position:absolute;
-  width:70px;
-  height:70px;
-  border:3px dashed #333;
-  border-radius:10px;
-  background:transparent;
-}
-
-/* 👇 Adjusted positions to match reference image */
-#eyeBox{ top:110px; left:220px; }
-#earBox{ top:130px; left:120px; }
-#noseBox{ top:170px; left:190px; }
-#mouthBox{ top:210px; left:190px; }
-#handBox{ top:260px; left:90px; }
-#legBox{ top:360px; left:200px; }
-
-/* RIGHT SIDE PARTS */
+/* RIGHT SIDE (PARTS) */
 #parts{
   width:35%;
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:20px;
+  gap:18px;
   padding:20px;
   align-content:center;
   justify-items:center;
@@ -101,9 +83,8 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  box-shadow:0 4px 10px rgba(0,0,0,0.12);
   cursor:pointer;
-  transition:0.2s;
 }
 
 .part img{
@@ -112,8 +93,25 @@ body{
 
 .selected{
   border:4px solid #4CAF50;
-  transform:scale(1.05);
 }
+
+/* ✅ FIXED ALIGNMENT BOXES (BASED ON BODY HEIGHT) */
+.box{
+  position:absolute;
+  width:65px;
+  height:65px;
+  border:3px dashed #333;
+  border-radius:10px;
+  background:transparent;
+}
+
+/* 👇 Proper alignment like textbook diagram */
+#eyeBox{ top:115px; left:230px; }
+#earBox{ top:135px; left:120px; }
+#noseBox{ top:175px; left:200px; }
+#mouthBox{ top:215px; left:200px; }
+#handBox{ top:270px; left:90px; }
+#legBox{ top:370px; left:210px; }
 
 /* CONGRATS */
 #congrats{
@@ -122,14 +120,14 @@ body{
   width:100%;
   height:100%;
   background:linear-gradient(135deg,#fff3e6,#e6fff5);
-  flex-direction:column;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
   text-align:center;
 }
 
 #congrats h1{
-  font-size:60px;
+  font-size:55px;
 }
 
 button{
@@ -141,7 +139,6 @@ button{
   color:white;
   border-radius:10px;
 }
-
 </style>
 </head>
 
@@ -160,9 +157,7 @@ button{
 <!-- GAME -->
 <div id="game">
 
-  <!-- BOY SIDE -->
   <div id="boyArea">
-
     <img id="boy" src="assets/boy-body.png">
 
     <div class="box" id="eyeBox" data-part="eye"></div>
@@ -174,7 +169,6 @@ button{
 
   </div>
 
-  <!-- PARTS SIDE -->
   <div id="parts">
     <div class="part" data-name="eye"><img src="assets/eye.png"></div>
     <div class="part" data-name="ear"><img src="assets/ear.png"></div>
@@ -189,10 +183,9 @@ button{
 <!-- CONGRATS -->
 <div id="congrats">
   <h1>🎉 Congratulations!</h1>
-  <button onclick="restart()">Play Again</button>
+  <button onclick="location.reload()">Play Again</button>
 </div>
 
-<!-- AUDIO -->
 <audio id="correct" src="assets/correct.mp3"></audio>
 <audio id="wrong" src="assets/wrong.mp3"></audio>
 
@@ -226,6 +219,7 @@ document.querySelectorAll(".box").forEach(box=>{
       done++;
 
       selected=null;
+      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
 
       if(done===6){
         document.getElementById("game").style.display="none";
@@ -237,10 +231,6 @@ document.querySelectorAll(".box").forEach(box=>{
     }
   }
 });
-
-function restart(){
-  location.reload();
-}
 
 </script>
 
