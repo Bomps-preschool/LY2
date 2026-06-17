@@ -13,7 +13,7 @@
 }
 
 body{
-  background: linear-gradient(135deg,#ffe6f2,#e6f7ff);
+  background: linear-gradient(135deg,#f5f7ff,#ffeef5);
   overflow:hidden;
 }
 
@@ -22,7 +22,7 @@ body{
   position:fixed;
   width:100%;
   height:100%;
-  background:#fff;
+  background:white;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -33,7 +33,17 @@ body{
   width:250px;
 }
 
-/* GAME LAYOUT */
+/* TOP INSTRUCTION */
+#instruction{
+  width:100%;
+  text-align:center;
+  padding:15px;
+  font-size:22px;
+  font-weight:bold;
+  background:#ffffffcc;
+}
+
+/* GAME AREA */
 #game{
   display:none;
   width:100%;
@@ -41,9 +51,9 @@ body{
   flex-direction:row;
 }
 
-/* LEFT BOY AREA */
+/* LEFT SIDE BOY */
 #boyArea{
-  width:60%;
+  width:65%;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -51,55 +61,58 @@ body{
 }
 
 #boy{
-  width:320px;
+  width:380px;
 }
 
-/* CLICK BOXES */
+/* BOXES OVER BOY (ALIGNED WITH ARROWS) */
 .box{
   position:absolute;
-  width:60px;
-  height:60px;
+  width:70px;
+  height:70px;
   border:3px dashed #333;
   border-radius:10px;
+  background:transparent;
 }
 
-/* positions */
-#eyeBox{ top:120px; left:210px; }
-#earBox{ top:140px; left:120px; }
-#noseBox{ top:180px; left:170px; }
-#mouthBox{ top:220px; left:170px; }
-#handBox{ top:260px; left:80px; }
-#legBox{ top:360px; left:170px; }
+/* 👇 Adjusted positions to match reference image */
+#eyeBox{ top:110px; left:220px; }
+#earBox{ top:130px; left:120px; }
+#noseBox{ top:170px; left:190px; }
+#mouthBox{ top:210px; left:190px; }
+#handBox{ top:260px; left:90px; }
+#legBox{ top:360px; left:200px; }
 
-/* RIGHT PANEL */
+/* RIGHT SIDE PARTS */
 #parts{
-  width:40%;
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
+  width:35%;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
   gap:20px;
   padding:20px;
+  align-content:center;
+  justify-items:center;
 }
 
 .part{
-  width:100px;
-  height:100px;
+  width:110px;
+  height:110px;
   background:#fff;
   border-radius:15px;
   display:flex;
   justify-content:center;
   align-items:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
+  transition:0.2s;
 }
 
 .part img{
-  width:70px;
+  width:75px;
 }
 
 .selected{
   border:4px solid #4CAF50;
+  transform:scale(1.05);
 }
 
 /* CONGRATS */
@@ -109,9 +122,9 @@ body{
   width:100%;
   height:100%;
   background:linear-gradient(135deg,#fff3e6,#e6fff5);
+  flex-direction:column;
   justify-content:center;
   align-items:center;
-  flex-direction:column;
   text-align:center;
 }
 
@@ -121,13 +134,14 @@ body{
 
 button{
   margin-top:20px;
-  padding:10px 20px;
+  padding:12px 25px;
   font-size:20px;
   border:none;
   background:#4CAF50;
-  color:#fff;
+  color:white;
   border-radius:10px;
 }
+
 </style>
 </head>
 
@@ -138,11 +152,17 @@ button{
   <img src="assets/innovine-logo.png">
 </div>
 
+<!-- INSTRUCTION -->
+<div id="instruction">
+  Tap a body part and then tap the correct place on the boy
+</div>
+
 <!-- GAME -->
 <div id="game">
 
-  <!-- BOY -->
+  <!-- BOY SIDE -->
   <div id="boyArea">
+
     <img id="boy" src="assets/boy-body.png">
 
     <div class="box" id="eyeBox" data-part="eye"></div>
@@ -154,13 +174,13 @@ button{
 
   </div>
 
-  <!-- PARTS -->
+  <!-- PARTS SIDE -->
   <div id="parts">
     <div class="part" data-name="eye"><img src="assets/eye.png"></div>
     <div class="part" data-name="ear"><img src="assets/ear.png"></div>
     <div class="part" data-name="nose"><img src="assets/nose.png"></div>
     <div class="part" data-name="mouth"><img src="assets/mouth.png"></div>
-    <div class="part" data-name="hand"><img src="assets/hand.png"></div>
+    <div class="part" data-name="hand"><img src="assets/arm.png"></div>
     <div class="part" data-name="leg"><img src="assets/leg.png"></div>
   </div>
 
@@ -169,7 +189,6 @@ button{
 <!-- CONGRATS -->
 <div id="congrats">
   <h1>🎉 Congratulations!</h1>
-  <p>You matched all body parts!</p>
   <button onclick="restart()">Play Again</button>
 </div>
 
@@ -207,7 +226,6 @@ document.querySelectorAll(".box").forEach(box=>{
       done++;
 
       selected=null;
-      document.querySelectorAll(".part").forEach(x=>x.classList.remove("selected"));
 
       if(done===6){
         document.getElementById("game").style.display="none";
