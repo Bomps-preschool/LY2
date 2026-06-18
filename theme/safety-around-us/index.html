@@ -7,17 +7,17 @@
 
 <style>
 
-/* 🌈 ANIMATED BACKGROUND */
+/* 🌈 ELEGANT ANIMATED BACKGROUND */
 body{
   margin:0;
   font-family:Arial;
   overflow:hidden;
-  background: linear-gradient(270deg,#dff6ff,#e8f9ff,#f0fff4);
+  background: linear-gradient(270deg,#dff6ff,#e8f9ff,#f0fff4,#fff7e6);
   background-size:600% 600%;
-  animation: bgFlow 12s ease infinite;
+  animation: bgMove 14s ease infinite;
 }
 
-@keyframes bgFlow{
+@keyframes bgMove{
   0%{background-position:0% 50%}
   50%{background-position:100% 50%}
   100%{background-position:0% 50%}
@@ -64,7 +64,7 @@ body{
   color:#ff4d6d;
 }
 
-/* 🖼️ IMAGE FIX (RESPONSIVE) */
+/* IMAGE */
 #mainImage{
   margin-top:18px;
   width:90%;
@@ -109,43 +109,49 @@ body{
   border-radius:14px;
   display:none;
   box-shadow:0 10px 25px rgba(0,0,0,0.25);
-  animation: pop 0.3s ease;
 }
 
-@keyframes pop{
-  from{transform:translate(-50%,-50%) scale(0.5);opacity:0}
-  to{transform:translate(-50%,-50%) scale(1);opacity:1}
+/* 🏆 SCORE PANEL */
+#scorePanel{
+  margin-top:10px;
+  font-size:22px;
+  font-weight:bold;
+  color:#333;
 }
 
-/* 🏆 GOOD JOB SCREEN FIX (CENTERED) */
+/* ⭐ STARS */
+.star{
+  font-size:30px;
+  color:gold;
+}
+
+/* END SCREEN */
 #end{
   display:none;
-  position:absolute;
   width:100%;
   height:100%;
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  font-size:42px;
+  font-size:40px;
   font-weight:bold;
   color:#2e7d32;
-  animation: fadeIn 1s ease;
+  position:relative;
 }
 
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
+/* 🎆 FIREWORKS */
+.firework{
+  position:absolute;
+  width:10px;
+  height:10px;
+  background:gold;
+  border-radius:50%;
+  animation: boom 1s ease-out forwards;
 }
 
-.star{
-  font-size:50px;
-  animation: float 2s infinite ease-in-out;
-}
-
-@keyframes float{
-  0%{transform:translateY(0px)}
-  50%{transform:translateY(-10px)}
-  100%{transform:translateY(0px)}
+@keyframes boom{
+  0%{transform:scale(1); opacity:1;}
+  100%{transform:scale(12) translateY(-100px); opacity:0;}
 }
 
 </style>
@@ -170,6 +176,8 @@ body{
 
   <div id="instruction">Loading...</div>
 
+  <div id="scorePanel">⭐ Stars: <span id="stars">0</span>/6</div>
+
   <img id="mainImage" src="">
 
   <div id="btnRow">
@@ -183,9 +191,7 @@ body{
 
 <!-- END SCREEN -->
 <div id="end">
-  <div class="star">⭐</div>
-  GOOD JOB!
-  <div class="star">⭐</div>
+  🎉 GOOD JOB! 🎉
 </div>
 
 <script>
@@ -196,6 +202,7 @@ setTimeout(()=>{
   loadGame();
 },3000);
 
+/* DATA */
 const data = [
   {img:"assets/child-crossing-road.png", ans:"safe", audio:"Crossing zebra crossing is safe or unsafe?"},
   {img:"assets/playing-with-fire.png", ans:"unsafe", audio:"Playing with fire is safe or unsafe?"},
@@ -206,19 +213,21 @@ const data = [
 ];
 
 let index=0;
+let stars=0;
 let locked=false;
 
+/* SPEECH */
 function speak(text){
   let msg=new SpeechSynthesisUtterance(text);
   msg.rate=0.9;
   window.speechSynthesis.speak(msg);
 }
 
+/* LOAD */
 function loadGame(){
 
   if(index>=data.length){
-    document.getElementById("game").style.display="none";
-    document.getElementById("end").style.display="flex";
+    showEnd();
     return;
   }
 
@@ -233,10 +242,10 @@ function loadGame(){
   },200);
 
   document.getElementById("instruction").innerText=data[index].audio;
-
   speak(data[index].audio);
 }
 
+/* ANSWER */
 function answer(choice){
 
   if(locked) return;
@@ -245,13 +254,15 @@ function answer(choice){
 
   if(choice===correct){
 
-    document.getElementById("overlayMsg").style.display="none";
+    stars++;
+    document.getElementById("stars").innerText=stars;
+
     speak("Correct");
 
     setTimeout(()=>{
       index++;
       loadGame();
-    },1000);
+    },800);
 
   }else{
 
@@ -263,7 +274,37 @@ function answer(choice){
     setTimeout(()=>{
       document.getElementById("overlayMsg").style.display="none";
       locked=false;
-    },3000);
+    },2500);
+  }
+}
+
+/* END + FIREWORKS */
+function showEnd(){
+
+  document.getElementById("game").style.display="none";
+  document.getElementById("end").style.display="flex";
+
+  speak("Good job");
+
+  createFireworks();
+}
+
+/* 🎆 FIREWORK EFFECT */
+function createFireworks(){
+
+  for(let i=0;i<25;i++){
+
+    let f=document.createElement("div");
+    f.className="firework";
+
+    f.style.left=Math.random()*100+"vw";
+    f.style.top=Math.random()*100+"vh";
+
+    f.style.background=["gold","orange","pink","lightblue"][Math.floor(Math.random()*4)];
+
+    document.body.appendChild(f);
+
+    setTimeout(()=>f.remove(),1000);
   }
 }
 
