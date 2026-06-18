@@ -107,7 +107,7 @@ body{
   box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
-/* ✨ GLOW EFFECT */
+/* ✨ GLOW */
 @keyframes glow {
   0% { box-shadow:0 0 0px rgba(0,255,0,0); }
   50% { box-shadow:0 0 25px rgba(0,255,0,0.9); }
@@ -119,20 +119,7 @@ body{
   border-radius:16px;
 }
 
-/* 🎉 END SCREEN */
-#end{
-  display:none;
-  width:100%;
-  height:100%;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  font-size:40px;
-  font-weight:bold;
-  color:#2e7d32;
-}
-
-/* 🎊 CONFETTI */
+/* 🎆 CONFETTI */
 .confetti{
   position:absolute;
   width:10px;
@@ -144,6 +131,26 @@ body{
 @keyframes fall{
   0%{transform:translateY(0) rotate(0deg);opacity:1;}
   100%{transform:translateY(100vh) rotate(360deg);opacity:0;}
+}
+
+/* 🏆 END SCREEN — FIXED CENTER (YOUR REQUEST) */
+#end{
+  display:none;
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  font-size:42px;
+  font-weight:bold;
+  color:#2e7d32;
+  text-align:center;
 }
 
 </style>
@@ -184,35 +191,40 @@ body{
 
 <script>
 
+/* SPLASH */
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
   document.getElementById("game").style.display="block";
   loadGame();
 },3000);
 
+/* DATA */
 const data = [
   {img:"assets/child-crossing-road.png", ans:"safe", audio:"Crossing zebra crossing is safe or unsafe?"},
   {img:"assets/playing-with-fire.png", ans:"unsafe", audio:"Playing with fire is safe or unsafe?"},
   {img:"assets/putting-finger-in-the-plug.png", ans:"unsafe", audio:"Electric socket is safe or unsafe?"},
   {img:"assets/hurt-with-scissor.png", ans:"unsafe", audio:"Scissors are safe or unsafe?"},
-  {img:"assets/wearing-seat-belt-in-car.png", ans:"safe", audio:"Wearing seat belt is safe or unsafe?"},
-  {img:"assets/climbing-on-the-ladder.png", ans:"unsafe", audio:"Climbing on the unstable ladder is safe or unsafe?"}
+  {img:"assets/wearing-seat-belt-in-car.png", ans:"safe", audio:"Seat belt is safe or unsafe?"},
+  {img:"assets/climbing-on-the-ladder.png", ans:"unsafe", audio:"Climbing ladder is safe or unsafe?"}
 ];
 
 let index=0;
 let locked=false;
 
+/* SPEECH */
 function speak(text){
   let msg=new SpeechSynthesisUtterance(text);
   msg.rate=0.9;
   window.speechSynthesis.speak(msg);
 }
 
+/* LOAD GAME */
 function loadGame(){
 
   if(index>=data.length){
     document.getElementById("game").style.display="none";
     document.getElementById("end").style.display="flex";
+
     speak("Good job");
     startConfetti();
     return;
@@ -233,6 +245,7 @@ function loadGame(){
   speak(data[index].audio);
 }
 
+/* ANSWER */
 function answer(choice){
 
   if(locked) return;
@@ -266,7 +279,7 @@ function answer(choice){
   }
 }
 
-/* 🎊 CONFETTI + CRACKER BURST */
+/* 🎉 CONFETTI */
 function startConfetti(){
 
   for(let i=0;i<80;i++){
