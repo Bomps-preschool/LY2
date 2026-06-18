@@ -33,12 +33,13 @@ body{
   text-align:center;
 }
 
-/* INSTRUCTION */
+/* INSTRUCTION TEXT */
 #instruction{
   margin-top:20px;
-  font-size:26px;
+  font-size:22px;
   font-weight:bold;
   color:#ff4d6d;
+  padding:0 10px;
 }
 
 /* IMAGE */
@@ -68,11 +69,20 @@ body{
   transform:scale(0.9);
 }
 
-/* RESULT TEXT */
-#result{
-  margin-top:20px;
-  font-size:22px;
+/* TRY AGAIN MESSAGE */
+#overlayMsg{
+  position:absolute;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:34px;
   font-weight:bold;
+  color:#ff3b3b;
+  display:none;
+  background:white;
+  padding:20px 30px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
 /* END */
@@ -99,7 +109,7 @@ body{
 <!-- GAME -->
 <div id="game">
 
-  <div id="instruction">Is this safe or unsafe?</div>
+  <div id="instruction">Loading...</div>
 
   <img id="mainImage" src="">
 
@@ -108,7 +118,7 @@ body{
     <img class="btn" src="assets/cross.png" onclick="answer('unsafe')">
   </div>
 
-  <div id="result"></div>
+  <div id="overlayMsg">TRY AGAIN</div>
 
 </div>
 
@@ -125,19 +135,51 @@ setTimeout(()=>{
   loadGame();
 },3000);
 
-/* IMAGES + ANSWERS */
+/* DATA */
 const data = [
-  {img:"assets/child-crossing-road.png", ans:"safe"},
-  {img:"assets/playing-with-fire.png", ans:"unsafe"},
-  {img:"assets/putting-finger-in-the-plug.png", ans:"unsafe"},
-  {img:"assets/hurt-with-scissor.png", ans:"unsafe"},
-  {img:"assets/wearing-seat-belt-in-car.png", ans:"safe"},
-  {img:"assets/climbing-on-the-ladder.png", ans:"unsafe"}
+  {
+    img:"assets/child-crossing-road.png",
+    ans:"safe",
+    audio:"Crossing the road using zebra crossing is safe or unsafe?"
+  },
+  {
+    img:"assets/playing-with-fire.png",
+    ans:"unsafe",
+    audio:"Playing with fire is safe or unsafe?"
+  },
+  {
+    img:"assets/putting-finger-in-the-plug.png",
+    ans:"unsafe",
+    audio:"Putting fingers in electric socket is safe or unsafe?"
+  },
+  {
+    img:"assets/hurt-with-scissor.png",
+    ans:"unsafe",
+    audio:"Playing with scissors is safe or unsafe?"
+  },
+  {
+    img:"assets/wearing-seat-belt-in-car.png",
+    ans:"safe",
+    audio:"Wearing seat belt in car is safe or unsafe?"
+  },
+  {
+    img:"assets/climbing-on-the-ladder.png",
+    ans:"unsafe",
+    audio:"Climbing on unstable ladder is safe or unsafe?"
+  }
 ];
 
 let index=0;
-let score=0;
+let locked=false;
 
+/* SPEECH */
+function speak(text){
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.rate=0.9;
+  window.speechSynthesis.speak(msg);
+}
+
+/* LOAD QUESTION */
 function loadGame(){
 
   if(index>=data.length){
@@ -146,32 +188,43 @@ function loadGame(){
     return;
   }
 
+  locked=false;
+
   document.getElementById("mainImage").src=data[index].img;
-  document.getElementById("result").innerText="";
+  document.getElementById("instruction").innerText=data[index].audio;
+
+  speak(data[index].audio);
 }
 
-const correct = new Audio("assets/correct.mp3");
-const wrong = new Audio("assets/wrong.mp3");
-
+/* ANSWER */
 function answer(choice){
 
-  let correctAns=data[index].ans;
+  if(locked) return;
 
-  if(choice===correctAns){
-    correct.play();
-    document.getElementById("result").innerText="✔ Correct!";
-    document.getElementById("result").style.color="green";
-    score++;
+  let correct=data[index].ans;
+
+  if(choice===correct){
+
+    document.getElementById("overlayMsg").style.display="none";
+    speak("Correct");
+
+    setTimeout(()=>{
+      index++;
+      loadGame();
+    },1000);
+
   }else{
-    wrong.play();
-    document.getElementById("result").innerText="✖ Try Again!";
-    document.getElementById("result").style.color="red";
-  }
 
-  setTimeout(()=>{
-    index++;
-    loadGame();
-  },1200);
+    locked=true;
+
+    document.getElementById("overlayMsg").style.display="block";
+    speak("Try again");
+
+    setTimeout(()=>{
+      document.getElementById("overlayMsg").style.display="none";
+      locked=false;
+    },3000);
+  }
 }
 
 </script>
