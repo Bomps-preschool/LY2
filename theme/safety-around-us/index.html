@@ -6,11 +6,21 @@
 <title>Safety Around Us</title>
 
 <style>
+
+/* 🌈 ANIMATED BACKGROUND */
 body{
   margin:0;
   font-family:Arial;
-  background:#dff6ff;
   overflow:hidden;
+  background: linear-gradient(270deg,#dff6ff,#e8f9ff,#f0fff4);
+  background-size:600% 600%;
+  animation: bgFlow 12s ease infinite;
+}
+
+@keyframes bgFlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
 /* SPLASH */
@@ -33,87 +43,111 @@ body{
   text-align:center;
 }
 
-/* ⭐ TITLE */
+/* TITLE */
 #topTitle{
-  margin-top:15px;
+  margin-top:12px;
   font-size:28px;
   font-weight:bold;
   color:#2e7d32;
-  line-height:1.3;
 }
 
-/* ⭐ NEW SUB INSTRUCTION */
 #subTitle{
-  font-size:18px;
-  font-weight:normal;
-  color:#333;
-  display:block;
-  margin-top:5px;
+  font-size:16px;
+  color:#444;
 }
 
 /* INSTRUCTION */
 #instruction{
-  margin-top:10px;
-  font-size:22px;
+  margin-top:8px;
+  font-size:20px;
   font-weight:bold;
   color:#ff4d6d;
-  padding:0 10px;
 }
 
-/* IMAGE */
+/* 🖼️ IMAGE FIX (RESPONSIVE) */
 #mainImage{
-  margin-top:30px;
-  width:70%;
-  max-width:450px;
-  border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  margin-top:18px;
+  width:90%;
+  max-width:420px;
+  max-height:55vh;
+  object-fit:contain;
+  border-radius:16px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.25);
+  transition:0.5s ease;
 }
 
 /* BUTTONS */
 #btnRow{
-  margin-top:25px;
+  margin-top:18px;
   display:flex;
   justify-content:center;
-  gap:40px;
+  gap:50px;
 }
 
 .btn{
   width:90px;
   cursor:pointer;
   transition:0.2s;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
 }
 
 .btn:active{
-  transform:scale(0.9);
+  transform:scale(0.85);
 }
 
 /* TRY AGAIN */
 #overlayMsg{
   position:absolute;
-  top:40%;
+  top:45%;
   left:50%;
   transform:translate(-50%,-50%);
-  font-size:34px;
+  font-size:38px;
   font-weight:bold;
   color:#ff3b3b;
-  display:none;
   background:white;
   padding:20px 30px;
-  border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  border-radius:14px;
+  display:none;
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  animation: pop 0.3s ease;
 }
 
-/* END */
+@keyframes pop{
+  from{transform:translate(-50%,-50%) scale(0.5);opacity:0}
+  to{transform:translate(-50%,-50%) scale(1);opacity:1}
+}
+
+/* 🏆 GOOD JOB SCREEN FIX (CENTERED) */
 #end{
   display:none;
+  position:absolute;
   width:100%;
   height:100%;
   justify-content:center;
   align-items:center;
-  font-size:32px;
+  flex-direction:column;
+  font-size:42px;
   font-weight:bold;
   color:#2e7d32;
+  animation: fadeIn 1s ease;
 }
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+.star{
+  font-size:50px;
+  animation: float 2s infinite ease-in-out;
+}
+
+@keyframes float{
+  0%{transform:translateY(0px)}
+  50%{transform:translateY(-10px)}
+  100%{transform:translateY(0px)}
+}
+
 </style>
 </head>
 
@@ -127,13 +161,10 @@ body{
 <!-- GAME -->
 <div id="game">
 
-  <!-- TITLE + NEW INSTRUCTION -->
   <div id="topTitle">
     Safety Around Us<br>
-
-    <!-- ✔ ✖ instruction added as requested -->
     <span id="subTitle">
-      Click on ✔ if the action is safe and click on ✖ if the action is unsafe
+      Click ✔ if safe and ✖ if unsafe
     </span>
   </div>
 
@@ -150,9 +181,11 @@ body{
 
 </div>
 
-<!-- END -->
+<!-- END SCREEN -->
 <div id="end">
-  🎉 Great Job! 🎉
+  <div class="star">⭐</div>
+  GOOD JOB!
+  <div class="star">⭐</div>
 </div>
 
 <script>
@@ -163,51 +196,24 @@ setTimeout(()=>{
   loadGame();
 },3000);
 
-/* GAME DATA */
 const data = [
-  {
-    img:"assets/child-crossing-road.png",
-    ans:"safe",
-    audio:"Crossing the road using zebra crossing is safe or unsafe?"
-  },
-  {
-    img:"assets/playing-with-fire.png",
-    ans:"unsafe",
-    audio:"Playing with fire is safe or unsafe?"
-  },
-  {
-    img:"assets/putting-finger-in-the-plug.png",
-    ans:"unsafe",
-    audio:"Putting fingers in electric socket is safe or unsafe?"
-  },
-  {
-    img:"assets/hurt-with-scissor.png",
-    ans:"unsafe",
-    audio:"Playing with scissors is safe or unsafe?"
-  },
-  {
-    img:"assets/wearing-seat-belt-in-car.png",
-    ans:"safe",
-    audio:"Wearing seat belt in car is safe or unsafe?"
-  },
-  {
-    img:"assets/climbing-on-the-ladder.png",
-    ans:"unsafe",
-    audio:"Climbing on unstable ladder is safe or unsafe?"
-  }
+  {img:"assets/child-crossing-road.png", ans:"safe", audio:"Crossing zebra crossing is safe or unsafe?"},
+  {img:"assets/playing-with-fire.png", ans:"unsafe", audio:"Playing with fire is safe or unsafe?"},
+  {img:"assets/putting-finger-in-the-plug.png", ans:"unsafe", audio:"Electric socket is safe or unsafe?"},
+  {img:"assets/hurt-with-scissor.png", ans:"unsafe", audio:"Scissors are safe or unsafe?"},
+  {img:"assets/wearing-seat-belt-in-car.png", ans:"safe", audio:"Seat belt is safe or unsafe?"},
+  {img:"assets/climbing-on-the-ladder.png", ans:"unsafe", audio:"Climbing ladder is safe or unsafe?"}
 ];
 
 let index=0;
 let locked=false;
 
-/* SPEECH */
 function speak(text){
   let msg=new SpeechSynthesisUtterance(text);
   msg.rate=0.9;
   window.speechSynthesis.speak(msg);
 }
 
-/* LOAD GAME */
 function loadGame(){
 
   if(index>=data.length){
@@ -218,13 +224,19 @@ function loadGame(){
 
   locked=false;
 
-  document.getElementById("mainImage").src=data[index].img;
+  let img=document.getElementById("mainImage");
+  img.style.opacity=0;
+
+  setTimeout(()=>{
+    img.src=data[index].img;
+    img.style.opacity=1;
+  },200);
+
   document.getElementById("instruction").innerText=data[index].audio;
 
   speak(data[index].audio);
 }
 
-/* ANSWER LOGIC */
 function answer(choice){
 
   if(locked) return;
