@@ -24,90 +24,65 @@ body{
   align-items:center;
 }
 
-/* SCREEN COMMON */
-.screen{
+/* GAME */
+#game{
+  display:none;
   width:100vw;
   height:100vh;
-  position:absolute;
-  display:none;
-  flex-direction:column;
-  align-items:center;
+  position:relative;
+  text-align:center;
 }
 
-/* GAME TITLE */
-#title{
+/* INSTRUCTION */
+#instruction{
   margin-top:20px;
   font-size:26px;
   font-weight:bold;
   color:#ff4d6d;
 }
 
-/* GRID */
-.grid{
-  margin-top:30px;
-  width:95%;
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:15px;
-}
-
-/* CARD */
-.card{
-  background:white;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
-  cursor:pointer;
-  position:relative;
-}
-
 /* IMAGE */
-.card img{
-  width:100%;
-  height:120px;
-  object-fit:cover;
+#mainImage{
+  margin-top:30px;
+  width:70%;
+  max-width:450px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* RESULT ICON */
-.icon{
-  position:absolute;
-  top:5px;
-  right:5px;
-  width:35px;
-  display:none;
-}
-
-/* BUTTONS (SAFE/UNSAFE FEEDBACK) */
-.btnRow{
+/* BUTTONS */
+#btnRow{
+  margin-top:25px;
   display:flex;
   justify-content:center;
-  gap:20px;
-  margin-top:15px;
+  gap:40px;
 }
 
 .btn{
-  padding:10px 18px;
-  font-size:18px;
-  font-weight:bold;
-  border:none;
-  border-radius:10px;
+  width:90px;
   cursor:pointer;
+  transition:0.2s;
 }
 
-.safe{
-  background:#4caf50;
-  color:white;
+.btn:active{
+  transform:scale(0.9);
 }
 
-.unsafe{
-  background:#f44336;
-  color:white;
+/* RESULT TEXT */
+#result{
+  margin-top:20px;
+  font-size:22px;
+  font-weight:bold;
 }
 
-/* END SCREEN */
+/* END */
 #end{
+  display:none;
+  width:100%;
+  height:100%;
   justify-content:center;
-  font-size:30px;
+  align-items:center;
+  font-size:32px;
   font-weight:bold;
   color:#2e7d32;
 }
@@ -121,50 +96,24 @@ body{
   <img src="assets/innovine-logo.png" width="220">
 </div>
 
-<!-- GAME SCREEN -->
-<div id="game" class="screen">
+<!-- GAME -->
+<div id="game">
 
-  <div id="title">Safety Around Us</div>
+  <div id="instruction">Is this safe or unsafe?</div>
 
-  <!-- GRID OF 6 IMAGES -->
-  <div class="grid">
+  <img id="mainImage" src="">
 
-    <div class="card" data-answer="safe">
-      <img src="assets/child-crossing-road.png">
-      <img class="icon" src="assets/tick.png">
-    </div>
-
-    <div class="card" data-answer="unsafe">
-      <img src="assets/playing-with-fire.png">
-      <img class="icon" src="assets/cross.png">
-    </div>
-
-    <div class="card" data-answer="unsafe">
-      <img src="assets/putting-finger-in-the-plug.png">
-      <img class="icon" src="assets/cross.png">
-    </div>
-
-    <div class="card" data-answer="unsafe">
-      <img src="assets/hurt-with-scissor.png">
-      <img class="icon" src="assets/cross.png">
-    </div>
-
-    <div class="card" data-answer="safe">
-      <img src="assets/wearing-seat-belt-in-car.png">
-      <img class="icon" src="assets/tick.png">
-    </div>
-
-    <div class="card" data-answer="unsafe">
-      <img src="assets/climbing-on-the-ladder.png">
-      <img class="icon" src="assets/cross.png">
-    </div>
-
+  <div id="btnRow">
+    <img class="btn" src="assets/tick.png" onclick="answer('safe')">
+    <img class="btn" src="assets/cross.png" onclick="answer('unsafe')">
   </div>
+
+  <div id="result"></div>
 
 </div>
 
-<!-- END SCREEN -->
-<div id="end" class="screen">
+<!-- END -->
+<div id="end">
   🎉 Great Job! 🎉
 </div>
 
@@ -172,49 +121,57 @@ body{
 
 setTimeout(()=>{
   document.getElementById("splash").style.display="none";
-  document.getElementById("game").style.display="flex";
+  document.getElementById("game").style.display="block";
+  loadGame();
 },3000);
+
+/* IMAGES + ANSWERS */
+const data = [
+  {img:"assets/child-crossing-road.png", ans:"safe"},
+  {img:"assets/playing-with-fire.png", ans:"unsafe"},
+  {img:"assets/putting-finger-in-the-plug.png", ans:"unsafe"},
+  {img:"assets/hurt-with-scissor.png", ans:"unsafe"},
+  {img:"assets/wearing-seat-belt-in-car.png", ans:"safe"},
+  {img:"assets/climbing-on-the-ladder.png", ans:"unsafe"}
+];
+
+let index=0;
+let score=0;
+
+function loadGame(){
+
+  if(index>=data.length){
+    document.getElementById("game").style.display="none";
+    document.getElementById("end").style.display="flex";
+    return;
+  }
+
+  document.getElementById("mainImage").src=data[index].img;
+  document.getElementById("result").innerText="";
+}
 
 const correct = new Audio("assets/correct.mp3");
 const wrong = new Audio("assets/wrong.mp3");
 
-let score=0;
+function answer(choice){
 
-document.querySelectorAll(".card").forEach(card=>{
-  card.onclick=()=>{
+  let correctAns=data[index].ans;
 
-    let answer=card.getAttribute("data-answer");
-    let icon=card.querySelector(".icon");
-
-    icon.style.display="block";
-
-    if(answer==="safe"){
-      correct.play();
-      card.style.border="3px solid green";
-      score++;
-    } else {
-      wrong.play();
-      card.style.border="3px solid red";
-    }
-
-    checkEnd();
+  if(choice===correctAns){
+    correct.play();
+    document.getElementById("result").innerText="✔ Correct!";
+    document.getElementById("result").style.color="green";
+    score++;
+  }else{
+    wrong.play();
+    document.getElementById("result").innerText="✖ Try Again!";
+    document.getElementById("result").style.color="red";
   }
-});
-
-function checkEnd(){
-  let all=document.querySelectorAll(".card");
-  let done=true;
-
-  all.forEach(c=>{
-    if(c.querySelector(".icon").style.display==="none"){
-      done=false;
-    }
-  });
 
   setTimeout(()=>{
-    document.getElementById("game").style.display="none";
-    document.getElementById("end").style.display="flex";
-  },1500);
+    index++;
+    loadGame();
+  },1200);
 }
 
 </script>
