@@ -59,6 +59,8 @@ body {
   gap:2vw;
   margin-top:3vh;
   max-width:90vw;
+  max-height:55vh;      /* ✅ ensure visible on small screens */
+  overflow-y:auto;       /* ✅ scroll if too many objects */
 }
 .object {
   width:150px;
@@ -72,10 +74,11 @@ body {
   justify-content:center;
   gap:2vw;
   flex-wrap: wrap;
-  position:absolute;
-  bottom:5vh;
-  left:50%;
-  transform: translateX(-50%);
+  position: relative;     /* ✅ changed from absolute to relative */
+  bottom: auto;
+  left: auto;
+  transform: none;
+  margin-top:3vh;         /* space from objects */
 }
 .optionBtn {
   padding:1vh 2vw;
