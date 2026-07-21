@@ -13,23 +13,34 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  overflow: hidden;
 }
 #splash, #game, #endScreen {
+  display: none;
   width: 100%;
   height: 100vh;
-  display: none;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-height: 100vh;
+  overflow: hidden;
 }
-#splash img { width: 200px; height: auto; }
+#logoScreen img, #splash img {
+  width: 35vw;
+  max-width: 300px;
+  height: auto;
+}
 #instructionBox {
   position: absolute;
-  top: 10px;
+  top: 1vh;
+  width: 95%;
   background-color: #fff9a1;
   padding: 10px 20px;
   border-radius: 10px;
-  font-size: 1.2em;
+  font-size: clamp(14px,2.5vw,20px);
   text-align: center;
   z-index: 10;
 }
@@ -40,20 +51,25 @@ body {
   align-items: flex-end;
   max-width: 1000px;
   width: 80%;
-  height: 80%;
+  height: 70vh;
+  max-height: 80vh;
   background: url('assets/background.png') no-repeat center center;
   background-size: cover;
 }
 #vehicleTray {
-  position: absolute;
-  bottom: 20px;
+  position: relative;
+  bottom: auto;
+  left: auto;
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1vh;
   z-index: 20;
 }
 .vehicle {
-  width: 80px;
-  height: 80px;
+  width: clamp(50px, 10vw, 80px);
+  height: clamp(50px, 10vw, 80px);
   background: white;
   border-radius: 10px;
   padding: 5px;
@@ -63,21 +79,35 @@ body {
   cursor: pointer;
 }
 .vehicle img {
-  width: 70px;
-  height: 70px;
+  width: 100%;
+  height: 100%;
 }
 .zone {
   position: absolute;
+  width: clamp(150px, 20vw, 300px);
+  height: clamp(150px, 20vw, 300px);
 }
-#airZone { top: 30px; left: 20px; width: 300px; height: 300px; }
-#roadZone { top: 30px; left: 340px; width: 300px; height: 300px; }
-#waterZone { top: 30px; left: 660px; width: 300px; height: 300px; }
+#airZone div, #roadZone div, #waterZone div {
+  position: absolute;
+  top: -20px;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #003366;
+}
+#airZone div { left: 40px; }
+#roadZone div { left: 50px; }
+#waterZone div { left: 65px; }
 
 #endScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background: #fff3b0;
   color: #000;
   font-size: 2em;
   text-align: center;
+  height: 100vh;
 }
 #endScreen button {
   margin-top: 20px;
@@ -87,6 +117,22 @@ body {
   border-radius: 10px;
   background: #ffd93d;
   cursor: pointer;
+}
+
+/* Confetti */
+.confetti {
+  position: absolute;
+  width: 3vw;
+  height: 3vw;
+  max-width: 20px;
+  max-height: 20px;
+  background-size: contain;
+  z-index: 20;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  0% { transform: translate(0,0) rotate(0deg); opacity:1; }
+  100% { transform: translate(var(--x,0vw),100vh) rotate(360deg); opacity:0; }
 }
 </style>
 </head>
@@ -104,13 +150,13 @@ body {
     
     <!-- Zones with labels -->
     <div class="zone" id="airZone">
-      <div style="position:absolute; top:-20px; left:40px; font-size:1.5em; font-weight:bold; color:#003366;">Air Transport</div>
+      <div>Air Transport</div>
     </div>
     <div class="zone" id="roadZone">
-      <div style="position:absolute; top:-20px; left:50px; font-size:1.5em; font-weight:bold; color:#003366;">Road Transport</div>
+      <div>Road Transport</div>
     </div>
     <div class="zone" id="waterZone">
-      <div style="position:absolute; top:-20px; left:65px; font-size:1.5em; font-weight:bold; color:#003366;">Water Transport</div>
+      <div>Water Transport</div>
     </div>
 
     <div id="vehicleTray">
@@ -217,19 +263,11 @@ Object.entries(zones).forEach(([zoneName, zone]) => {
 document.getElementById('playAgain').addEventListener('click', () => {
   endScreen.style.display = 'none';
   game.style.display = 'flex';
-  // Reset zones
   Object.keys(zones).forEach(z => {
     zones[z].innerHTML = `<div style="position:absolute; top:5px; left:5px; font-size:1.5em; font-weight:bold; color:#003366;">${z.charAt(0).toUpperCase() + z.slice(1)} Transport</div>`;
   });
-  // Reset tray
-  document.querySelectorAll('#vehicleTray .vehicle').forEach(v => {
-    v.style.display = 'flex';
-  });
-  // Re-add all original vehicles to tray
-  vehicles.forEach(v => {
-    document.getElementById('vehicleTray').appendChild(v);
-    v.style.opacity = '1';
-  });
+  document.querySelectorAll('#vehicleTray .vehicle').forEach(v => { v.style.display = 'flex'; });
+  vehicles.forEach(v => { document.getElementById('vehicleTray').appendChild(v); v.style.opacity='1'; });
   placedVehicles = { air: [], road: [], water: [] };
   selectedVehicle = null;
 });
