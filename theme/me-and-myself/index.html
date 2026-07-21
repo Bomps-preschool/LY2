@@ -17,11 +17,8 @@
         :root {
             --navy: #234d70;
             --blue: #65c8f2;
-            --light-blue: #dff7ff;
             --yellow: #ffd85a;
             --green: #63d58b;
-            --pink: #ff91b8;
-            --purple: #9d85ea;
             --white: #ffffff;
             --shadow: 0 12px 28px rgba(36, 82, 113, 0.18);
         }
@@ -45,6 +42,11 @@
 
         button {
             font-family: inherit;
+        }
+
+        button:disabled {
+            cursor: default;
+            opacity: 0.65;
         }
 
         .screen {
@@ -128,12 +130,12 @@
             background:
                 radial-gradient(
                     circle at 14% 16%,
-                    rgba(255,255,255,0.9) 0 25px,
+                    rgba(255, 255, 255, 0.9) 0 25px,
                     transparent 27px
                 ),
                 radial-gradient(
                     circle at 84% 12%,
-                    rgba(255,255,255,0.85) 0 34px,
+                    rgba(255, 255, 255, 0.85) 0 34px,
                     transparent 36px
                 ),
                 linear-gradient(
@@ -177,9 +179,9 @@
             width: min(94vw, 680px);
             max-height: 94vh;
             padding: clamp(18px, 4vw, 34px);
-            border: 5px solid rgba(255,255,255,0.96);
+            border: 5px solid rgba(255, 255, 255, 0.96);
             border-radius: 36px;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
@@ -222,7 +224,7 @@
             background:
                 radial-gradient(
                     circle at 50% 34%,
-                    rgba(255,255,255,0.9) 0 30%,
+                    rgba(255, 255, 255, 0.9) 0 30%,
                     transparent 31%
                 ),
                 linear-gradient(180deg, #dff7ff, #fef1c8);
@@ -366,12 +368,12 @@
             background:
                 radial-gradient(
                     circle at 9% 12%,
-                    rgba(255,255,255,0.8) 0 20px,
+                    rgba(255, 255, 255, 0.8) 0 20px,
                     transparent 22px
                 ),
                 radial-gradient(
                     circle at 90% 18%,
-                    rgba(255,255,255,0.7) 0 28px,
+                    rgba(255, 255, 255, 0.7) 0 28px,
                     transparent 30px
                 ),
                 linear-gradient(180deg, #a9eaff 0%, #ecfbff 100%);
@@ -392,7 +394,7 @@
             padding: 8px 14px;
             border: 3px solid #ffffff;
             border-radius: 999px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(255, 255, 255, 0.92);
             color: var(--navy);
             box-shadow: 0 6px 14px rgba(36, 88, 124, 0.12);
             font-size: clamp(0.88rem, 3vw, 1.15rem);
@@ -427,7 +429,7 @@
             flex-shrink: 0;
             border: 4px solid #ffffff;
             border-radius: 27px;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
@@ -475,7 +477,7 @@
             cursor: pointer;
         }
 
-        .listen-button:active {
+        .listen-button:active:not(:disabled) {
             transform: translateY(calc(-50% + 4px));
             box-shadow: 0 1px 0 #dfb43a;
         }
@@ -497,12 +499,12 @@
             flex: 1;
             min-height: 0;
             margin: 5px auto 0;
-            border: 5px solid rgba(255,255,255,0.96);
+            border: 5px solid rgba(255, 255, 255, 0.96);
             border-radius: 34px;
             background:
                 radial-gradient(
                     circle at 50% 35%,
-                    rgba(255,255,255,0.75) 0 25%,
+                    rgba(255, 255, 255, 0.75) 0 25%,
                     transparent 26%
                 ),
                 linear-gradient(
@@ -518,7 +520,7 @@
 
         .stage-cloud {
             position: absolute;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             pointer-events: none;
         }
 
@@ -605,10 +607,6 @@
             pointer-events: all;
         }
 
-        .hotspot:focus {
-            outline: none;
-        }
-
         #starBurst {
             position: absolute;
             left: 50%;
@@ -651,7 +649,7 @@
             padding: clamp(18px, 4vw, 34px);
             border: 5px solid #ffffff;
             border-radius: 36px;
-            background: rgba(255,255,255,0.96);
+            background: rgba(255, 255, 255, 0.96);
             box-shadow: 0 18px 38px rgba(31, 84, 122, 0.23);
             display: flex;
             flex-direction: column;
@@ -853,7 +851,8 @@
         }
 
         @keyframes loadingBounce {
-            0%, 100% {
+            0%,
+            100% {
                 transform: translateY(0);
             }
 
@@ -883,7 +882,8 @@
         }
 
         @keyframes questionBounce {
-            0%, 100% {
+            0%,
+            100% {
                 transform: translateY(0);
             }
 
@@ -915,7 +915,8 @@
         }
 
         @keyframes bodyPartShake {
-            0%, 100% {
+            0%,
+            100% {
                 transform: translateX(0);
             }
 
@@ -1002,7 +1003,7 @@
         }
 
         /* ==================================================
-           RESPONSIVE ADJUSTMENTS
+           RESPONSIVE DESIGN
         ================================================== */
 
         @media (max-width: 520px) {
@@ -1082,7 +1083,7 @@
 
 <body>
 
-    <!-- Sounds from the assets folder -->
+    <!-- Audio files from the assets folder -->
 
     <audio
         id="wrongAudio"
@@ -1109,7 +1110,9 @@
             draggable="false"
         >
 
-        <div id="logoFallback">INNOVINE</div>
+        <div id="logoFallback">
+            INNOVINE
+        </div>
 
         <div class="loading-dots" aria-hidden="true">
             <span></span>
@@ -1202,6 +1205,7 @@
             </div>
 
             <div class="question-content">
+
                 <p class="small-instruction">
                     Tap the correct body part.
                 </p>
@@ -1209,6 +1213,7 @@
                 <h2 id="questionText">
                     Where are the eyes?
                 </h2>
+
             </div>
 
             <button
@@ -1233,13 +1238,9 @@
             <div class="stage-flower left">🌼</div>
             <div class="stage-flower right">🌷</div>
 
-            <div id="starBurst">⭐</div>
-
-            <!--
-                The complete child is created with inline SVG.
-                The transparent hotspot shapes provide large,
-                easy tap areas for young learners.
-            -->
+            <div id="starBurst">
+                ⭐
+            </div>
 
             <svg
                 id="bodySvg"
@@ -1247,8 +1248,6 @@
                 role="img"
                 aria-label="Cartoon child showing body parts"
             >
-
-                <!-- Shadow -->
 
                 <ellipse
                     cx="180"
@@ -1531,7 +1530,7 @@
                     />
                 </g>
 
-                <!-- Tummy / Body -->
+                <!-- Tummy -->
 
                 <g
                     class="body-visual"
@@ -1610,7 +1609,7 @@
                     />
                 </g>
 
-                <!-- Feet and shoes -->
+                <!-- Feet -->
 
                 <g
                     class="body-visual"
@@ -1652,11 +1651,7 @@
                     />
                 </g>
 
-                <!--
-                    Transparent large hotspots.
-                    These are intentionally bigger than the
-                    visible body parts for easier tapping.
-                -->
+                <!-- Large transparent touch areas -->
 
                 <ellipse
                     class="hotspot"
@@ -1902,9 +1897,6 @@
         const feedback =
             document.getElementById("feedback");
 
-        const bodySvg =
-            document.getElementById("bodySvg");
-
         const starBurst =
             document.getElementById("starBurst");
 
@@ -1997,6 +1989,14 @@
         let interactionLocked = false;
         let soundMuted = false;
 
+        /*
+          This number changes whenever a new speech begins.
+          It prevents an old or cancelled speech event from
+          moving the game forward incorrectly.
+        */
+
+        let speechSequence = 0;
+
         /* ==================================================
            SCREEN CONTROL
         ================================================== */
@@ -2026,7 +2026,7 @@
         });
 
         /* ==================================================
-           ASSET AUDIO
+           AUDIO FILES
         ================================================== */
 
         function stopAudio(audioElement) {
@@ -2042,7 +2042,7 @@
             stopAudio(wrongAudio);
 
             wrongAudio.play().catch(() => {
-                // Audio may be blocked until a user taps.
+                // The browser may block audio before a user tap.
             });
         }
 
@@ -2054,12 +2054,12 @@
             stopAudio(clapAudio);
 
             clapAudio.play().catch(() => {
-                // Audio may be blocked until a user taps.
+                // The browser may block audio before a user tap.
             });
         }
 
         /* ==================================================
-           SOFT GENERATED MELODY
+           SOFT BACKGROUND MELODY
         ================================================== */
 
         let audioContext = null;
@@ -2171,7 +2171,7 @@
             }
 
             melodyGain.gain.setTargetAtTime(
-                0.01,
+                0.006,
                 audioContext.currentTime,
                 0.05
             );
@@ -2197,13 +2197,30 @@
            SPEECH
         ================================================== */
 
+        function cancelSpeech() {
+            speechSequence++;
+
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
+
+            restoreMelody();
+        }
+
         function speak(text, afterSpeech = null) {
+            const thisSpeechSequence = ++speechSequence;
+
+            /*
+              When sound is muted or speech synthesis is not
+              supported, continue the game after a short pause.
+            */
+
             if (
                 soundMuted ||
                 !("speechSynthesis" in window)
             ) {
                 if (typeof afterSpeech === "function") {
-                    afterSpeech();
+                    setTimeout(afterSpeech, 500);
                 }
 
                 return;
@@ -2216,30 +2233,78 @@
                 new SpeechSynthesisUtterance(text);
 
             utterance.lang = "en-IN";
-            utterance.rate = 0.78;
-            utterance.pitch = 1.12;
+            utterance.rate = 0.72;
+            utterance.pitch = 1.08;
             utterance.volume = 1;
 
-            utterance.onend = () => {
+            let speechCompleted = false;
+            let safetyTimer = null;
+
+            function completeSpeech() {
+                if (
+                    speechCompleted ||
+                    thisSpeechSequence !== speechSequence
+                ) {
+                    return;
+                }
+
+                speechCompleted = true;
+
+                if (safetyTimer) {
+                    clearTimeout(safetyTimer);
+                }
+
                 restoreMelody();
 
                 if (typeof afterSpeech === "function") {
                     afterSpeech();
                 }
-            };
+            }
 
-            utterance.onerror = () => {
-                restoreMelody();
+            utterance.onend = completeSpeech;
 
-                if (typeof afterSpeech === "function") {
-                    afterSpeech();
+            utterance.onerror = event => {
+                /*
+                  Do not move forward when another speech
+                  intentionally cancels this one.
+                */
+
+                if (
+                    event.error === "canceled" ||
+                    event.error === "interrupted"
+                ) {
+                    return;
                 }
+
+                completeSpeech();
             };
+
+            /*
+              Safety timer for devices that occasionally fail
+              to fire the speech onend event.
+
+              The game still allows enough time for the whole
+              sentence to be spoken.
+            */
+
+            const estimatedDuration =
+                Math.max(
+                    3500,
+                    text.trim().split(/\s+/).length * 700
+                );
+
+            safetyTimer = setTimeout(() => {
+                completeSpeech();
+            }, estimatedDuration);
 
             window.speechSynthesis.speak(utterance);
         }
 
         function speakCurrentQuestion() {
+            if (interactionLocked) {
+                return;
+            }
+
             const question =
                 questions[currentQuestionIndex];
 
@@ -2251,7 +2316,7 @@
         }
 
         /* ==================================================
-           QUESTION SHUFFLE
+           SHUFFLE
         ================================================== */
 
         function shuffleArray(array) {
@@ -2282,12 +2347,16 @@
         ================================================== */
 
         function resetGame() {
+            cancelSpeech();
+
             questions = shuffleArray(bodyParts);
 
             currentQuestionIndex = 0;
             attempts = 0;
             score = 0;
             interactionLocked = false;
+
+            listenButton.disabled = false;
 
             clearAllHighlights();
             displayQuestion();
@@ -2304,6 +2373,7 @@
 
             attempts = 0;
             interactionLocked = false;
+            listenButton.disabled = false;
 
             clearAllHighlights();
 
@@ -2317,8 +2387,10 @@
                 "Look carefully and tap.";
 
             setTimeout(() => {
-                speakCurrentQuestion();
-            }, 350);
+                if (!interactionLocked) {
+                    speakCurrentQuestion();
+                }
+            }, 400);
         }
 
         /* ==================================================
@@ -2395,10 +2467,16 @@
                 return;
             }
 
+            /*
+              Stop the question audio when the learner answers.
+            */
+
+            cancelSpeech();
+
             if (selectedPart === question.name) {
                 score++;
 
-                handleCorrectAnswer(true);
+                handleCorrectAnswer();
                 return;
             }
 
@@ -2419,8 +2497,7 @@
             }, 500);
 
             if (attempts < 2) {
-                feedback.textContent =
-                    "Try again!";
+                feedback.textContent = "Try again!";
 
                 speak("Let us try again.");
 
@@ -2432,6 +2509,7 @@
 
         function revealCorrectPart() {
             interactionLocked = true;
+            listenButton.disabled = true;
 
             const question =
                 questions[currentQuestionIndex];
@@ -2444,24 +2522,29 @@
             feedback.textContent =
                 `This is the ${question.name}.`;
 
+            /*
+              The next question appears only after this
+              complete sentence has finished.
+            */
+
             speak(
-                `Look. This is the ${question.name}.`
+                `Look carefully. This is the ${question.name}.`,
+                () => {
+                    setTimeout(() => {
+                        removeHighlight(
+                            question.name,
+                            "hint-highlight"
+                        );
+
+                        moveToNextQuestion();
+                    }, 450);
+                }
             );
-
-            setTimeout(() => {
-                removeHighlight(
-                    question.name,
-                    "hint-highlight"
-                );
-
-                moveToNextQuestion();
-            }, 1900);
         }
 
-        function handleCorrectAnswer(
-            answeredByLearner
-        ) {
+        function handleCorrectAnswer() {
             interactionLocked = true;
+            listenButton.disabled = true;
 
             const question =
                 questions[currentQuestionIndex];
@@ -2472,23 +2555,29 @@
             );
 
             showStarBurst();
+            playClapSound();
 
-            feedback.textContent = "Wonderful!";
+            feedback.textContent =
+                question.correctSpeech;
 
-            if (answeredByLearner) {
-                playClapSound();
-            }
+            /*
+              There is no fixed 1.6-second timer here.
+              The game waits for the full sentence to finish.
+            */
 
-            speak(question.correctSpeech);
+            speak(
+                question.correctSpeech,
+                () => {
+                    setTimeout(() => {
+                        removeHighlight(
+                            question.name,
+                            "correct-highlight"
+                        );
 
-            setTimeout(() => {
-                removeHighlight(
-                    question.name,
-                    "correct-highlight"
-                );
-
-                moveToNextQuestion();
-            }, 1600);
+                        moveToNextQuestion();
+                    }, 450);
+                }
+            );
         }
 
         function moveToNextQuestion() {
@@ -2510,6 +2599,7 @@
 
         function finishGame() {
             interactionLocked = true;
+            listenButton.disabled = true;
 
             let stars = "⭐";
             let message = "Good effort!";
@@ -2529,11 +2619,15 @@
             createConfetti();
             playClapSound();
 
+            /*
+              The final message is also allowed to finish fully.
+            */
+
             setTimeout(() => {
                 speak(
                     "Wonderful! You know your body parts!"
                 );
-            }, 400);
+            }, 500);
         }
 
         function createConfetti() {
@@ -2605,6 +2699,15 @@
         });
 
         listenButton.addEventListener("click", () => {
+            /*
+              Feedback speech cannot be interrupted by the
+              replay button.
+            */
+
+            if (interactionLocked) {
+                return;
+            }
+
             speakCurrentQuestion();
         });
 
@@ -2615,12 +2718,10 @@
                 soundMuted ? "🔇" : "🔊";
 
             if (soundMuted) {
+                cancelSpeech();
+
                 stopAudio(wrongAudio);
                 stopAudio(clapAudio);
-
-                if ("speechSynthesis" in window) {
-                    window.speechSynthesis.cancel();
-                }
 
                 if (
                     melodyGain &&
@@ -2646,7 +2747,9 @@
                     );
                 }
 
-                speakCurrentQuestion();
+                if (!interactionLocked) {
+                    speakCurrentQuestion();
+                }
             }
         });
 
