@@ -1,164 +1,2165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Where Does It Go? - Transportation Game</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
-  html,body{width:100%;height:100%;overflow:hidden;background:#e0f7fa;}
-  .screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100vh;}
-  .screen.active{display:flex;}
-  button{cursor:pointer;font:inherit;border:none;}
-  img{user-drag:none;-webkit-user-drag:none;pointer-events:none;}
-  /* Splash */
-  #splashScreen{background:#fff;gap:20px;}
-  #splashScreen h1{font-size:2.2rem;color:#0277bd;}
-  /* Start */
-  #startScreen{gap:18px;}
-  #startScreen .primary-btn{padding:14px 26px;background:#ffca28;color:#000;font-weight:bold;border-radius:12px;font-size:1.2rem;}
-  /* Game */
-  #gameScreen{flex-direction:column;width:100%;height:100%;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px;background:#0277bd;color:#fff;font-weight:bold;}
-  .game-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;padding:10px;}
-  .vehicle{width:120px;max-width:30%;transition:all 0.7s;}
-  .zones{display:flex;justify-content:space-around;width:100%;max-width:600px;gap:10px;}
-  .zone{width:90px;height:90px;border-radius:15px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-  .zone.correct{background:#c8e6c9;}
-  .zone.wrong{background:#ffcdd2;}
-  #feedback{position:absolute;top:10%;font-weight:bold;font-size:1.4rem;color:#fff;padding:6px 12px;border-radius:12px;display:none;}
-  /* End */
-  #endScreen{background:#e0f7fa;gap:15px;text-align:center;}
-  #endScreen .primary-btn{padding:12px 24px;background:#ffca28;color:#000;font-weight:bold;border-radius:12px;font-size:1.2rem;}
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0,
+        maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#9be8ff">
+
+    <title>Where Does It Go? – Transportation Game</title>
+
+    <style>
+        :root {
+            --dark-blue: #1d4e73;
+            --light-blue: #c9f3ff;
+            --yellow: #ffd95c;
+            --green: #67d88c;
+            --pink: #ff91b7;
+            --white: #ffffff;
+            --shadow: 0 12px 28px rgba(26, 83, 120, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: "Trebuchet MS", Arial, sans-serif;
+            background: #bcefff;
+            touch-action: manipulation;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .screen {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ========================================
+           SPLASH SCREEN
+        ======================================== */
+
+        #splashScreen {
+            z-index: 100;
+            flex-direction: column;
+            background:
+                radial-gradient(
+                    circle at center,
+                    #ffffff 0%,
+                    #f5fcff 70%,
+                    #e8f8ff 100%
+                );
+        }
+
+        #innovineLogo {
+            width: min(62vw, 320px);
+            max-height: 230px;
+            object-fit: contain;
+            animation: logoAnimation 1.2s ease both;
+        }
+
+        #logoFallback {
+            display: none;
+            color: #2185bb;
+            font-size: clamp(2.5rem, 10vw, 5rem);
+            font-weight: 900;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .loading-dots span {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #55c6ef;
+            animation: loadingBounce 1s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(2) {
+            background: #ffd65a;
+            animation-delay: 0.15s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            background: #ff91b7;
+            animation-delay: 0.3s;
+        }
+
+        /* ========================================
+           START SCREEN
+        ======================================== */
+
+        #startScreen {
+            flex-direction: column;
+            padding: 16px;
+            text-align: center;
+            background:
+                radial-gradient(
+                    circle at 15% 16%,
+                    rgba(255,255,255,0.9) 0 25px,
+                    transparent 27px
+                ),
+                radial-gradient(
+                    circle at 82% 12%,
+                    rgba(255,255,255,0.85) 0 34px,
+                    transparent 36px
+                ),
+                linear-gradient(
+                    180deg,
+                    #8ee0ff 0%,
+                    #dff8ff 62%,
+                    #a6e57e 63%,
+                    #83cf62 100%
+                );
+        }
+
+        .start-cloud {
+            position: absolute;
+            font-size: clamp(3rem, 11vw, 6rem);
+            opacity: 0.9;
+            pointer-events: none;
+            animation: floatingCloud 5s ease-in-out infinite alternate;
+        }
+
+        .cloud-left {
+            left: 2%;
+            top: 5%;
+        }
+
+        .cloud-right {
+            right: 2%;
+            top: 13%;
+            animation-delay: 1s;
+        }
+
+        .start-card {
+            position: relative;
+            z-index: 5;
+            width: min(94vw, 670px);
+            max-height: 94vh;
+            padding: clamp(18px, 4vw, 36px);
+            border: 5px solid rgba(255,255,255,0.95);
+            border-radius: 36px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .small-heading {
+            padding: 8px 18px;
+            border-radius: 999px;
+            background: #fff0ae;
+            color: #8c6300;
+            font-size: clamp(0.9rem, 3vw, 1.15rem);
+            font-weight: 900;
+        }
+
+        .main-title {
+            margin: 12px 0 4px;
+            color: var(--dark-blue);
+            font-size: clamp(2rem, 8vw, 4.4rem);
+            line-height: 1;
+            font-weight: 900;
+            text-shadow: 0 4px 0 #d3f0ff;
+        }
+
+        .start-instruction {
+            margin: 8px 0 15px;
+            color: #50728a;
+            font-size: clamp(1rem, 3.5vw, 1.35rem);
+            line-height: 1.35;
+            font-weight: 700;
+        }
+
+        .preview-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: clamp(7px, 3vw, 22px);
+            margin: 5px 0 20px;
+        }
+
+        .preview-box {
+            width: clamp(83px, 25vw, 150px);
+            padding: 12px 5px;
+            border-radius: 25px;
+            box-shadow: 0 7px 0 rgba(27, 73, 105, 0.1);
+        }
+
+        .preview-box span:first-child {
+            display: block;
+            font-size: clamp(2.7rem, 11vw, 5rem);
+            animation: previewBounce 2s ease-in-out infinite;
+        }
+
+        .preview-box:nth-child(2) span:first-child {
+            animation-delay: 0.3s;
+        }
+
+        .preview-box:nth-child(3) span:first-child {
+            animation-delay: 0.6s;
+        }
+
+        .preview-box span:last-child {
+            display: block;
+            margin-top: 4px;
+            color: #315774;
+            font-size: clamp(0.82rem, 3vw, 1rem);
+            font-weight: 900;
+        }
+
+        .preview-sky {
+            background: #caf0ff;
+        }
+
+        .preview-water {
+            background: #aee3f7;
+        }
+
+        .preview-road {
+            background: #dce4e8;
+        }
+
+        .main-button {
+            min-width: min(75vw, 310px);
+            min-height: 65px;
+            border: 0;
+            border-radius: 999px;
+            padding: 14px 32px;
+            background: linear-gradient(180deg, #ffe682, #ffc739);
+            color: #614000;
+            box-shadow:
+                0 8px 0 #df9b20,
+                0 14px 22px rgba(126, 81, 0, 0.2);
+            font-size: clamp(1.35rem, 5vw, 2rem);
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .main-button:active {
+            transform: translateY(6px);
+            box-shadow:
+                0 2px 0 #df9b20,
+                0 7px 12px rgba(126, 81, 0, 0.18);
+        }
+
+        /* ========================================
+           GAME SCREEN
+        ======================================== */
+
+        #gameScreen {
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: clamp(7px, 2vw, 16px);
+            background:
+                linear-gradient(
+                    180deg,
+                    #a9e9ff 0%,
+                    #e9fbff 100%
+                );
+        }
+
+        .game-header {
+            width: min(100%, 1100px);
+            height: clamp(50px, 8vh, 68px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .progress {
+            min-width: 110px;
+            padding: 8px 14px;
+            border: 3px solid #ffffff;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.9);
+            color: var(--dark-blue);
+            box-shadow: 0 6px 14px rgba(32, 94, 133, 0.13);
+            font-size: clamp(0.9rem, 3vw, 1.15rem);
+            font-weight: 900;
+        }
+
+        .game-title {
+            color: var(--dark-blue);
+            font-size: clamp(1rem, 3.5vw, 1.5rem);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .sound-button {
+            width: clamp(48px, 12vw, 58px);
+            height: clamp(48px, 12vw, 58px);
+            flex-shrink: 0;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 6px 14px rgba(32, 94, 133, 0.14);
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            cursor: pointer;
+        }
+
+        .question-panel {
+            position: relative;
+            width: min(100%, 900px);
+            min-height: clamp(150px, 27vh, 225px);
+            margin: 3px auto 7px;
+            padding: 10px 55px;
+            flex-shrink: 0;
+            border: 5px solid #ffffff;
+            border-radius: 32px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-text {
+            margin-bottom: 4px;
+            color: #4a718c;
+            font-size: clamp(0.95rem, 3.2vw, 1.2rem);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .vehicle-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center;
+        }
+
+        .vehicle-picture {
+            min-height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(4.3rem, 16vw, 7.7rem);
+            line-height: 1;
+            filter: drop-shadow(0 8px 5px rgba(23, 68, 100, 0.2));
+            animation: vehicleFloat 1.7s ease-in-out infinite;
+        }
+
+        .vehicle-label {
+            margin-top: 4px;
+            padding: 5px 20px;
+            border-radius: 999px;
+            background: #ecf8ff;
+            color: var(--dark-blue);
+            font-size: clamp(1.15rem, 4.5vw, 1.8rem);
+            font-weight: 900;
+            text-transform: lowercase;
+        }
+
+        .listen-button {
+            position: absolute;
+            top: 11px;
+            right: 11px;
+            width: clamp(44px, 11vw, 54px);
+            height: clamp(44px, 11vw, 54px);
+            border: 0;
+            border-radius: 50%;
+            background: #fff0a5;
+            box-shadow: 0 5px 0 #dfb637;
+            font-size: clamp(1.15rem, 4vw, 1.55rem);
+            cursor: pointer;
+        }
+
+        .listen-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #dfb637;
+        }
+
+        .feedback {
+            min-height: 30px;
+            margin: 0;
+            flex-shrink: 0;
+            color: #246695;
+            font-size: clamp(1rem, 3.7vw, 1.35rem);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .zones {
+            width: min(100%, 1100px);
+            flex: 1;
+            min-height: 0;
+            margin: 5px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(7px, 1.8vw, 18px);
+        }
+
+        .zone {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            border: 5px solid rgba(255,255,255,0.96);
+            border-radius: clamp(20px, 4vw, 34px);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition:
+                transform 0.18s ease,
+                border-color 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .zone:active {
+            transform: scale(0.97);
+        }
+
+        .zone-title {
+            position: absolute;
+            top: 9px;
+            left: 50%;
+            z-index: 10;
+            transform: translateX(-50%);
+            min-width: 76%;
+            padding: clamp(5px, 1.4vw, 9px) 7px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.94);
+            color: var(--dark-blue);
+            font-size: clamp(0.82rem, 3.3vw, 1.3rem);
+            font-weight: 900;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .zone-centre-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 3;
+            transform: translate(-50%, -50%);
+            font-size: clamp(3.2rem, 12vw, 6rem);
+            filter: drop-shadow(0 7px 4px rgba(22, 73, 105, 0.16));
+            pointer-events: none;
+        }
+
+        .vehicle-parade {
+            position: absolute;
+            left: 7px;
+            right: 7px;
+            bottom: 8px;
+            z-index: 9;
+            min-height: clamp(37px, 7vh, 56px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 1px;
+            pointer-events: none;
+        }
+
+        .placed-vehicle {
+            display: inline-block;
+            font-size: clamp(1.7rem, 5.5vw, 3rem);
+            line-height: 1;
+            filter: drop-shadow(0 4px 3px rgba(22, 67, 96, 0.15));
+            animation: vehiclePlaced 0.55s ease both;
+        }
+
+        /* Sky */
+
+        .sky-zone {
+            background:
+                linear-gradient(
+                    180deg,
+                    #8edfff 0%,
+                    #d9f6ff 100%
+                );
+        }
+
+        .sky-zone::before,
+        .sky-zone::after {
+            content: "☁️";
+            position: absolute;
+            z-index: 1;
+            left: -30%;
+            font-size: clamp(2rem, 7vw, 4.2rem);
+            opacity: 0.9;
+            animation: movingCloud 7s linear infinite;
+        }
+
+        .sky-zone::before {
+            top: 28%;
+        }
+
+        .sky-zone::after {
+            top: 58%;
+            animation-delay: 3.1s;
+        }
+
+        .sun {
+            position: absolute;
+            top: 22%;
+            right: 8%;
+            width: clamp(38px, 8vw, 68px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #ffdc57;
+            box-shadow: 0 0 0 10px rgba(255,220,87,0.23);
+        }
+
+        /* Water */
+
+        .water-zone {
+            background:
+                linear-gradient(
+                    180deg,
+                    #b9ecff 0%,
+                    #e1f9ff 35%,
+                    #43bbe4 36%,
+                    #138bc3 100%
+                );
+        }
+
+        .water-zone::before,
+        .water-zone::after {
+            content: "";
+            position: absolute;
+            left: -20%;
+            width: 140%;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.7);
+            animation: movingWave 2.4s ease-in-out infinite alternate;
+        }
+
+        .water-zone::before {
+            top: 35%;
+        }
+
+        .water-zone::after {
+            top: 45%;
+            opacity: 0.45;
+            animation-delay: 0.6s;
+        }
+
+        .fish {
+            position: absolute;
+            right: 12%;
+            bottom: 27%;
+            z-index: 2;
+            font-size: clamp(1.5rem, 5vw, 2.7rem);
+            animation: swimmingFish 3s ease-in-out infinite alternate;
+        }
+
+        .bubbles {
+            position: absolute;
+            left: 13%;
+            bottom: 17%;
+            z-index: 2;
+            color: rgba(255,255,255,0.9);
+            font-size: clamp(1rem, 3vw, 1.9rem);
+            animation: risingBubbles 2.2s ease-in-out infinite;
+        }
+
+        /* Road */
+
+        .road-zone {
+            background:
+                linear-gradient(
+                    180deg,
+                    #9fe4ff 0%,
+                    #ddf7ff 33%,
+                    #88d170 34%,
+                    #70b85a 57%,
+                    #59646b 58%,
+                    #343e45 100%
+                );
+        }
+
+        .road-zone::before {
+            content: "";
+            position: absolute;
+            left: 4%;
+            right: 4%;
+            bottom: 22%;
+            height: 8px;
+            border-radius: 999px;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0 18px,
+                    #fff09c 18px 47px,
+                    transparent 47px 67px
+                );
+        }
+
+        .road-tree {
+            position: absolute;
+            top: 29%;
+            z-index: 2;
+            font-size: clamp(2rem, 6vw, 3.4rem);
+        }
+
+        .tree-left {
+            left: 4%;
+        }
+
+        .tree-right {
+            right: 4%;
+        }
+
+        /* Answer states */
+
+        .zone.wrong {
+            border-color: #ff7da5;
+            animation: wrongShake 0.45s ease;
+        }
+
+        .zone.correct {
+            border-color: #58d37c;
+            transform: scale(1.035);
+            box-shadow:
+                0 0 0 7px rgba(88,211,124,0.25),
+                0 15px 30px rgba(34,128,69,0.25);
+        }
+
+        .zone.hint {
+            border-color: #ffd144;
+            animation: hintGlow 0.65s ease-in-out infinite alternate;
+        }
+
+        .vehicle-card.disappear {
+            animation: vehicleDisappear 0.45s ease forwards;
+        }
+
+        /* ========================================
+           END SCREEN
+        ======================================== */
+
+        #endScreen {
+            flex-direction: column;
+            padding: 17px;
+            text-align: center;
+            background:
+                linear-gradient(
+                    180deg,
+                    #95e4ff 0%,
+                    #e7faff 61%,
+                    #98dc73 62%,
+                    #7bc758 100%
+                );
+        }
+
+        .end-card {
+            position: relative;
+            z-index: 5;
+            width: min(94vw, 720px);
+            max-height: 94vh;
+            padding: clamp(18px, 4vw, 35px);
+            border: 5px solid #ffffff;
+            border-radius: 36px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 18px 38px rgba(31, 87, 126, 0.24);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .end-title {
+            margin: 0;
+            color: #176d9e;
+            font-size: clamp(2rem, 8vw, 4.3rem);
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .end-message {
+            margin: 10px 0 5px;
+            color: #4b7087;
+            font-size: clamp(1rem, 3.5vw, 1.35rem);
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .score-message {
+            margin: 4px 0 8px;
+            color: #23845a;
+            font-size: clamp(1rem, 3.6vw, 1.35rem);
+            font-weight: 900;
+        }
+
+        .stars {
+            margin: 2px 0 12px;
+            font-size: clamp(2.4rem, 9vw, 4.5rem);
+            letter-spacing: 5px;
+            animation: pulsingStars 1.2s ease-in-out infinite alternate;
+        }
+
+        .final-transport {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 3px 0 20px;
+        }
+
+        .final-box {
+            min-height: clamp(105px, 21vh, 165px);
+            padding: 10px 4px;
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .final-box span:first-child {
+            font-size: clamp(2.8rem, 10vw, 5.3rem);
+            animation: finalVehicle 1.7s ease-in-out infinite alternate;
+        }
+
+        .final-box span:last-child {
+            color: #315774;
+            font-size: clamp(0.8rem, 2.8vw, 1rem);
+            font-weight: 900;
+        }
+
+        .final-sky {
+            background: #c7f0ff;
+        }
+
+        .final-water {
+            background: #abe1f4;
+        }
+
+        .final-road {
+            background: #dae3e7;
+        }
+
+        .play-again-button {
+            min-width: min(76vw, 315px);
+            min-height: 64px;
+            border: 0;
+            border-radius: 999px;
+            padding: 14px 30px;
+            background: linear-gradient(180deg, #70da95, #37b66a);
+            color: #ffffff;
+            box-shadow:
+                0 8px 0 #218b4a,
+                0 13px 20px rgba(31, 117, 66, 0.22);
+            font-size: clamp(1.3rem, 4.7vw, 1.85rem);
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .play-again-button:active {
+            transform: translateY(6px);
+            box-shadow:
+                0 2px 0 #218b4a,
+                0 6px 12px rgba(31, 117, 66, 0.2);
+        }
+
+        .confetti {
+            position: absolute;
+            top: -30px;
+            z-index: 2;
+            width: 13px;
+            height: 23px;
+            border-radius: 4px;
+            pointer-events: none;
+            animation: fallingConfetti linear forwards;
+        }
+
+        /* ========================================
+           ANIMATIONS
+        ======================================== */
+
+        @keyframes logoAnimation {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes loadingBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-13px);
+            }
+        }
+
+        @keyframes floatingCloud {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(14px);
+            }
+        }
+
+        @keyframes previewBounce {
+            0%, 100% {
+                transform: translateY(0) rotate(-2deg);
+            }
+
+            50% {
+                transform: translateY(-8px) rotate(2deg);
+            }
+        }
+
+        @keyframes vehicleFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(-1deg);
+            }
+
+            50% {
+                transform: translateY(-7px) rotate(1deg);
+            }
+        }
+
+        @keyframes movingCloud {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(430%);
+            }
+        }
+
+        @keyframes movingWave {
+            from {
+                transform: translateX(-9px);
+            }
+
+            to {
+                transform: translateX(9px);
+            }
+        }
+
+        @keyframes swimmingFish {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-28px);
+            }
+        }
+
+        @keyframes risingBubbles {
+            0% {
+                opacity: 0.3;
+                transform: translateY(18px);
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.2;
+                transform: translateY(-28px);
+            }
+        }
+
+        @keyframes vehiclePlaced {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translateY(-30px);
+            }
+
+            75% {
+                transform: scale(1.18) translateY(0);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-8px);
+            }
+
+            50% {
+                transform: translateX(8px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+
+        @keyframes hintGlow {
+            from {
+                box-shadow: 0 0 0 3px rgba(255,209,68,0.3);
+            }
+
+            to {
+                box-shadow: 0 0 0 11px rgba(255,209,68,0.57);
+            }
+        }
+
+        @keyframes vehicleDisappear {
+            to {
+                opacity: 0;
+                transform: scale(0.35) translateY(25px);
+            }
+        }
+
+        @keyframes pulsingStars {
+            from {
+                transform: scale(0.95);
+            }
+
+            to {
+                transform: scale(1.06);
+            }
+        }
+
+        @keyframes finalVehicle {
+            from {
+                transform: translateX(-8px) translateY(2px);
+            }
+
+            to {
+                transform: translateX(8px) translateY(-5px);
+            }
+        }
+
+        @keyframes fallingConfetti {
+            from {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(115vh) rotate(720deg);
+                opacity: 0.9;
+            }
+        }
+
+        /* ========================================
+           PHONE ADJUSTMENTS
+        ======================================== */
+
+        @media (max-width: 520px) {
+            .game-title {
+                display: none;
+            }
+
+            .question-panel {
+                padding-left: 48px;
+                padding-right: 48px;
+            }
+
+            .zone {
+                border-width: 3px;
+            }
+
+            .zone-title {
+                top: 6px;
+                min-width: 88%;
+            }
+        }
+
+        @media (max-height: 660px) {
+            .game-header {
+                height: 46px;
+            }
+
+            .question-panel {
+                min-height: 128px;
+                margin-bottom: 3px;
+            }
+
+            .question-text {
+                font-size: 0.9rem;
+            }
+
+            .vehicle-picture {
+                min-height: 58px;
+                font-size: clamp(3.4rem, 12vw, 5.4rem);
+            }
+
+            .vehicle-label {
+                padding: 3px 14px;
+                font-size: 1rem;
+            }
+
+            .feedback {
+                min-height: 23px;
+                font-size: 0.92rem;
+            }
+
+            .zone-title {
+                top: 5px;
+                padding: 4px;
+            }
+
+            .start-card,
+            .end-card {
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            .preview-container {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .question-panel {
+                min-height: 105px;
+                flex-direction: row;
+                gap: 18px;
+            }
+
+            .question-text {
+                max-width: 160px;
+                margin: 0;
+            }
+
+            .vehicle-card {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .vehicle-picture {
+                font-size: 4rem;
+            }
+
+            .zones {
+                margin-top: 2px;
+            }
+
+            .zone-centre-icon {
+                font-size: 3rem;
+            }
+
+            .zone-title {
+                font-size: 0.77rem;
+            }
+
+            .placed-vehicle {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- SPLASH -->
-<section id="splashScreen" class="screen active">
-  <h1>Where Does It Go?</h1>
-  <p>Learning Air, Water, and Road Transport!</p>
-</section>
+    <!-- Audio files from the assets folder -->
 
-<!-- START -->
-<section id="startScreen" class="screen">
-  <h1>Let's Start!</h1>
-  <button id="startBtn" class="primary-btn">Start Game</button>
-</section>
+    <audio
+        id="wrongAudio"
+        src="assets/wrong.mp3"
+        preload="auto"
+    ></audio>
 
-<!-- GAME -->
-<section id="gameScreen" class="screen">
-  <div class="topbar">
-    <div id="round">Round 1/9</div>
-    <div id="score">⭐ 0</div>
-  </div>
-  <div class="game-main">
-    <img id="vehicleImg" class="vehicle" src="" alt="Vehicle">
-    <div id="questionText" style="font-weight:bold;font-size:1.4rem;text-align:center;"></div>
-    <div class="zones">
-      <div class="zone" id="zone-air">✈️</div>
-      <div class="zone" id="zone-water">🛳️</div>
-      <div class="zone" id="zone-road">🚗</div>
-    </div>
-  </div>
-  <div id="feedback"></div>
-</section>
+    <audio
+        id="clapAudio"
+        src="assets/clap.mp3"
+        preload="auto"
+    ></audio>
 
-<!-- END -->
-<section id="endScreen" class="screen">
-  <h1>Well Done!</h1>
-  <p id="finalScoreEnd"></p>
-  <button id="playAgainBtn" class="primary-btn">Play Again</button>
-</section>
+    <!-- ========================================
+         SPLASH SCREEN
+    ======================================== -->
 
-<!-- Audio -->
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+    <section id="splashScreen" class="screen active">
 
-<script>
-const VEHICLES = [
-  {name:"Airplane",type:"air",image:"assets/airplane.png"},
-  {name:"Helicopter",type:"air",image:"assets/helicopter.png"},
-  {name:"Boat",type:"water",image:"assets/boat.png"},
-  {name:"Ship",type:"water",image:"assets/ship.png"},
-  {name:"Car",type:"road",image:"assets/car.png"},
-  {name:"Bus",type:"road",image:"assets/bus.png"},
-];
+        <img
+            id="innovineLogo"
+            src="assets/innovine-logo.png"
+            alt="Innovine"
+            draggable="false"
+        >
 
-let questions = [];
-VEHICLES.forEach(v=>{
-  questions.push({vehicle:v,answer:v.type});
-});
-questions = questions.sort(()=>Math.random()-0.5);
+        <div id="logoFallback">INNOVINE</div>
 
-let current=0;
-let score=0;
+        <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-const splash = document.getElementById("splashScreen");
-const startScreen = document.getElementById("startScreen");
-const gameScreen = document.getElementById("gameScreen");
-const endScreen = document.getElementById("endScreen");
-const startBtn = document.getElementById("startBtn");
-const playAgainBtn = document.getElementById("playAgainBtn");
-const vehicleImg = document.getElementById("vehicleImg");
-const questionText = document.getElementById("questionText");
-const zones = {air:document.getElementById("zone-air"),water:document.getElementById("zone-water"),road:document.getElementById("zone-road")};
-const feedback = document.getElementById("feedback");
-const roundText = document.getElementById("round");
-const scoreText = document.getElementById("score");
-const finalScoreEnd = document.getElementById("finalScoreEnd");
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
+    </section>
 
-function showScreen(s){[splash,startScreen,gameScreen,endScreen].forEach(sc=>sc.classList.remove("active"));s.classList.add("active");}
+    <!-- ========================================
+         START SCREEN
+    ======================================== -->
 
-startBtn.addEventListener("click",()=>{startGame();});
-playAgainBtn.addEventListener("click",()=>{startGame();});
+    <section id="startScreen" class="screen">
 
-function startGame(){
-  current=0;
-  score=0;
-  updateScore();
-  showScreen(gameScreen);
-  nextQuestion();
-}
+        <div class="start-cloud cloud-left">☁️</div>
+        <div class="start-cloud cloud-right">☁️</div>
 
-function updateScore(){scoreText.textContent="⭐ "+score;}
-function updateRound(){roundText.textContent="Round "+(current+1)+"/"+questions.length;}
+        <div class="start-card">
 
-function nextQuestion(){
-  feedback.style.display="none";
-  let q = questions[current];
-  vehicleImg.src = q.vehicle.image;
-  questionText.textContent = `Where does the ${q.vehicle.name} go?`;
-  updateRound();
-  Object.values(zones).forEach(z=>{z.classList.remove("correct","wrong");});
-}
+            <div class="small-heading">
+                🚦 Transportation Game
+            </div>
 
-Object.values(zones).forEach(z=>{
-  z.addEventListener("click",()=>{
-    let q = questions[current];
-    if(z.id.split("-")[1]===q.answer){
-      score++;updateScore();
-      z.classList.add("correct");
-      correctSound.play();
-      feedback.style.display="block";feedback.textContent="Correct!";
-      setTimeout(()=>{current++;if(current>=questions.length){endGame();}else{nextQuestion();}},1200);
-    }else{
-      z.classList.add("wrong");
-      wrongSound.play();
-      feedback.style.display="block";feedback.textContent="Try Again!";
-    }
-  });
-});
+            <h1 class="main-title">
+                Where Does It Go?
+            </h1>
 
-function endGame(){
-  showScreen(endScreen);
-  finalScoreEnd.textContent="Your Score: "+score+"/"+questions.length;
-}
+            <p class="start-instruction">
+                Help each vehicle find the correct place.
+            </p>
 
-// Optional: Splash auto to start
-setTimeout(()=>{showScreen(startScreen);},3000);
-</script>
+            <div class="preview-container">
+
+                <div class="preview-box preview-sky">
+                    <span>✈️</span>
+                    <span>sky</span>
+                </div>
+
+                <div class="preview-box preview-water">
+                    <span>⛵</span>
+                    <span>water</span>
+                </div>
+
+                <div class="preview-box preview-road">
+                    <span>🚌</span>
+                    <span>road</span>
+                </div>
+
+            </div>
+
+            <button
+                id="startButton"
+                class="main-button"
+                type="button"
+            >
+                ▶ Start Game
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- ========================================
+         GAME SCREEN
+    ======================================== -->
+
+    <main id="gameScreen" class="screen">
+
+        <header class="game-header">
+
+            <div id="progress" class="progress">
+                1 of 9
+            </div>
+
+            <div class="game-title">
+                Where Does It Go?
+            </div>
+
+            <button
+                id="soundButton"
+                class="sound-button"
+                type="button"
+                aria-label="Sound"
+            >
+                🔊
+            </button>
+
+        </header>
+
+        <section class="question-panel">
+
+            <div class="question-text">
+                Tap where the vehicle goes.
+            </div>
+
+            <div id="vehicleCard" class="vehicle-card">
+
+                <div id="vehiclePicture" class="vehicle-picture">
+                    🚗
+                </div>
+
+                <div id="vehicleLabel" class="vehicle-label">
+                    car
+                </div>
+
+            </div>
+
+            <button
+                id="listenButton"
+                class="listen-button"
+                type="button"
+                aria-label="Listen again"
+            >
+                🔈
+            </button>
+
+        </section>
+
+        <div id="feedback" class="feedback">
+            Choose the correct place.
+        </div>
+
+        <section class="zones">
+
+            <!-- SKY -->
+
+            <button
+                class="zone sky-zone"
+                type="button"
+                data-category="sky"
+                aria-label="Sky"
+            >
+                <span class="zone-title">☁️ SKY</span>
+                <span class="sun"></span>
+                <span class="zone-centre-icon">🌤️</span>
+                <span id="skyParade" class="vehicle-parade"></span>
+            </button>
+
+            <!-- WATER -->
+
+            <button
+                class="zone water-zone"
+                type="button"
+                data-category="water"
+                aria-label="Water"
+            >
+                <span class="zone-title">🌊 WATER</span>
+                <span class="zone-centre-icon">🌊</span>
+                <span class="fish">🐟</span>
+                <span class="bubbles">○ ○</span>
+                <span id="waterParade" class="vehicle-parade"></span>
+            </button>
+
+            <!-- ROAD -->
+
+            <button
+                class="zone road-zone"
+                type="button"
+                data-category="road"
+                aria-label="Road"
+            >
+                <span class="zone-title">🛣️ ROAD</span>
+                <span class="road-tree tree-left">🌳</span>
+                <span class="road-tree tree-right">🌳</span>
+                <span class="zone-centre-icon">🚦</span>
+                <span id="roadParade" class="vehicle-parade"></span>
+            </button>
+
+        </section>
+
+    </main>
+
+    <!-- ========================================
+         END SCREEN
+    ======================================== -->
+
+    <section id="endScreen" class="screen">
+
+        <div id="confettiContainer"></div>
+
+        <div class="end-card">
+
+            <h2 class="end-title">
+                Wonderful!
+            </h2>
+
+            <p class="end-message">
+                You helped all the vehicles find their places!
+            </p>
+
+            <div id="scoreMessage" class="score-message">
+                Great work!
+            </div>
+
+            <div id="stars" class="stars">
+                ⭐⭐⭐
+            </div>
+
+            <div class="final-transport">
+
+                <div class="final-box final-sky">
+                    <span>✈️</span>
+                    <span>sky</span>
+                </div>
+
+                <div class="final-box final-water">
+                    <span>🚢</span>
+                    <span>water</span>
+                </div>
+
+                <div class="final-box final-road">
+                    <span>🚌</span>
+                    <span>road</span>
+                </div>
+
+            </div>
+
+            <button
+                id="playAgainButton"
+                class="play-again-button"
+                type="button"
+            >
+                ↻ Play Again
+            </button>
+
+        </div>
+
+    </section>
+
+    <script>
+        "use strict";
+
+        /* ========================================
+           SCREEN ELEMENTS
+        ======================================== */
+
+        const splashScreen =
+            document.getElementById("splashScreen");
+
+        const startScreen =
+            document.getElementById("startScreen");
+
+        const gameScreen =
+            document.getElementById("gameScreen");
+
+        const endScreen =
+            document.getElementById("endScreen");
+
+        const innovineLogo =
+            document.getElementById("innovineLogo");
+
+        const logoFallback =
+            document.getElementById("logoFallback");
+
+        const startButton =
+            document.getElementById("startButton");
+
+        const playAgainButton =
+            document.getElementById("playAgainButton");
+
+        const soundButton =
+            document.getElementById("soundButton");
+
+        const listenButton =
+            document.getElementById("listenButton");
+
+        const progress =
+            document.getElementById("progress");
+
+        const vehicleCard =
+            document.getElementById("vehicleCard");
+
+        const vehiclePicture =
+            document.getElementById("vehiclePicture");
+
+        const vehicleLabel =
+            document.getElementById("vehicleLabel");
+
+        const feedback =
+            document.getElementById("feedback");
+
+        const stars =
+            document.getElementById("stars");
+
+        const scoreMessage =
+            document.getElementById("scoreMessage");
+
+        const wrongAudio =
+            document.getElementById("wrongAudio");
+
+        const clapAudio =
+            document.getElementById("clapAudio");
+
+        const zones =
+            Array.from(document.querySelectorAll(".zone"));
+
+        const paradeAreas = {
+            sky: document.getElementById("skyParade"),
+            water: document.getElementById("waterParade"),
+            road: document.getElementById("roadParade")
+        };
+
+        /* ========================================
+           VEHICLE QUESTIONS
+        ======================================== */
+
+        const vehicleBank = [
+            {
+                name: "car",
+                picture: "🚗",
+                category: "road"
+            },
+            {
+                name: "bus",
+                picture: "🚌",
+                category: "road"
+            },
+            {
+                name: "bicycle",
+                picture: "🚲",
+                category: "road"
+            },
+
+            {
+                name: "boat",
+                picture: "🚤",
+                category: "water"
+            },
+            {
+                name: "ship",
+                picture: "🚢",
+                category: "water"
+            },
+            {
+                name: "sailboat",
+                picture: "⛵",
+                category: "water"
+            },
+
+            {
+                name: "aeroplane",
+                picture: "✈️",
+                category: "sky"
+            },
+            {
+                name: "helicopter",
+                picture: "🚁",
+                category: "sky"
+            },
+            {
+                name: "rocket",
+                picture: "🚀",
+                category: "sky"
+            }
+        ];
+
+        let questions = [];
+        let currentQuestion = 0;
+        let attempts = 0;
+        let score = 0;
+        let interactionLocked = false;
+        let soundMuted = false;
+
+        /* ========================================
+           SCREEN MANAGEMENT
+        ======================================== */
+
+        function showScreen(screen) {
+            const allScreens = [
+                splashScreen,
+                startScreen,
+                gameScreen,
+                endScreen
+            ];
+
+            allScreens.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            screen.classList.add("active");
+        }
+
+        /*
+          Show only the Innovine logo for 5 seconds.
+        */
+
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                showScreen(startScreen);
+            }, 5000);
+        });
+
+        innovineLogo.addEventListener("error", () => {
+            innovineLogo.style.display = "none";
+            logoFallback.style.display = "block";
+        });
+
+        /* ========================================
+           AUDIO FILE FUNCTIONS
+        ======================================== */
+
+        function resetAudio(audioElement) {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+
+        function playWrongAudio() {
+            if (soundMuted) {
+                return;
+            }
+
+            resetAudio(wrongAudio);
+
+            wrongAudio.play().catch(() => {
+                /* Browser blocked audio. */
+            });
+        }
+
+        function playClapAudio() {
+            if (soundMuted) {
+                return;
+            }
+
+            resetAudio(clapAudio);
+
+            clapAudio.play().catch(() => {
+                /* Browser blocked audio. */
+            });
+        }
+
+        /* ========================================
+           BACKGROUND MELODY
+        ======================================== */
+
+        let audioContext = null;
+        let melodyGain = null;
+        let melodyTimer = null;
+        let melodyIndex = 0;
+
+        const melodyNotes = [
+            523.25,
+            659.25,
+            783.99,
+            659.25,
+            587.33,
+            698.46,
+            783.99,
+            698.46
+        ];
+
+        function initialiseMelody() {
+            if (audioContext) {
+                if (audioContext.state === "suspended") {
+                    audioContext.resume().catch(() => {});
+                }
+
+                return;
+            }
+
+            const AudioContextClass =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+            if (!AudioContextClass) {
+                return;
+            }
+
+            audioContext = new AudioContextClass();
+
+            melodyGain = audioContext.createGain();
+            melodyGain.gain.value = soundMuted ? 0 : 0.04;
+            melodyGain.connect(audioContext.destination);
+        }
+
+        function playMelodyNote() {
+            if (
+                !audioContext ||
+                !melodyGain ||
+                soundMuted
+            ) {
+                return;
+            }
+
+            const oscillator =
+                audioContext.createOscillator();
+
+            const gainNode =
+                audioContext.createGain();
+
+            oscillator.type = "sine";
+
+            oscillator.frequency.value =
+                melodyNotes[
+                    melodyIndex % melodyNotes.length
+                ];
+
+            gainNode.gain.setValueAtTime(
+                0.0001,
+                audioContext.currentTime
+            );
+
+            gainNode.gain.linearRampToValueAtTime(
+                0.04,
+                audioContext.currentTime + 0.04
+            );
+
+            gainNode.gain.exponentialRampToValueAtTime(
+                0.0001,
+                audioContext.currentTime + 0.32
+            );
+
+            oscillator.connect(gainNode);
+            gainNode.connect(melodyGain);
+
+            oscillator.start();
+
+            oscillator.stop(
+                audioContext.currentTime + 0.34
+            );
+
+            melodyIndex++;
+        }
+
+        function startMelody() {
+            initialiseMelody();
+
+            if (!audioContext || melodyTimer) {
+                return;
+            }
+
+            playMelodyNote();
+
+            melodyTimer = setInterval(() => {
+                playMelodyNote();
+            }, 520);
+        }
+
+        /* ========================================
+           SPEECH
+        ======================================== */
+
+        function speak(text) {
+            if (
+                soundMuted ||
+                !("speechSynthesis" in window)
+            ) {
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const speech =
+                new SpeechSynthesisUtterance(text);
+
+            speech.lang = "en-IN";
+            speech.rate = 0.8;
+            speech.pitch = 1.15;
+            speech.volume = 1;
+
+            window.speechSynthesis.speak(speech);
+        }
+
+        function speakCurrentQuestion() {
+            const item = questions[currentQuestion];
+
+            if (!item) {
+                return;
+            }
+
+            speak(`Where does the ${item.name} go?`);
+        }
+
+        /* ========================================
+           SHUFFLE QUESTIONS
+        ======================================== */
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+
+            for (
+                let index = shuffled.length - 1;
+                index > 0;
+                index--
+            ) {
+                const randomIndex =
+                    Math.floor(Math.random() * (index + 1));
+
+                [
+                    shuffled[index],
+                    shuffled[randomIndex]
+                ] = [
+                    shuffled[randomIndex],
+                    shuffled[index]
+                ];
+            }
+
+            return shuffled;
+        }
+
+        /* ========================================
+           START AND RESET GAME
+        ======================================== */
+
+        function resetGame() {
+            questions = shuffleArray(vehicleBank);
+
+            currentQuestion = 0;
+            attempts = 0;
+            score = 0;
+            interactionLocked = false;
+
+            Object.values(paradeAreas).forEach(area => {
+                area.innerHTML = "";
+            });
+
+            clearZoneEffects();
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const item = questions[currentQuestion];
+
+            if (!item) {
+                finishGame();
+                return;
+            }
+
+            attempts = 0;
+            interactionLocked = false;
+
+            clearZoneEffects();
+
+            progress.textContent =
+                `${currentQuestion + 1} of ${questions.length}`;
+
+            vehiclePicture.textContent = item.picture;
+            vehicleLabel.textContent = item.name;
+
+            vehicleCard.className = "vehicle-card";
+
+            feedback.textContent =
+                "Choose the correct place.";
+
+            setTimeout(() => {
+                speakCurrentQuestion();
+            }, 350);
+        }
+
+        function clearZoneEffects() {
+            zones.forEach(zone => {
+                zone.classList.remove(
+                    "wrong",
+                    "correct",
+                    "hint"
+                );
+            });
+        }
+
+        /* ========================================
+           ANSWER SELECTION
+        ======================================== */
+
+        zones.forEach(zone => {
+            zone.addEventListener("click", () => {
+                checkAnswer(
+                    zone.dataset.category,
+                    zone
+                );
+            });
+        });
+
+        function checkAnswer(
+            selectedCategory,
+            selectedZone
+        ) {
+            if (interactionLocked) {
+                return;
+            }
+
+            const item = questions[currentQuestion];
+
+            if (!item) {
+                return;
+            }
+
+            if (selectedCategory === item.category) {
+                score++;
+
+                completeQuestion(
+                    selectedZone,
+                    true
+                );
+
+                return;
+            }
+
+            attempts++;
+
+            selectedZone.classList.remove("wrong");
+
+            /*
+              Restart the shake animation.
+            */
+
+            void selectedZone.offsetWidth;
+
+            selectedZone.classList.add("wrong");
+
+            playWrongAudio();
+
+            setTimeout(() => {
+                selectedZone.classList.remove("wrong");
+            }, 500);
+
+            if (attempts < 2) {
+                feedback.textContent = "Try again!";
+
+                speak("Let us try again.");
+
+                return;
+            }
+
+            revealCorrectAnswer();
+        }
+
+        function revealCorrectAnswer() {
+            interactionLocked = true;
+
+            const item = questions[currentQuestion];
+
+            const correctZone = zones.find(zone => {
+                return zone.dataset.category ===
+                    item.category;
+            });
+
+            if (!correctZone) {
+                return;
+            }
+
+            correctZone.classList.add("hint");
+
+            const place =
+                item.category === "sky"
+                    ? "the sky"
+                    : item.category;
+
+            feedback.textContent =
+                `The ${item.name} goes on ${place}.`;
+
+            speak(
+                `The ${item.name} goes on ${place}.`
+            );
+
+            setTimeout(() => {
+                correctZone.classList.remove("hint");
+
+                completeQuestion(
+                    correctZone,
+                    false
+                );
+            }, 1600);
+        }
+
+        function completeQuestion(
+            correctZone,
+            answeredCorrectly
+        ) {
+            interactionLocked = true;
+
+            const item = questions[currentQuestion];
+
+            correctZone.classList.add("correct");
+
+            vehicleCard.classList.add("disappear");
+
+            playClapAudio();
+
+            if (answeredCorrectly) {
+                const messages = [
+                    "Great job!",
+                    "Wonderful!",
+                    "Well done!",
+                    "You found it!"
+                ];
+
+                const message =
+                    messages[
+                        Math.floor(
+                            Math.random() * messages.length
+                        )
+                    ];
+
+                feedback.textContent = message;
+                speak(message);
+            } else {
+                feedback.textContent =
+                    "Let us remember this place.";
+            }
+
+            setTimeout(() => {
+                addVehicleToZone(
+                    item.category,
+                    item.picture,
+                    item.name
+                );
+            }, 250);
+
+            setTimeout(() => {
+                currentQuestion++;
+
+                if (
+                    currentQuestion >=
+                    questions.length
+                ) {
+                    finishGame();
+                } else {
+                    displayQuestion();
+                }
+            }, 1500);
+        }
+
+        function addVehicleToZone(
+            category,
+            picture,
+            name
+        ) {
+            const parade = paradeAreas[category];
+
+            if (!parade) {
+                return;
+            }
+
+            const vehicle =
+                document.createElement("span");
+
+            vehicle.className = "placed-vehicle";
+            vehicle.textContent = picture;
+            vehicle.setAttribute("aria-label", name);
+
+            parade.appendChild(vehicle);
+        }
+
+        /* ========================================
+           END GAME
+        ======================================== */
+
+        function finishGame() {
+            interactionLocked = true;
+
+            let starResult = "⭐";
+            let message = "Good try!";
+
+            if (score >= 8) {
+                starResult = "⭐⭐⭐";
+                message = "Amazing work!";
+            } else if (score >= 5) {
+                starResult = "⭐⭐";
+                message = "Great work!";
+            }
+
+            stars.textContent = starResult;
+            scoreMessage.textContent = message;
+
+            showScreen(endScreen);
+
+            createConfetti();
+
+            playClapAudio();
+
+            setTimeout(() => {
+                speak(
+                    "Wonderful! You helped all the vehicles find their places!"
+                );
+            }, 400);
+        }
+
+        function createConfetti() {
+            const container =
+                document.getElementById(
+                    "confettiContainer"
+                );
+
+            container.innerHTML = "";
+
+            const colours = [
+                "#ff6c98",
+                "#ffd34e",
+                "#44c8f0",
+                "#65d687",
+                "#a984ff",
+                "#ff9f43"
+            ];
+
+            for (let index = 0; index < 40; index++) {
+                const confetti =
+                    document.createElement("span");
+
+                confetti.className = "confetti";
+
+                confetti.style.left =
+                    `${Math.random() * 100}%`;
+
+                confetti.style.background =
+                    colours[
+                        Math.floor(
+                            Math.random() *
+                            colours.length
+                        )
+                    ];
+
+                confetti.style.animationDuration =
+                    `${2.8 + Math.random() * 2.4}s`;
+
+                confetti.style.animationDelay =
+                    `${Math.random() * 0.8}s`;
+
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = "";
+            }, 6500);
+        }
+
+        /* ========================================
+           BUTTON EVENTS
+        ======================================== */
+
+        startButton.addEventListener("click", () => {
+            /*
+              Audio is unlocked by this user tap.
+            */
+
+            wrongAudio.load();
+            clapAudio.load();
+
+            initialiseMelody();
+            startMelody();
+
+            showScreen(gameScreen);
+            resetGame();
+        });
+
+        playAgainButton.addEventListener(
+            "click",
+            () => {
+                showScreen(gameScreen);
+                resetGame();
+            }
+        );
+
+        listenButton.addEventListener(
+            "click",
+            () => {
+                speakCurrentQuestion();
+            }
+        );
+
+        soundButton.addEventListener(
+            "click",
+            () => {
+                soundMuted = !soundMuted;
+
+                soundButton.textContent =
+                    soundMuted ? "🔇" : "🔊";
+
+                if (soundMuted) {
+                    resetAudio(wrongAudio);
+                    resetAudio(clapAudio);
+
+                    if (
+                        "speechSynthesis" in window
+                    ) {
+                        window.speechSynthesis.cancel();
+                    }
+
+                    if (
+                        melodyGain &&
+                        audioContext
+                    ) {
+                        melodyGain.gain.setTargetAtTime(
+                            0,
+                            audioContext.currentTime,
+                            0.05
+                        );
+                    }
+                } else {
+                    initialiseMelody();
+
+                    if (
+                        melodyGain &&
+                        audioContext
+                    ) {
+                        melodyGain.gain.setTargetAtTime(
+                            0.04,
+                            audioContext.currentTime,
+                            0.05
+                        );
+                    }
+
+                    speakCurrentQuestion();
+                }
+            }
+        );
+
+        /* ========================================
+           PREVENT MOBILE SCROLLING
+        ======================================== */
+
+        document.addEventListener(
+            "contextmenu",
+            event => {
+                event.preventDefault();
+            }
+        );
+
+        document.addEventListener(
+            "touchmove",
+            event => {
+                event.preventDefault();
+            },
+            {
+                passive: false
+            }
+        );
+
+        document.addEventListener(
+            "gesturestart",
+            event => {
+                event.preventDefault();
+            }
+        );
+    </script>
+
 </body>
 </html>
