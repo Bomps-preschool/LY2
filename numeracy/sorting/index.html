@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Colours Game</title>
+<style>
+body { margin:0; padding:0; font-family:'Comic Sans MS', sans-serif; overflow:hidden; }
+
+/* Splash Screen */
+#splash { width:100%; height:100vh; display:flex; align-items:center; justify-content:center; background:#fff; }
+#splash img { width:200px; height:auto; }
+
+/* Game Area */
+#game { display:none; flex-direction:column; justify-content:flex-start; padding:20px; height:100vh; background: linear-gradient(to bottom right, #CDBC50, #F9E5E7, #FDB7B7, #F34B5C, #FCE478, #F9B826); }
+#instructionBox { background:rgba(255,255,255,0.9); border:3px solid #F34B5C; border-radius:15px; padding:15px 20px; text-align:center; font-size:1.5rem; margin-bottom:30px; }
+
+#objects { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin-bottom:40px; }
+.object { width:100px; height:100px; background-size:cover; cursor:grab; border:4px dashed #fff; border-radius:20px; position:relative; transition:transform 0.2s; }
+.object.correct { border:4px solid #32cd32; }
+.feedback { position:absolute; top:-30px; left:50%; transform:translateX(-50%); padding:5px 10px; background:#32cd32; color:white; border-radius:10px; font-weight:bold; display:none; }
+.tick { position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:25px; height:25px; background:url('data:image/svg+xml;utf8,<svg fill="%2332cd32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.285 6.708l-11.314 11.313-5.657-5.657 1.414-1.414 4.243 4.243 9.9-9.9z"/></svg>') no-repeat center; display:none; }
+
+/* Buckets */
+#buckets { display:flex; justify-content:space-around; }
+.bucket { width:150px; height:150px; border-radius:10px; border:4px dashed #555; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#fff; position:relative; }
+.bucket.red { background-color:#FF4D4D; }
+.bucket.yellow { background-color:#FFEB3B; color:#000; }
+.bucket.blue { background-color:#4D79FF; }
+.bucket.glow { box-shadow:0 0 20px 5px #32cd32; }
+
+/* End Slide */
+#end { display:none; width:100%; height:100vh; background:#fff; flex-direction:column; justify-content:center; align-items:center; position:relative; }
+#end h1 { color:#32cd32; font-size:3rem; z-index:1; position:relative; }
+#end button { margin-top:20px; padding:10px 20px; font-size:1.5rem; background:#FCE478; border:none; border-radius:10px; cursor:pointer; z-index:1; position:relative; }
+#confettiCanvas { position:absolute; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:0; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<div id="game">
+  <div id="instructionBox">Drag each object into the correct colour bucket!</div>
+  <div id="objects"></div>
+  <div id="buckets">
+    <div class="bucket red" data-color="red">Red</div>
+    <div class="bucket yellow" data-color="yellow">Yellow</div>
+    <div class="bucket blue" data-color="blue">Blue</div>
+  </div>
+</div>
+
+<div id="end">
+  <canvas id="confettiCanvas"></canvas>
+  <h1>Good Job!</h1>
+  <button onclick="restartGame()">Play Again</button>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+// Objects data
+const objectsData = [
+    {name:'red1', color:'red', image:'assets/red1.png'},
+    {name:'red2', color:'red', image:'assets/red2.png'},
+    {name:'red3', color:'red', image:'assets/red3.png'},
+    {name:'red4', color:'red', image:'assets/red4.png'},
+    {name:'red5', color:'red', image:'assets/red5.png'},
+    {name:'yellow1', color:'yellow', image:'assets/yellow1.png'},
+    {name:'yellow2', color:'yellow', image:'assets/yellow2.png'},
+    {name:'yellow4', color:'yellow', image:'assets/yellow4.png'},
+    {name:'yellow5', color:'yellow', image:'assets/yellow5.png'},
+    {name:'blue1', color:'blue', image:'assets/blue1.png'},
+    {name:'blue2', color:'blue', image:'assets/blue2.png'},
+    {name:'blue3', color:'blue', image:'assets/blue3.png'},
+    {name:'blue4', color:'blue', image:'assets/blue4.png'},
+    {name:'blue5', color:'blue', image:'assets/blue5.png'}
+];
+
+let attempts = {};
+
+// Splash
+function showSplash(){
+  document.getElementById('splash').style.display='flex';
+  setTimeout(()=>{
+    document.getElementById('splash').style.display='none';
+    document.getElementById('game').style.display='flex';
+    loadObjects();
+  },5000);
+}
+
+// Load objects
+function loadObjects(){
+  const container=document.getElementById('objects');
+  container.innerHTML='';
+  attempts={};
+  const shuffled=objectsData.sort(()=>0.5-Math.random());
+  shuffled.forEach(obj=>{
+    const div=document.createElement('div');
+    div.classList.add('object');
+    div.setAttribute('draggable',true);
+    div.style.backgroundImage=`url('${obj.image}')`;
+    div.dataset.color=obj.color;
+    div.dataset.name=obj.name;
+
+    const fb=document.createElement('div');
+    fb.classList.add('feedback');
+    fb.innerText='Good Job!';
+    div.appendChild(fb);
+
+    const tick=document.createElement('div');
+    tick.classList.add('tick');
+    div.appendChild(tick);
+
+    div.addEventListener('dragstart',dragStart);
+    // touch support
+    div.addEventListener('touchstart', touchStart, {passive:false});
+    container.appendChild(div);
+    attempts[obj.name]=0;
+  });
+}
+
+// Drag start
+function dragStart(e){
+  e.dataTransfer.setData('text/plain', e.target.dataset.color);
+  this.classList.add('dragging');
+}
+
+// Touch drag support
+let touchTarget=null;
+function touchStart(e){
+  touchTarget=e.target.closest('.object');
+  e.preventDefault();
+  document.addEventListener('touchmove', touchMove, {passive:false});
+  document.addEventListener('touchend', touchEnd);
+}
+function touchMove(e){
+  if(!touchTarget) return;
+  const touch=e.touches[0];
+  touchTarget.style.position='absolute';
+  touchTarget.style.left=(touch.clientX-50)+'px';
+  touchTarget.style.top=(touch.clientY-50)+'px';
+}
+function touchEnd(e){
+  if(!touchTarget) return;
+  const touch=e.changedTouches[0];
+  const el=document.elementFromPoint(touch.clientX, touch.clientY);
+  if(el && el.classList.contains('bucket')){
+    handleDrop(touchTarget, el);
+  }
+  touchTarget.style.position='';
+  touchTarget.style.left='';
+  touchTarget.style.top='';
+  touchTarget=null;
+  document.removeEventListener('touchmove', touchMove);
+  document.removeEventListener('touchend', touchEnd);
+}
+
+// Drop
+const buckets=document.querySelectorAll('.bucket');
+buckets.forEach(bucket=>{
+  bucket.addEventListener('dragover', e=>e.preventDefault());
+  bucket.addEventListener('drop', dropObject);
+});
+function dropObject(e){
+  e.preventDefault();
+  const draggedEl=document.querySelector('.object.dragging');
+  handleDrop(draggedEl, this);
+  draggedEl.classList.remove('dragging');
+}
+
+// Handle drop logic
+function handleDrop(draggedEl, bucketEl){
+  const color=draggedEl.dataset.color;
+  const targetColor=bucketEl.dataset.color;
+  const objName=draggedEl.dataset.name;
+
+  if(color===targetColor){
+    document.getElementById('correctSound').play();
+    draggedEl.classList.add('correct');
+    draggedEl.querySelector('.feedback').style.display='block';
+    draggedEl.querySelector('.tick').style.display='block';
+    setTimeout(()=>{ draggedEl.remove(); checkEnd(); },800);
+  } else {
+    attempts[objName]++;
+    document.getElementById('wrongSound').play();
+    draggedEl.style.transform='translateX(10px)';
+    setTimeout(()=>draggedEl.style.transform='translateX(0px)',200);
+    if(attempts[objName]>=2){
+      bucketEl.classList.add('glow');
+    }
+  }
+}
+
+// Check end
+function showConfetti(){
+  const duration=3000;
+  const end=Date.now()+duration;
+  (function frame(){
+    confetti({particleCount:4,angle:60,spread:55,origin:{x:0}});
+    confetti({particleCount:4,angle:120,spread:55,origin:{x:1}});
+    if(Date.now()<end){ requestAnimationFrame(frame); }
+  }());
+}
+function checkEnd(){
+  if(document.querySelectorAll('.object').length===0){
+    document.getElementById('game').style.display='none';
+    document.getElementById('end').style.display='flex';
+    document.getElementById('clapSound').play();
+    showConfetti();
+  }
+}
+
+// Restart
+function restartGame(){
+  document.getElementById('end').style.display='none';
+  buckets.forEach(b=>b.classList.remove('glow'));
+  document.getElementById('game').style.display='flex';
+  loadObjects();
+}
+
+// Init
+showSplash();
+</script>
+</body>
+</html>
