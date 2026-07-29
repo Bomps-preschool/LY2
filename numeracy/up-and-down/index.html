@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Up and Down Game</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+touch-action:none;
+-webkit-tap-highlight-color:transparent;
+}
+
+body{
+overflow:hidden;
+font-family:Arial,sans-serif;
+}
+
+#gameContainer{
+width:100vw;
+height:100vh;
+position:relative;
+overflow:hidden;
+background:url('assets/garden.jpg') center center/cover no-repeat;
+}
+
+/* =========================
+LOGO
+========================= */
+
+#logoScreen{
+position:absolute;
+inset:0;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+
+#logoScreen img{
+width:min(60vw,320px);
+}
+
+/* =========================
+GAME
+========================= */
+
+#gameScreen{
+display:none;
+width:100%;
+height:100%;
+position:relative;
+}
+
+/* =========================
+TOP BAR
+========================= */
+
+.topBar{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+padding:10px;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+z-index:100;
+}
+
+#questionBox{
+background:rgba(255,255,255,0.95);
+padding:12px 18px;
+border-radius:18px;
+font-size:clamp(18px,2.5vw,30px);
+font-weight:bold;
+color:#333;
+max-width:80%;
+text-align:center;
+}
+
+#speakBtn{
+width:55px;
+height:55px;
+border:none;
+border-radius:50%;
+background:#ffd166;
+font-size:24px;
+}
+
+/* =========================
+IMAGE
+========================= */
+
+#slideImage{
+position:absolute;
+left:50%;
+top:55%;
+transform:translate(-50%,-50%);
+max-width:92vw;
+max-height:75vh;
+object-fit:contain;
+}
+
+/* =========================
+CANVAS
+========================= */
+
+canvas{
+position:absolute;
+inset:0;
+z-index:20;
+}
+
+/* =========================
+MESSAGE
+========================= */
+
+#nextMessage{
+position:absolute;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#6cc551;
+color:white;
+padding:12px 20px;
+border-radius:16px;
+font-size:24px;
+display:none;
+z-index:200;
+}
+
+/* =========================
+FINISH
+========================= */
+
+#finishScreen{
+position:absolute;
+inset:0;
+background:rgba(255,255,255,0.95);
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:500;
+overflow:hidden;
+}
+
+#finishScreen h1{
+font-size:50px;
+color:#ff6b6b;
+margin-bottom:20px;
+}
+
+#finishScreen p{
+font-size:28px;
+margin-bottom:30px;
+}
+
+#playAgainBtn{
+padding:16px 30px;
+font-size:24px;
+font-weight:bold;
+border:none;
+border-radius:20px;
+background:#ffb703;
+}
+
+/* =========================
+CONFETTI
+========================= */
+
+.confetti{
+position:absolute;
+width:14px;
+height:14px;
+top:-20px;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{
+transform:translateY(120vh) rotate(720deg);
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="gameContainer">
+
+<!-- LOGO -->
+
+<div id="logoScreen">
+
+<div style="text-align:center">
+
+<img src="assets/innovine-logo.png">
+
+<br><br>
+
+<button id="startBtn"
+style="
+padding:15px 30px;
+font-size:24px;
+border:none;
+border-radius:15px;
+background:#ffb703;
+color:white;">
+Start Game
+</button>
+
+</div>
+
+</div>
+
+<!-- GAME -->
+
+<div id="gameScreen">
+
+<div class="topBar">
+
+<div id="questionBox"></div>
+
+<button id="speakBtn">🔊</button>
+
+</div>
+
+<img id="slideImage">
+
+<canvas id="drawCanvas"></canvas>
+
+<div id="nextMessage">
+Great Job! ⭐
+</div>
+
+</div>
+
+<!-- FINISH -->
+
+<div id="finishScreen">
+
+<h1>Wonderful! 🎉</h1>
+
+<p>You completed all rounds!</p>
+
+<button id="playAgainBtn">
+Play Again
+</button>
+
+</div>
+
+</div>
+
+<!-- AUDIO -->
+
+<audio id="rightSound" src="assets/correct.mp3"></audio>
+
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+
+<script>
+
+/* ====================================
+ROUNDS
+==================================== */
+
+/*
+IMPORTANT:
+
+I made the answer areas MUCH tighter
+for rounds 1 and 2.
+
+Now wrong child will NOT work.
+
+Child can still loosely scribble
+on correct child.
+*/
+
+const rounds = [
+
+{
+image:'assets/downboy.png',
+question:'Circle the child who is down.',
+
+correct:{
+x:0.50,
+y:0.76,
+radius:0.14
+}
+},
+
+{
+image:'assets/upgirl.png',
+question:'Circle the child who is up.',
+
+correct:{
+x:0.56,
+y:0.22,
+radius:0.14
+}
+},
+
+{
+image:'assets/upboy.png',
+question:'Circle the child who is up.',
+
+correct:{
+x:0.44,
+y:0.22,
+radius:0.14
+}
+},
+
+{
+image:'assets/downgirl.png',
+question:'Circle the child who is down.',
+
+correct:{
+x:0.52,
+y:0.76,
+radius:0.14
+}
+}
+
+];
+
+/* ====================================
+VARIABLES
+==================================== */
+
+let currentRound = 0;
+
+const logoScreen =
+document.getElementById('logoScreen');
+
+const gameScreen =
+document.getElementById('gameScreen');
+
+const finishScreen =
+document.getElementById('finishScreen');
+
+const questionBox =
+document.getElementById('questionBox');
+
+const slideImage =
+document.getElementById('slideImage');
+
+const speakBtn =
+document.getElementById('speakBtn');
+
+const nextMessage =
+document.getElementById('nextMessage');
+
+const playAgainBtn =
+document.getElementById('playAgainBtn');
+
+const rightSound =
+document.getElementById('rightSound');
+
+const wrongSound =
+document.getElementById('wrongSound');
+
+
+
+const canvas =
+document.getElementById('drawCanvas');
+
+const ctx =
+canvas.getContext('2d');
+
+let drawing = false;
+
+let points = [];
+
+/* ====================================
+CANVAS
+==================================== */
+
+function resizeCanvas(){
+
+canvas.width = window.innerWidth;
+
+canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+
+window.addEventListener(
+'resize',
+resizeCanvas
+);
+
+/* ====================================
+START GAME
+==================================== */
+
+document.getElementById("startBtn")
+.addEventListener("click",()=>{
+
+    logoScreen.style.display='none';
+
+    gameScreen.style.display='block';
+
+    loadRound();
+
+});
+
+/* ====================================
+LOAD ROUND
+==================================== */
+
+function loadRound(){
+
+clearCanvas();
+
+const round = rounds[currentRound];
+
+slideImage.src = round.image;
+
+questionBox.innerText =
+round.question;
+
+speakQuestion(round.question);
+}
+
+/* ====================================
+VOICE
+==================================== */
+
+function speakQuestion(text){
+
+if('speechSynthesis' in window){
+
+speechSynthesis.cancel();
+
+const speech =
+new SpeechSynthesisUtterance(text);
+
+speech.rate = 0.85;
+
+speechSynthesis.speak(speech);
+}
+}
+
+speakBtn.addEventListener('click',()=>{
+
+speakQuestion(
+rounds[currentRound].question
+);
+
+});
+
+/* ====================================
+CLEAR
+==================================== */
+
+function clearCanvas(){
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+points = [];
+}
+
+/* ====================================
+POSITION
+==================================== */
+
+function getPos(e){
+
+if(e.touches){
+
+return{
+x:e.touches[0].clientX,
+y:e.touches[0].clientY
+};
+}
+
+return{
+x:e.clientX,
+y:e.clientY
+};
+}
+
+/* ====================================
+DRAWING
+==================================== */
+
+function startDraw(e){
+
+drawing = true;
+
+points = [];
+
+const pos = getPos(e);
+
+points.push(pos);
+
+ctx.beginPath();
+
+ctx.moveTo(pos.x,pos.y);
+}
+
+function draw(e){
+
+if(!drawing) return;
+
+const pos = getPos(e);
+
+points.push(pos);
+
+ctx.lineWidth = 8;
+
+ctx.lineCap = 'round';
+
+ctx.strokeStyle = '#2fb344';
+
+ctx.lineTo(pos.x,pos.y);
+
+ctx.stroke();
+}
+
+function endDraw(){
+
+if(!drawing) return;
+
+drawing = false;
+
+checkAnswer();
+}
+
+/* ====================================
+EVENTS
+==================================== */
+
+canvas.addEventListener(
+'mousedown',
+startDraw
+);
+
+canvas.addEventListener(
+'mousemove',
+draw
+);
+
+canvas.addEventListener(
+'mouseup',
+endDraw
+);
+
+canvas.addEventListener(
+'touchstart',
+startDraw,
+{passive:false}
+);
+
+canvas.addEventListener(
+'touchmove',
+draw,
+{passive:false}
+);
+
+canvas.addEventListener(
+'touchend',
+endDraw
+);
+
+/* ====================================
+CORRECT ANSWER CHECK
+==================================== */
+
+function checkAnswer(){
+
+const round = rounds[currentRound];
+
+const imgRect =
+slideImage.getBoundingClientRect();
+
+let hitCount = 0;
+
+for(let p of points){
+
+const relX =
+(p.x - imgRect.left) /
+imgRect.width;
+
+const relY =
+(p.y - imgRect.top) /
+imgRect.height;
+
+const dx =
+relX - round.correct.x;
+
+const dy =
+relY - round.correct.y;
+
+const distance =
+Math.sqrt(dx*dx + dy*dy);
+
+/*
+ONLY COUNT POINTS
+VERY CLOSE TO CORRECT CHILD
+*/
+
+if(distance < round.correct.radius){
+
+hitCount++;
+}
+}
+
+/* ====================================
+FINAL FIX
+
+Needs several points INSIDE
+correct child.
+
+Wrong child will fail.
+==================================== */
+
+if(hitCount >= 5){
+
+    rightSound.currentTime = 0;
+    rightSound.play();
+
+    nextMessage.style.display='block';
+
+rightSound.onended = ()=>{
+
+    nextMessage.style.display='none';
+
+    currentRound++;
+
+    if(currentRound >= rounds.length){
+
+        showFinishScreen();
+
+    }else{
+
+        loadRound();
+
+    }
+
+};
+
+}else{
+
+    wrongSound.currentTime = 0;
+    wrongSound.play();
+
+    setTimeout(()=>{
+
+        clearCanvas();
+
+    },700);
+
+}
+}
+
+/* ====================================
+FINISH
+==================================== */
+
+function showFinishScreen(){
+
+gameScreen.style.display='none';
+
+finishScreen.style.display='flex';
+
+createConfetti();
+}
+
+/* ====================================
+CONFETTI
+==================================== */
+
+function createConfetti(){
+
+const colors = [
+'#ff595e',
+'#ffca3a',
+'#8ac926',
+'#1982c4',
+'#6a4c93',
+'#ff924c'
+];
+
+for(let i=0;i<150;i++){
+
+const confetti =
+document.createElement('div');
+
+confetti.classList.add('confetti');
+
+confetti.style.left =
+Math.random()*100 + 'vw';
+
+confetti.style.background =
+colors[
+Math.floor(
+Math.random()*colors.length
+)
+];
+
+confetti.style.animationDuration =
+(Math.random()*3 + 3) + 's';
+
+finishScreen.appendChild(confetti);
+}
+}
+
+/* ====================================
+PLAY AGAIN
+==================================== */
+
+playAgainBtn.addEventListener(
+'click',
+()=>{
+
+document
+.querySelectorAll('.confetti')
+.forEach(c=>c.remove());
+
+currentRound = 0;
+
+clearCanvas();
+
+finishScreen.style.display='none';
+
+gameScreen.style.display='block';
+
+loadRound();
+});
+  
+</script>
+
+
+
+</body>
+</html>
