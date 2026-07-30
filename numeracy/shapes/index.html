@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<title>Shapes Matching Game</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+background:#fff;
+}
+
+.slide{
+width:100%;
+height:100%;
+display:none;
+position:relative;
+}
+
+.slide.active{
+display:flex;
+}
+
+/* SLIDE 1 */
+
+#slide1{
+justify-content:center;
+align-items:center;
+background:white;
+}
+
+#logo{
+width:min(70vw,320px);
+max-height:50vh;
+object-fit:contain;
+}
+
+.fade{
+animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+
+/* SLIDE 2 */
+
+#slide2{
+flex-direction:column;
+overflow:hidden;
+background:#f8f8f8;
+}
+
+/* COLORFUL BACKGROUND */
+
+.bg-shape{
+position:absolute;
+opacity:.25;
+pointer-events:none;
+}
+
+.star{
+color:#ffd700;
+font-size:40px;
+}
+
+.circle-bg{
+width:120px;
+height:120px;
+border-radius:50%;
+background:#ffeb3b;
+}
+
+.square-bg{
+width:90px;
+height:90px;
+background:#66bb6a;
+}
+
+.rect-bg{
+width:150px;
+height:70px;
+background:#80cbc4;
+}
+
+.triangle-bg{
+width:0;
+height:0;
+border-left:60px solid transparent;
+border-right:60px solid transparent;
+border-bottom:100px solid #5c7cfa;
+}
+
+.instruction{
+text-align:center;
+font-size:clamp(16px,2vw,28px);
+font-weight:bold;
+color:#333;
+padding:15px;
+z-index:5;
+}
+
+/* GAME AREA */
+
+.game-area{
+flex:1;
+position:relative;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:140px;
+max-width:900px;
+margin:auto;
+width:100%;
+z-index:5;
+}
+
+.column{
+display:flex;
+flex-direction:column;
+justify-content:space-evenly;
+height:100%;
+}
+
+.item{
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.shape-card,
+.object-card{
+width:min(18vw,110px);
+height:min(18vw,110px);
+border-radius:18px;
+background:white;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+border:5px solid;
+box-shadow:0 4px 10px rgba(0,0,0,.15);
+position:relative;
+}
+
+.shape-card.selected{
+transform:scale(1.08);
+}
+
+.shape-card img,
+.object-card img{
+max-width:80%;
+max-height:80%;
+object-fit:contain;
+}
+
+.circleBorder{border-color:#00bfff;}
+.squareBorder{border-color:#00cc66;}
+.triangleBorder{border-color:#ff3333;}
+.rectangleBorder{border-color:#ff9900;}
+
+.obj1{border-color:#ff66cc;}
+.obj2{border-color:#66ccff;}
+.obj3{border-color:#ffcc00;}
+.obj4{border-color:#66cc66;}
+
+#lines{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+pointer-events:none;
+}
+
+.popup{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+font-size:90px;
+z-index:999;
+display:none;
+}
+
+.tick{
+color:#00cc44;
+}
+
+.cross{
+color:#ff2222;
+}
+
+/* SLIDE 3 */
+
+#slide3{
+justify-content:center;
+align-items:center;
+flex-direction:column;
+overflow:hidden;
+background:white;
+}
+
+.amazing{
+font-size:clamp(40px,8vw,90px);
+font-weight:bold;
+color:#ff4da6;
+z-index:5;
+}
+
+.sub{
+font-size:clamp(18px,3vw,30px);
+color:#444;
+z-index:5;
+}
+
+.rain{
+position:absolute;
+top:-50px;
+font-size:35px;
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+to{
+transform:translateY(120vh) rotate(360deg);
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SLIDE 1 -->
+
+<div id="slide1" class="slide active">
+<img id="logo" src="assets/innovine-logo.png">
+</div>
+
+<!-- SLIDE 2 -->
+
+<div id="slide2" class="slide">
+
+<!-- COLORFUL BACKGROUND -->
+
+<div class="bg-shape circle-bg" style="top:40px;left:-30px;"></div>
+<div class="bg-shape circle-bg" style="top:120px;right:-40px;"></div>
+
+<div class="bg-shape square-bg" style="top:90px;left:140px;"></div>
+<div class="bg-shape square-bg" style="bottom:40px;right:160px;"></div>
+
+<div class="bg-shape rect-bg" style="top:300px;left:-20px;"></div>
+<div class="bg-shape rect-bg" style="bottom:120px;right:-10px;"></div>
+
+<div class="bg-shape triangle-bg" style="bottom:40px;left:-20px;"></div>
+<div class="bg-shape triangle-bg" style="bottom:40px;right:-20px;"></div>
+
+<div class="bg-shape star" style="top:70px;left:230px;">⭐</div>
+<div class="bg-shape star" style="top:90px;right:250px;">⭐</div>
+<div class="bg-shape star" style="top:190px;left:60px;">⭐</div>
+<div class="bg-shape star" style="top:190px;right:170px;">⭐</div>
+<div class="bg-shape star" style="bottom:210px;left:250px;">⭐</div>
+<div class="bg-shape star" style="bottom:120px;right:220px;">⭐</div>
+
+<div class="instruction">
+Identify the shape and match it to the correct object
+</div>
+
+<div class="game-area">
+
+<svg id="lines"></svg>
+
+<div class="column">
+
+<div class="item">
+<div class="shape-card triangleBorder shape" data-shape="triangle">
+<img src="assets/triangle.png">
+</div>
+</div>
+
+<div class="item">
+<div class="shape-card squareBorder shape" data-shape="square">
+<img src="assets/square.png">
+</div>
+</div>
+
+<div class="item">
+<div class="shape-card circleBorder shape" data-shape="circle">
+<img src="assets/circle.png">
+</div>
+</div>
+
+<div class="item">
+<div class="shape-card rectangleBorder shape" data-shape="rectangle">
+<img src="assets/rectangle.png">
+</div>
+</div>
+
+</div>
+
+<div class="column">
+
+<div class="item">
+<div class="object-card obj1 object" data-object="donut">
+<img src="assets/donut.png">
+</div>
+</div>
+
+<div class="item">
+<div class="object-card obj2 object" data-object="laptop">
+<img src="assets/laptop.png">
+</div>
+</div>
+
+<div class="item">
+<div class="object-card obj3 object" data-object="nachos">
+<img src="assets/nachos.png">
+</div>
+</div>
+
+<div class="item">
+<div class="object-card obj4 object" data-object="clock">
+<img src="assets/clock.png">
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="popup tick" id="tick">✓</div>
+<div class="popup cross" id="cross">✗</div>
+
+</div>
+
+<!-- SLIDE 3 -->
+
+<div id="slide3" class="slide">
+<div class="amazing">Amazing!</div>
+<div class="sub">Great Job!</div>
+</div>
+
+<audio id="clap" src="assets/clap.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
+<script>
+
+setTimeout(()=>{
+slide1.classList.remove("active");
+slide2.classList.add("active");
+},2500);
+
+const answers={
+triangle:"nachos",
+square:"clock",
+circle:"donut",
+rectangle:"laptop"
+};
+
+let selectedShape=null;
+let completed=0;
+
+const clap=document.getElementById("clap");
+const wrong=document.getElementById("wrong");
+
+document.querySelectorAll(".shape").forEach(shape=>{
+
+shape.addEventListener("click",()=>{
+
+if(shape.dataset.done==="yes") return;
+
+document.querySelectorAll(".shape").forEach(s=>{
+s.classList.remove("selected");
+});
+
+selectedShape=shape;
+shape.classList.add("selected");
+
+});
+
+});
+
+document.querySelectorAll(".object").forEach(object=>{
+
+object.addEventListener("click",()=>{
+
+if(!selectedShape) return;
+
+const shapeName=selectedShape.dataset.shape;
+const objectName=object.dataset.object;
+
+if(answers[shapeName]===objectName){
+
+showTick();
+
+clap.currentTime=0;
+clap.play();
+
+drawLine(selectedShape,object);
+
+selectedShape.dataset.done="yes";
+object.dataset.done="yes";
+
+selectedShape.style.opacity=".6";
+object.style.opacity=".6";
+
+selectedShape.classList.remove("selected");
+
+selectedShape=null;
+
+completed++;
+
+if(completed===4){
+
+setTimeout(()=>{
+slide2.classList.remove("active");
+slide3.classList.add("active");
+startRain();
+},1500);
+
+}
+
+}else{
+
+showCross();
+
+wrong.currentTime=0;
+wrong.play();
+
+selectedShape.classList.remove("selected");
+selectedShape=null;
+
+}
+
+});
+
+});
+
+function showTick(){
+const tick=document.getElementById("tick");
+tick.style.display="block";
+setTimeout(()=>{
+tick.style.display="none";
+},800);
+}
+
+function showCross(){
+const cross=document.getElementById("cross");
+cross.style.display="block";
+setTimeout(()=>{
+cross.style.display="none";
+},800);
+}
+
+function drawLine(start,end){
+
+const svg=document.getElementById("lines");
+
+const gameRect=svg.parentElement.getBoundingClientRect();
+
+const s=start.getBoundingClientRect();
+const e=end.getBoundingClientRect();
+
+const x1=s.right-gameRect.left;
+const y1=s.top+s.height/2-gameRect.top;
+
+const x2=e.left-gameRect.left;
+const y2=e.top+e.height/2-gameRect.top;
+
+const line=document.createElementNS(
+"http://www.w3.org/2000/svg",
+"line"
+);
+
+line.setAttribute("x1",x1);
+line.setAttribute("y1",y1);
+line.setAttribute("x2",x2);
+line.setAttribute("y2",y2);
+
+line.setAttribute("stroke","#00aa44");
+line.setAttribute("stroke-width","6");
+line.setAttribute("stroke-linecap","round");
+
+svg.appendChild(line);
+
+}
+
+function startRain(){
+
+const shapes=["▲","■","●","▭"];
+
+for(let i=0;i<60;i++){
+
+const el=document.createElement("div");
+
+el.className="rain";
+el.innerHTML=shapes[Math.floor(Math.random()*shapes.length)];
+
+el.style.left=Math.random()*100+"vw";
+el.style.animationDuration=(3+Math.random()*4)+"s";
+el.style.animationDelay=Math.random()*2+"s";
+
+document.getElementById("slide3").appendChild(el);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
