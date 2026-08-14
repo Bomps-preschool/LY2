@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<title>Up and Down</title>
+
+<style>
+
+/* =========================================
+   BASIC RESET
+========================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+    background:#dff3e3;
+    overscroll-behavior:none;
+}
+
+/* =========================================
+   MAIN GAME
+========================================= */
+
+#gameContainer{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+
+    background-image:url('assets/garden.jpg');
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+}
+
+/* =========================================
+   LOGO SCREEN
+========================================= */
+
+#logoScreen{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#ffffff;
+
+    z-index:1000;
+}
+
+#logoScreen img{
+    width:min(60vw,320px);
+    height:auto;
+}
+
+/* =========================================
+   GAME SCREEN
+========================================= */
+
+#gameScreen{
+    position:absolute;
+    inset:0;
+
+    display:none;
+}
+
+/* =========================================
+   QUESTION AREA
+========================================= */
+
+#topBar{
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+
+    min-height:70px;
+
+    padding:
+        max(8px, env(safe-area-inset-top))
+        10px
+        8px
+        10px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+
+    z-index:30;
+}
+
+#questionBox{
+    max-width:calc(100% - 70px);
+
+    padding:10px 16px;
+
+    background:rgba(255,255,255,0.96);
+
+    border-radius:18px;
+
+    color:#333333;
+
+    font-size:clamp(18px,2.5vw,30px);
+
+    font-weight:bold;
+
+    line-height:1.2;
+
+    text-align:center;
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,0.18);
+}
+
+#speakBtn{
+    flex-shrink:0;
+
+    width:52px;
+    height:52px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#ffd166;
+
+    font-size:24px;
+
+    box-shadow:
+        0 3px 6px rgba(0,0,0,0.18);
+
+    cursor:pointer;
+
+    -webkit-appearance:none;
+}
+
+/* =========================================
+   ACTIVITY IMAGE
+========================================= */
+
+#slideImage{
+    position:absolute;
+
+    left:50%;
+    top:55%;
+
+    transform:translate(-50%,-50%);
+
+    width:auto;
+    height:auto;
+
+    max-width:94vw;
+    max-height:76vh;
+
+    object-fit:contain;
+
+    user-select:none;
+    -webkit-user-select:none;
+
+    -webkit-user-drag:none;
+
+    pointer-events:none;
+}
+
+/* =========================================
+   DRAWING CANVAS
+========================================= */
+
+#drawCanvas{
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:100%;
+    height:100%;
+
+    z-index:20;
+
+    /*
+       IMPORTANT FOR IPHONE:
+       allows JavaScript to receive
+       finger movement correctly.
+    */
+
+    touch-action:none;
+
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+
+/* =========================================
+   SUCCESS MESSAGE
+========================================= */
+
+#nextMessage{
+    position:absolute;
+
+    left:50%;
+    bottom:18px;
+
+    transform:translateX(-50%);
+
+    display:none;
+
+    padding:10px 20px;
+
+    background:#67b84f;
+
+    color:#ffffff;
+
+    border-radius:16px;
+
+    font-size:23px;
+
+    font-weight:bold;
+
+    z-index:50;
+
+    white-space:nowrap;
+}
+
+/* =========================================
+   FINISH SCREEN
+========================================= */
+
+#finishScreen{
+    position:absolute;
+    inset:0;
+
+    display:none;
+
+    flex-direction:column;
+
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+
+    background:rgba(255,255,255,0.96);
+
+    z-index:500;
+
+    overflow:hidden;
+
+    padding:20px;
+}
+
+#finishScreen h1{
+    font-size:clamp(36px,6vw,60px);
+
+    color:#f26b5e;
+
+    margin-bottom:15px;
+}
+
+#finishScreen p{
+    font-size:clamp(20px,3vw,32px);
+
+    color:#333333;
+
+    margin-bottom:25px;
+}
+
+#playAgainBtn{
+    border:none;
+
+    background:#ffb703;
+
+    color:#333333;
+
+    padding:14px 28px;
+
+    border-radius:18px;
+
+    font-size:23px;
+
+    font-weight:bold;
+
+    box-shadow:
+        0 4px 8px rgba(0,0,0,0.18);
+
+    cursor:pointer;
+
+    -webkit-appearance:none;
+}
+
+/* =========================================
+   CONFETTI
+========================================= */
+
+.confetti{
+    position:absolute;
+
+    top:-20px;
+
+    width:12px;
+    height:16px;
+
+    pointer-events:none;
+
+    animation-name:confettiFall;
+
+    animation-timing-function:linear;
+
+    animation-fill-mode:forwards;
+}
+
+@keyframes confettiFall{
+
+    0%{
+        transform:translateY(0) rotate(0deg);
+    }
+
+    100%{
+        transform:translateY(120vh) rotate(600deg);
+    }
+
+}
+
+/* =========================================
+   SMALL MOBILE DEVICES
+========================================= */
+
+@media(max-height:600px){
+
+    #questionBox{
+        font-size:17px;
+        padding:8px 12px;
+    }
+
+    #speakBtn{
+        width:46px;
+        height:46px;
+        font-size:21px;
+    }
+
+    #slideImage{
+        max-height:72vh;
+    }
+
+    #nextMessage{
+        bottom:8px;
+        font-size:19px;
+    }
+
+}
+
+/* =========================================
+   LANDSCAPE MOBILE
+========================================= */
+
+@media(max-height:500px) and (orientation:landscape){
+
+    #topBar{
+        padding-top:5px;
+    }
+
+    #slideImage{
+        max-height:82vh;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="gameContainer">
+
+    <!-- =====================================
+         LOGO
+    ====================================== -->
+
+    <div id="logoScreen">
+
+        <img
+            src="assets/innovine-logo.png"
+            alt="Innovine">
+
+    </div>
+
+
+    <!-- =====================================
+         GAME
+    ====================================== -->
+
+    <div id="gameScreen">
+
+        <div id="topBar">
+
+            <div id="questionBox"></div>
+
+            <button
+                id="speakBtn"
+                aria-label="Hear question again">
+                🔊
+            </button>
+
+        </div>
+
+
+        <img
+            id="slideImage"
+            alt="Activity">
+
+
+        <canvas id="drawCanvas"></canvas>
+
+
+        <div id="nextMessage">
+            Great Job! ⭐
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         FINISH
+    ====================================== -->
+
+    <div id="finishScreen">
+
+        <h1>Wonderful! 🎉</h1>
+
+        <p>
+            You completed all the rounds!
+        </p>
+
+        <button id="playAgainBtn">
+            Play Again
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     AUDIO
+========================================= -->
+
+<audio
+    id="correctSound"
+    preload="auto"
+    src="assets/correct.mp3">
+</audio>
+
+<audio
+    id="wrongSound"
+    preload="auto"
+    src="assets/wrong.mp3">
+</audio>
+
+
+<script>
+
+/* =====================================================
+   ROUND DATA
+
+   These positions are based on the actual four
+   images you provided.
+
+   x and y = centre of the CORRECT CHILD
+   rx and ry = generous preschool-friendly area
+
+   The area is NOT used as a huge "accept anything"
+   zone.
+
+   Instead, we calculate the centre of the child's
+   drawing and check whether THAT centre belongs
+   around the correct child.
+===================================================== */
+
+const rounds = [
+
+    /* =========================================
+       ROUND 1
+       downboy.png
+
+       LEFT CHILD = DOWN
+       RIGHT CHILD = UP
+    ========================================= */
+
+    {
+        image:"assets/downboy.png",
+
+        question:"Circle the child who is down.",
+
+        target:{
+            x:0.215,
+            y:0.610,
+            rx:0.145,
+            ry:0.185
+        }
+    },
+
+
+    /* =========================================
+       ROUND 2
+       upgirl.png
+
+       GIRL ON LEFT = UP
+       BOY ON RIGHT = DOWN
+    ========================================= */
+
+    {
+        image:"assets/upgirl.png",
+
+        question:"Circle the child who is up.",
+
+        target:{
+            x:0.265,
+            y:0.385,
+            rx:0.145,
+            ry:0.185
+        }
+    },
+
+
+    /* =========================================
+       ROUND 3
+       upboy.png
+
+       BOY AT TOP = UP
+       BOY AT BOTTOM = DOWN
+    ========================================= */
+
+    {
+        image:"assets/upboy.png",
+
+        question:"Circle the child who is up.",
+
+        target:{
+            x:0.595,
+            y:0.280,
+            rx:0.135,
+            ry:0.165
+        }
+    },
+
+
+    /* =========================================
+       ROUND 4
+       downgirl.png
+
+       GIRL ON SLIDE = DOWN
+       BOY AT TOP = UP
+    ========================================= */
+
+    {
+        image:"assets/downgirl.png",
+
+        question:"Circle the girl who is down.",
+
+        target:{
+            x:0.595,
+            y:0.705,
+            rx:0.190,
+            ry:0.190
+        }
+    }
+
+];
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let currentRound = 0;
+
+let drawing = false;
+
+let points = [];
+
+let pointerId = null;
+
+let answerLocked = false;
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const logoScreen =
+    document.getElementById("logoScreen");
+
+const gameScreen =
+    document.getElementById("gameScreen");
+
+const finishScreen =
+    document.getElementById("finishScreen");
+
+const questionBox =
+    document.getElementById("questionBox");
+
+const speakBtn =
+    document.getElementById("speakBtn");
+
+const slideImage =
+    document.getElementById("slideImage");
+
+const nextMessage =
+    document.getElementById("nextMessage");
+
+const playAgainBtn =
+    document.getElementById("playAgainBtn");
+
+const correctSound =
+    document.getElementById("correctSound");
+
+const wrongSound =
+    document.getElementById("wrongSound");
+
+const canvas =
+    document.getElementById("drawCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+/* =====================================================
+   CANVAS RESIZE
+===================================================== */
+
+function resizeCanvas(){
+
+    const dpr =
+        Math.min(window.devicePixelRatio || 1,2);
+
+    canvas.width =
+        Math.round(window.innerWidth * dpr);
+
+    canvas.height =
+        Math.round(window.innerHeight * dpr);
+
+    canvas.style.width =
+        window.innerWidth + "px";
+
+    canvas.style.height =
+        window.innerHeight + "px";
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+    ctx.lineWidth = 7;
+
+    ctx.lineCap = "round";
+
+    ctx.lineJoin = "round";
+
+    ctx.strokeStyle = "#2eaa4f";
+}
+
+resizeCanvas();
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+
+/* =====================================================
+   START GAME
+
+   Logo remains for 5 seconds.
+===================================================== */
+
+setTimeout(function(){
+
+    logoScreen.style.display = "none";
+
+    gameScreen.style.display = "block";
+
+    loadRound();
+
+},5000);
+
+
+/* =====================================================
+   LOAD ROUND
+===================================================== */
+
+function loadRound(){
+
+    answerLocked = false;
+
+    clearDrawing();
+
+    const round =
+        rounds[currentRound];
+
+    questionBox.textContent =
+        round.question;
+
+    slideImage.src =
+        round.image;
+
+    /*
+       Wait until image is loaded before the child
+       starts interacting.
+    */
+
+    slideImage.onload = function(){
+
+        speakQuestion(
+            round.question
+        );
+
+    };
+
+    /*
+       If browser already has image cached,
+       make sure narration still happens.
+    */
+
+    if(slideImage.complete){
+
+        setTimeout(function(){
+
+            speakQuestion(
+                round.question
+            );
+
+        },100);
+
+    }
+
+}
+
+
+/* =====================================================
+   VOICE
+===================================================== */
+
+function speakQuestion(text){
+
+    if(
+        "speechSynthesis" in window
+    ){
+
+        try{
+
+            window.speechSynthesis.cancel();
+
+            const utterance =
+                new SpeechSynthesisUtterance(text);
+
+            utterance.rate = 0.82;
+
+            utterance.pitch = 1;
+
+            utterance.volume = 1;
+
+            window.speechSynthesis.speak(
+                utterance
+            );
+
+        }catch(error){
+
+            console.log(
+                "Speech not available."
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   SPEAKER BUTTON
+===================================================== */
+
+speakBtn.addEventListener(
+    "click",
+    function(event){
+
+        event.preventDefault();
+
+        speakQuestion(
+            rounds[currentRound].question
+        );
+
+    }
+);
+
+
+/* =====================================================
+   CLEAR DRAWING
+===================================================== */
+
+function clearDrawing(){
+
+    ctx.clearRect(
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight
+    );
+
+    points = [];
+
+}
+
+
+/* =====================================================
+   GET POINTER POSITION
+
+   Pointer Events give us the same coordinate system
+   for:
+
+   - iPhone finger
+   - Android finger
+   - iPad
+   - mouse
+   - trackpad
+===================================================== */
+
+function getPointerPosition(event){
+
+    return {
+
+        x:event.clientX,
+
+        y:event.clientY
+
+    };
+
+}
+
+
+/* =====================================================
+   START DRAWING
+
+   POINTERDOWN works with BOTH mouse and touch.
+===================================================== */
+
+canvas.addEventListener(
+    "pointerdown",
+    function(event){
+
+        if(answerLocked){
+            return;
+        }
+
+        event.preventDefault();
+
+        /*
+           Only one finger/mouse pointer at a time.
+        */
+
+        if(drawing){
+            return;
+        }
+
+        drawing = true;
+
+        pointerId =
+            event.pointerId;
+
+        points = [];
+
+        /*
+           iPhone Safari:
+           keep the pointer captured even if the finger
+           moves slightly outside the canvas.
+        */
+
+        try{
+
+            canvas.setPointerCapture(
+                event.pointerId
+            );
+
+        }catch(error){}
+
+        const pos =
+            getPointerPosition(event);
+
+        points.push(pos);
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            pos.x,
+            pos.y
+        );
+
+    },
+    {passive:false}
+);
+
+
+/* =====================================================
+   DRAW
+
+   The green line follows the child's finger/mouse.
+===================================================== */
+
+canvas.addEventListener(
+    "pointermove",
+    function(event){
+
+        if(!drawing){
+            return;
+        }
+
+        if(
+            event.pointerId !== pointerId
+        ){
+            return;
+        }
+
+        event.preventDefault();
+
+        const pos =
+            getPointerPosition(event);
+
+        points.push(pos);
+
+        ctx.lineTo(
+            pos.x,
+            pos.y
+        );
+
+        ctx.stroke();
+
+    },
+    {passive:false}
+);
+
+
+/* =====================================================
+   END DRAWING
+===================================================== */
+
+function finishDrawing(event){
+
+    if(!drawing){
+        return;
+    }
+
+    if(
+        event.pointerId !== pointerId
+    ){
+        return;
+    }
+
+    event.preventDefault();
+
+    drawing = false;
+
+    try{
+
+        canvas.releasePointerCapture(
+            event.pointerId
+        );
+
+    }catch(error){}
+
+    pointerId = null;
+
+    /*
+       Give the browser a tiny moment to finish
+       receiving the final pointer position.
+    */
+
+    setTimeout(function(){
+
+        checkAnswer();
+
+    },30);
+
+}
+
+
+/* =====================================================
+   POINTER UP
+===================================================== */
+
+canvas.addEventListener(
+    "pointerup",
+    finishDrawing,
+    {passive:false}
+);
+
+
+/* =====================================================
+   POINTER CANCEL
+
+   Important for iPhone when Safari interrupts
+   a touch.
+===================================================== */
+
+canvas.addEventListener(
+    "pointercancel",
+    function(event){
+
+        if(!drawing){
+            return;
+        }
+
+        drawing = false;
+
+        pointerId = null;
+
+        /*
+           Do not accidentally mark a cancelled
+           touch as correct.
+        */
+
+        clearDrawing();
+
+    },
+    {passive:false}
+);
+
+
+/* =====================================================
+   POINTER LEAVE
+
+   We DO NOT check the answer here.
+
+   This is important for mouse users.
+===================================================== */
+
+canvas.addEventListener(
+    "pointerleave",
+    function(event){
+
+        /*
+           Pointer capture keeps the drawing alive.
+           Therefore nothing happens here.
+        */
+
+    }
+);
+
+
+/* =====================================================
+   DISTANCE HELPER
+===================================================== */
+
+function distanceBetween(
+    x1,
+    y1,
+    x2,
+    y2
+){
+
+    const dx =
+        x1 - x2;
+
+    const dy =
+        y1 - y2;
+
+    return Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+}
+
+
+/* =====================================================
+   CHECK ANSWER
+
+   THIS IS THE IMPORTANT PART.
+
+   We do NOT ask:
+   "Did the drawing touch a giant answer box?"
+
+   Instead we find the centre of the child's
+   actual drawing.
+
+   Example:
+
+   Child circles LEFT child:
+        drawing centre = LEFT child
+        => CORRECT
+
+   Child circles RIGHT child:
+        drawing centre = RIGHT child
+        => WRONG
+
+   This prevents the large-area problem from
+   the previous versions.
+===================================================== */
+
+function checkAnswer(){
+
+    if(answerLocked){
+        return;
+    }
+
+    const round =
+        rounds[currentRound];
+
+    const imageRect =
+        slideImage.getBoundingClientRect();
+
+    /*
+       Need at least one point.
+    */
+
+    if(points.length === 0){
+
+        showWrong();
+
+        return;
+    }
+
+
+    /* =========================================
+       CONVERT SCREEN POINTS TO IMAGE %
+    ========================================= */
+
+    const imagePoints = [];
+
+    for(
+        let i = 0;
+        i < points.length;
+        i++
+    ){
+
+        const p = points[i];
+
+        /*
+           Ignore points completely outside
+           the actual image.
+        */
+
+        if(
+            p.x < imageRect.left ||
+            p.x > imageRect.right ||
+            p.y < imageRect.top ||
+            p.y > imageRect.bottom
+        ){
+
+            continue;
+
+        }
+
+        const x =
+            (p.x - imageRect.left) /
+            imageRect.width;
+
+        const y =
+            (p.y - imageRect.top) /
+            imageRect.height;
+
+        imagePoints.push({
+            x:x,
+            y:y
+        });
+
+    }
+
+
+    if(imagePoints.length === 0){
+
+        showWrong();
+
+        return;
+    }
+
+
+    /* =========================================
+       FIND DRAWING CENTRE
+
+       Average position is much more tolerant
+       of an imperfect preschool circle than
+       requiring a mathematically perfect circle.
+    ========================================= */
+
+    let totalX = 0;
+
+    let totalY = 0;
+
+    for(
+        let i = 0;
+        i < imagePoints.length;
+        i++
+    ){
+
+        totalX +=
+            imagePoints[i].x;
+
+        totalY +=
+            imagePoints[i].y;
+
+    }
+
+    const centreX =
+        totalX /
+        imagePoints.length;
+
+    const centreY =
+        totalY /
+        imagePoints.length;
+
+
+    /* =========================================
+       CHECK DRAWING SIZE
+
+       A tiny accidental mouse click should not
+       automatically become a circle.
+
+       But we keep this very small so a 3-year-old
+       does not need a perfect circle.
+    ========================================= */
+
+    let minX = 1;
+    let maxX = 0;
+
+    let minY = 1;
+    let maxY = 0;
+
+    for(
+        let i = 0;
+        i < imagePoints.length;
+        i++
+    ){
+
+        const p =
+            imagePoints[i];
+
+        if(p.x < minX){
+            minX = p.x;
+        }
+
+        if(p.x > maxX){
+            maxX = p.x;
+        }
+
+        if(p.y < minY){
+            minY = p.y;
+        }
+
+        if(p.y > maxY){
+            maxY = p.y;
+        }
+
+    }
+
+    const drawingWidth =
+        maxX - minX;
+
+    const drawingHeight =
+        maxY - minY;
+
+
+    /* =========================================
+       DISTANCE FROM TARGET CENTRE
+    ========================================= */
+
+    const dx =
+        (centreX - round.target.x)
+        /
+        round.target.rx;
+
+    const dy =
+        (centreY - round.target.y)
+        /
+        round.target.ry;
+
+    const targetDistance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    /* =========================================
+       ANSWER RULE
+
+       1. Centre of drawing must be around
+          the correct child.
+
+       2. Drawing must have a little movement.
+
+       This accepts a messy circle but prevents
+       a random wrong-child stroke from being
+       accepted.
+    ========================================= */
+
+    const centreIsCorrect =
+        targetDistance <= 1;
+
+
+    const hasEnoughMovement =
+        imagePoints.length >= 2 &&
+        (
+            drawingWidth >= 0.015 ||
+            drawingHeight >= 0.015
+        );
+
+
+    if(
+        centreIsCorrect &&
+        hasEnoughMovement
+    ){
+
+        showCorrect();
+
+    }else{
+
+        showWrong();
+
+    }
+
+}
+
+
+/* =====================================================
+   CORRECT ANSWER
+===================================================== */
+
+function showCorrect(){
+
+    answerLocked = true;
+
+    correctSound.currentTime = 0;
+
+    const playPromise =
+        correctSound.play();
+
+    if(
+        playPromise !== undefined
+    ){
+
+        playPromise.catch(
+            function(error){
+                console.log(
+                    "Correct sound could not play."
+                );
+            }
+        );
+
+    }
+
+    nextMessage.style.display =
+        "block";
+
+    setTimeout(function(){
+
+        nextMessage.style.display =
+            "none";
+
+        currentRound++;
+
+        if(
+            currentRound >=
+            rounds.length
+        ){
+
+            showFinishScreen();
+
+        }else{
+
+            loadRound();
+
+        }
+
+    },1300);
+
+}
+
+
+/* =====================================================
+   WRONG ANSWER
+===================================================== */
+
+function showWrong(){
+
+    answerLocked = true;
+
+    wrongSound.currentTime = 0;
+
+    const playPromise =
+        wrongSound.play();
+
+    if(
+        playPromise !== undefined
+    ){
+
+        playPromise.catch(
+            function(error){
+                console.log(
+                    "Wrong sound could not play."
+                );
+            }
+        );
+
+    }
+
+    /*
+       Keep the green circle visible briefly,
+       then remove it.
+    */
+
+    setTimeout(function(){
+
+        clearDrawing();
+
+        answerLocked = false;
+
+    },650);
+
+}
+
+
+/* =====================================================
+   FINISH SCREEN
+===================================================== */
+
+function showFinishScreen(){
+
+    if(
+        "speechSynthesis" in window
+    ){
+
+        window.speechSynthesis.cancel();
+
+    }
+
+    gameScreen.style.display =
+        "none";
+
+    finishScreen.style.display =
+        "flex";
+
+    createConfetti();
+
+}
+
+
+/* =====================================================
+   CONFETTI
+===================================================== */
+
+function createConfetti(){
+
+    const confettiColours = [
+
+        "#e76f51",
+        "#f4a261",
+        "#2a9d8f",
+        "#457b9d",
+        "#e9c46a",
+        "#9b5de5"
+
+    ];
+
+    for(
+        let i = 0;
+        i < 100;
+        i++
+    ){
+
+        const piece =
+            document.createElement("div");
+
+        piece.className =
+            "confetti";
+
+        piece.style.left =
+            Math.random() * 100 + "vw";
+
+        piece.style.backgroundColor =
+            confettiColours[
+                Math.floor(
+                    Math.random() *
+                    confettiColours.length
+                )
+            ];
+
+        piece.style.animationDuration =
+            (3 + Math.random() * 3)
+            + "s";
+
+        piece.style.animationDelay =
+            (Math.random() * 1.5)
+            + "s";
+
+        finishScreen.appendChild(
+            piece
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PLAY AGAIN
+===================================================== */
+
+playAgainBtn.addEventListener(
+    "click",
+    function(){
+
+        /*
+           Remove old confetti.
+        */
+
+        const oldConfetti =
+            finishScreen.querySelectorAll(
+                ".confetti"
+            );
+
+        oldConfetti.forEach(
+            function(piece){
+
+                piece.remove();
+
+            }
+        );
+
+
+        currentRound = 0;
+
+        answerLocked = false;
+
+        clearDrawing();
+
+        finishScreen.style.display =
+            "none";
+
+        gameScreen.style.display =
+            "block";
+
+        loadRound();
+
+    }
+);
+
+
+/* =====================================================
+   PREVENT UNWANTED PAGE GESTURES
+   IMPORTANT FOR IPHONE
+===================================================== */
+
+document.addEventListener(
+    "gesturestart",
+    function(event){
+
+        event.preventDefault();
+
+    },
+    {passive:false}
+);
+
+document.addEventListener(
+    "gesturechange",
+    function(event){
+
+        event.preventDefault();
+
+    },
+    {passive:false}
+);
+
+document.addEventListener(
+    "gestureend",
+    function(event){
+
+        event.preventDefault();
+
+    },
+    {passive:false}
+);
+
+</script>
+
+</body>
+</html>
